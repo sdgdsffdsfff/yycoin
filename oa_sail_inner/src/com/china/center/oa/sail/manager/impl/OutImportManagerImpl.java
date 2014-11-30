@@ -2502,10 +2502,12 @@ public class OutImportManagerImpl implements OutImportManager
 		
 		for (OutImportBean each : list)
 		{
-			if (each.getItype() != 2)
-			{
-				break;
-			}
+            //预占库存只针对招行销售单
+            //2014/11/30 去掉此限制
+//			if (each.getItype() != 2)
+//			{
+//				break;
+//			}
 			
 			if (each.getPreUse() == OutImportConstant.PREUSE_YES)
 			{
