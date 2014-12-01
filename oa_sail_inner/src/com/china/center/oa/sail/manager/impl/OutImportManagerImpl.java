@@ -2407,10 +2407,12 @@ public class OutImportManagerImpl implements OutImportManager
 		// 1.根据产品进行分组
 		for (OutImportBean each : list)
 		{
-			if (each.getItype() != 2)
-			{
-				break;
-			}
+            //预占库存只针对招行销售单
+            //2014/12/1 去掉此限制
+//			if (each.getItype() != 2)
+//			{
+//				break;
+//			}
 			
 			if (each.getPreUse() == OutImportConstant.PREUSE_YES)
 			{
