@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.china.center.oa.publics.manager.CommonMailManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,6 +62,8 @@ public class ShipManagerImpl implements ShipManager
 	private DepotDAO depotDAO = null;
 	
 	private PackageVSCustomerDAO packageVSCustomerDAO = null;
+
+    private CommonMailManager commonMailManager = null;
 	
 	public ShipManagerImpl()
 	{
@@ -511,8 +514,16 @@ public class ShipManagerImpl implements ShipManager
 		
 		return true;
 	}
-	
-	/**
+
+    @Override
+    public void sendMailForShipping() throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        long now = System.currentTimeMillis();
+        System.out.println("**************run schedule****************"+now);
+        this.commonMailManager.sendMail("smartman2014@qq.com","test","test message");
+    }
+
+    /**
 	 * @return the preConsignDAO
 	 */
 	public PreConsignDAO getPreConsignDAO()
@@ -655,4 +666,12 @@ public class ShipManagerImpl implements ShipManager
 	{
 		this.packageVSCustomerDAO = packageVSCustomerDAO;
 	}
+
+    public CommonMailManager getCommonMailManager() {
+        return commonMailManager;
+    }
+
+    public void setCommonMailManager(CommonMailManager commonMailManager) {
+        this.commonMailManager = commonMailManager;
+    }
 }

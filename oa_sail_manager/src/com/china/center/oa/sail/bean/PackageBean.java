@@ -132,6 +132,11 @@ public class PackageBean implements Serializable
      * 销售单 紧急 标识 1:紧急
      */
     private int emergency = 0;
+
+    /**
+     *发送邮件标识 1:已发送
+     */
+    private int sendMailFlag = 0;
 	
 	@Ignore
 	List<PackageItemBean> itemList = null;
@@ -435,4 +440,12 @@ public class PackageBean implements Serializable
 	public void setEmergency(int emergency) {
 		this.emergency = emergency;
 	}
+
+    public int getSendMailFlag() {
+        return sendMailFlag;
+    }
+
+    public void setSendMailFlag(int sendMailFlag) {
+        this.sendMailFlag = sendMailFlag;
+    }
 }

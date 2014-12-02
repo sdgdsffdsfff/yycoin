@@ -88,7 +88,21 @@
         class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="createOAOrderFromAppJob" />
         <property name="cronExpression" value="0 0/10 * * * ?" />
-    </bean>        
+    </bean>
+
+    <!--job to send mail for shipping info -->
+    <bean id="sendMailForShipping"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="shipManager" />
+        <property name="targetMethod" value="sendMailForShipping" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="sendMailForShippingTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="sendMailForShipping" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
     
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
@@ -100,6 +114,7 @@
                 <ref bean="handleCheckPayTrigger" />
                 <ref bean="statsPersonalSwatchTrigger" />
                 <ref bean="createOAOrderFromAppTrigger"/>
+                <ref bean="sendMailForShippingTrigger"/>
             </list>
         </property>
     </bean>

@@ -18,6 +18,8 @@ public interface ShipManager
 	boolean updatePrintStatus(String pickupId, int index_pos) throws MYException;
 	
 	void createPackage(PreConsignBean pre, OutVO out) throws MYException;
+
+    void sendMailForShipping() throws MYException;
 //	
 //	void createInsPackage(PreConsignBean pre, String insId) throws MYException;
 }
