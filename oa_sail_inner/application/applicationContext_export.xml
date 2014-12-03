@@ -123,4 +123,6 @@
 	<osgi:service ref="bankSailDAO" interface="com.china.center.oa.sail.dao.BankSailDAO" />
 	
 	<osgi:service ref="estimateProfitDAO" interface="com.china.center.oa.sail.dao.EstimateProfitDAO" />
+
+    <osgi:service ref="branchRelationDAO" interface="com.china.center.oa.sail.dao.BranchRelationDAO" />
 </beans>

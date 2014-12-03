@@ -123,5 +123,7 @@
 	<bean id="bankSailDAO" class="com.china.center.oa.sail.dao.impl.BankSailDAOImpl" />
 	
 	<bean id="estimateProfitDAO" class="com.china.center.oa.sail.dao.impl.EstimateProfitDAOImpl" />
+
+    <bean id="branchRelationDAO" class="com.china.center.oa.sail.dao.impl.BranchRelationDAOImpl" />
 	
 </beans>

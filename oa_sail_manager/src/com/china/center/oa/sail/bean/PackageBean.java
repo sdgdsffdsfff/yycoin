@@ -441,10 +441,16 @@ public class PackageBean implements Serializable
 		this.emergency = emergency;
 	}
 
+    /**
+     * @return the sendMailFlag
+     */
     public int getSendMailFlag() {
         return sendMailFlag;
     }
 
+    /**
+     * @param sendMailFlag the sendMailFlag to set
+     */
     public void setSendMailFlag(int sendMailFlag) {
         this.sendMailFlag = sendMailFlag;
     }
