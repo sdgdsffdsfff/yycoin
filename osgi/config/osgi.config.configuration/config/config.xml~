@@ -12,7 +12,7 @@
 	<entry key="flowAtt">d:/oa_attachment/flowAtt</entry>
 	<entry key="systemAtt">d:/oa_attachment/flow</entry>
 	<entry key="mailAttchmentPath">d:/oa_attachment/mail</entry>
-	<entry key="shippingAttachmentPath">d:/oa_attachment/shipping</entry>
+	<entry key="shippingAttchmentPath">d:/oa_attachment/shipping</entry>
 	<entry key="tcpAttachmentPath">d:/oa_attachment/tcp</entry>
 	<entry key="backPrePayAttachmentPath">d:/oa_attachment/backprepay</entry>
 	<entry key="outBackAttachmentPath">d:/oa_attachment/outback</entry>	

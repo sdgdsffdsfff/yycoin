@@ -1,5 +1,9 @@
 package com.china.center.oa.sail.manager.impl;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,7 +11,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.publics.manager.CommonMailManager;
+import com.china.center.tools.MathTools;
+import jxl.Workbook;
+import jxl.format.PageOrientation;
+import jxl.format.PaperSize;
+import jxl.write.*;
+import jxl.write.biff.RowsExceededException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -520,7 +531,417 @@ public class ShipManagerImpl implements ShipManager
         //To change body of implemented methods use File | Settings | File Templates.
         long now = System.currentTimeMillis();
         System.out.println("**************run schedule****************"+now);
-        this.commonMailManager.sendMail("smartman2014@qq.com","test","test message");
+//        this.commonMailManager.sendMail("smartman2014@qq.com","test","test message");
+
+
+        ConditionParse con = new ConditionParse();
+
+        con.addWhereStr();
+        con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
+
+        con.addIntCondition("PackageBean.status", "=", 2);
+        System.out.println("***********con**************"+con);
+
+//        setInnerCondition(distVO, location, con);
+
+        List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
+        if (!ListTools.isEmptyOrNull(packageList))
+        {
+            for (PackageVO vo : packageList){
+                System.out.println("************VO****"+vo);
+                String fileName = getShippingAttachmentPath() + "/" + vo.getCustomerName()
+                        + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
+                System.out.println("************fileName****"+fileName);
+                createMailAttachment(vo, fileName);
+
+                // check file either exists
+                File file = new File(fileName);
+
+                if (!file.exists())
+                {
+                    throw new MYException("邮件附件未成功生成");
+                }
+
+                // send mail contain attachment
+                commonMailManager.sendMail("smartman2014@qq.com", "发货信息邮件",
+                        "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。", fileName);
+
+                //Update sendMailFlag to 1
+                PackageBean packBean = packageDAO.find(vo.getId());
+                packBean.setSendMailFlag(1);
+                this.packageDAO.updateEntityBean(packBean);
+            }
+        } else {
+            System.out.println("**************no Vo found***************");
+        }
+
+    }
+
+    /**
+     * @return the mailAttchmentPath
+     */
+    public String getShippingAttachmentPath()
+    {
+        return ConfigLoader.getProperty("shippingAttachmentPath");
+    }
+
+    private void createMailAttachment(PackageVO bean, String fileName)
+    {
+        WritableWorkbook wwb = null;
+
+        WritableSheet ws = null;
+
+        OutputStream out = null;
+
+        String content = "永银公司为正确反映双方的往来，特与贵公司核实往来账项等事项。下列信息出自本公司系统记录，如与贵公司记录相符，请在本函下端“信息证明无误”处签章证明；如有不符，请在“信息不符”处列明不符项目。如存在与本公司有关的未列入本函的其他项目，也请在“信息不符”处列出的这些项目的金额及其他详细资料。";
+
+        String content2 = "回函地址：南京市秦淮区应天大街388号1865创意园c2栋   邮编：210006";
+
+        String content3 = "电话：  4006518859           传真：  025-51885907      联系人：永银商务部";
+
+        String content4 = "1．本公司至今与贵公司未结款商品的往来账项列示如下：";
+
+        String content5 = "备注，以上均为已发货未付款，请贵公司核实，谢谢！";
+
+        String content6 = "本函仅为复核账目之用，并非催款结算。若款项在上述日期之后已经付清，仍请及时函复为盼。";
+
+//        List<FeedBackDetailBean> detailList = bean.getDetailList();
+//
+//        List<FeedBackDetailBean> mergeList = merge(detailList);
+
+        try
+        {
+            out = new FileOutputStream(fileName);
+
+            // create a excel
+            wwb = Workbook.createWorkbook(out);
+
+            ws = wwb.createSheet("发货信息", 0);
+
+            // 横向
+            ws.setPageSetup(PageOrientation.LANDSCAPE.LANDSCAPE, PaperSize.A4,0.5d,0.5d);
+
+            // 标题字体
+            WritableFont font = new WritableFont(WritableFont.ARIAL, 11,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
+
+            WritableFont font2 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
+
+            WritableFont font3 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.NO_BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLACK);
+
+            WritableFont font4 = new WritableFont(WritableFont.ARIAL, 9,
+                    WritableFont.BOLD, false,
+                    jxl.format.UnderlineStyle.NO_UNDERLINE,
+                    jxl.format.Colour.BLUE);
+
+            WritableCellFormat format = new WritableCellFormat(font);
+
+            format.setAlignment(jxl.format.Alignment.CENTRE);
+            format.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+
+            WritableCellFormat format2 = new WritableCellFormat(font2);
+
+            format2.setAlignment(jxl.format.Alignment.LEFT);
+            format2.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+            format2.setWrap(true);
+
+            WritableCellFormat format21 = new WritableCellFormat(font2);
+            format21.setAlignment(jxl.format.Alignment.RIGHT);
+
+            WritableCellFormat format3 = new WritableCellFormat(font3);
+            format3.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+
+            WritableCellFormat format31 = new WritableCellFormat(font3);
+            format31.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+            format31.setAlignment(jxl.format.Alignment.RIGHT);
+
+            WritableCellFormat format4 = new WritableCellFormat(font4);
+            format4.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+
+            WritableCellFormat format41 = new WritableCellFormat(font4);
+            format41.setBorder(jxl.format.Border.ALL,
+                    jxl.format.BorderLineStyle.THIN);
+            format41.setAlignment(jxl.format.Alignment.CENTRE);
+            format41.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
+
+            int i = 0, j = 0, i1 = 1;
+
+            // 完成标题
+            ws.addCell(new Label(0, i, "物流发货信息", format));
+
+//            setWS(ws, i, 800, true);
+
+            ws.setColumnView(0, 5);
+            ws.setColumnView(1, 40);
+            ws.setColumnView(2, 10);
+            ws.setColumnView(3, 10);
+            ws.setColumnView(4, 10);
+            ws.setColumnView(5, 10);
+            ws.setColumnView(6, 10);
+            ws.setColumnView(7, 10);
+            ws.setColumnView(8, 10);
+            ws.setColumnView(9, 10);
+
+//            第三行
+            i++;
+            ws.addCell(new Label(0, i, bean.getCustomerName() + " 公司", format2));
+            setWS(ws, i, 300, true);
+//
+//            i++;
+//            // 第4行
+//            ws.addCell(new Label(0, i, content, format2));
+//            setWS(ws, i, 1000, true);
+//
+//            // 第5行
+//            i++;
+//            ws.addCell(new Label(0, i, content2, format2));
+//            setWS(ws, i, 300, true);
+//            // 第6行
+//            i++;
+//            ws.addCell(new Label(0, i, content3, format2));
+//            setWS(ws, i, 300, true);
+//            // 第7行
+//            i++;
+//            ws.addCell(new Label(0, i, content4, format2));
+//            setWS(ws, i, 300, true);
+//            // 第8行
+//            i++;
+//            ws.addCell(new Label(0, i, "单位：元", format21));
+//            setWS(ws, i, 300, true);
+//
+//            i++;
+//            // 正文表格
+//            ws.addCell(new Label(0, i, "序号", format3));
+//
+//            setWS(ws, i, 300, false);
+
+            ws.addCell(new Label(1, i, "产品名称", format3));
+
+            ws.addCell(new Label(2, i, "数量", format3));
+
+            ws.addCell(new Label(3, i, "银行订单好", format3));
+
+            ws.addCell(new Label(4, i, "回款数量", format3));
+
+            ws.addCell(new Label(5, i, "回款金额", format3));
+
+            ws.addCell(new Label(6, i, "退货数量", format3));
+            ws.addCell(new Label(7, i, "退货金额", format3));
+
+            ws.addCell(new Label(8, i, "应收数量", format3));
+            ws.addCell(new Label(9, i, "应收金额", format3));
+
+            int allAmount = 0, amount = 0, hasBack = 0, noPayAmount = 0, hadAmount = 0;
+
+            double allMoney = 0.0d, money = 0.0d, backMoney = 0.0d, noPayMoney = 0.0d, hadMoney = 0.0d;
+
+            i++;
+
+//            for (FeedBackDetailBean each : mergeList)
+//            {
+//                ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
+//                setWS(ws, i, 300, false);
+//                ws.addCell(new Label(j++, i, each.getProductName(), format3));
+//                ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()
+//                        + each.getHasBack()), format31));
+//                ws.addCell(new Label(j++, i, String.valueOf(MathTools.formatNum2(each.getMoney()
+//                        + each.getBackMoney())), format31));
+//
+//                ws.addCell(new Label(j++, i, String.valueOf(each.getAmount() - each.getNoPayAmount()),
+//                        format31));
+//                ws.addCell(new Label(j++, i,
+//                        String.valueOf(MathTools.formatNum2(each.getMoney() - each.getNoPayMoneys())), format31));
+//
+//                ws.addCell(new Label(j++, i, String.valueOf(each.getHasBack()),
+//                        format31));
+//                ws.addCell(new Label(j++, i,
+//                        String.valueOf(MathTools.formatNum2(each.getBackMoney())), format31));
+//                ws.addCell(new Label(j++, i, String.valueOf(each.getNoPayAmount()),
+//                        format31));
+//                ws.addCell(new Label(j++, i, String.valueOf(MathTools.formatNum2(each.getNoPayMoneys())),
+//                        format31));
+//
+//                allAmount += each.getAmount() + each.getHasBack();
+//                amount += each.getAmount();
+//                hasBack += each.getHasBack();
+//                noPayAmount += each.getNoPayAmount();
+//                hadAmount += each.getAmount() - each.getNoPayAmount();
+//
+//                allMoney += each.getMoney() + each.getBackMoney();
+//                money += each.getMoney();
+//                backMoney += each.getBackMoney();
+//                noPayMoney += each.getNoPayMoneys();
+//                hadMoney += each.getMoney() - each.getNoPayMoneys();
+//
+//                j = 0;
+//                i++;
+//            }
+
+            // 第i + 1 行
+            ws.addCell(new Label(0, i, "合计:", format31));
+            //setWS(ws, i, 300, false);
+
+            ws.mergeCells(0, i, 1, i);
+
+            ws.addCell(new Label(2, i, String.valueOf(allAmount), format31));
+            ws.addCell(new Label(3, i, String.valueOf(MathTools.formatNum2(allMoney)), format31));
+            ws.addCell(new Label(4, i, String.valueOf(hadAmount), format31));
+            ws.addCell(new Label(5, i, String.valueOf(MathTools.formatNum2(hadMoney)), format31));
+            ws.addCell(new Label(6, i, String.valueOf(hasBack), format31));
+            ws.addCell(new Label(7, i, String.valueOf(MathTools.formatNum2(backMoney)), format31));
+            ws.addCell(new Label(8, i, String.valueOf(noPayAmount), format31));
+            ws.addCell(new Label(9, i, String.valueOf(MathTools.formatNum2(noPayMoney)), format31));
+
+            i++;
+
+//            ws.addCell(new Label(0, i, TimeTools.changeFormat(
+//                    TimeTools.changeTimeToDate(bean.getStatsStar()),
+//                    "yyyy-MM-dd", "yyyy年MM月dd日") + "至"
+//                    + TimeTools.changeFormat(
+//                    TimeTools.changeTimeToDate(bean.getStatsEnd()),
+//                    "yyyy-MM-dd", "yyyy年MM月dd日") + " 应收合计：", format3));
+
+            ws.mergeCells(0, i, 2, i);
+            //setWS(ws, i, 300, false);
+
+            ws.addCell(new Label(3, i, String.valueOf(MathTools.formatNum2(noPayMoney)), format31));
+
+            ws.mergeCells(3, i, 9, i);
+
+            i++;
+
+            ws.addCell(new Label(0, i, "预收款余额：", format3));
+
+            ws.mergeCells(0, i, 2, i);
+//            setWS(ws, i, 300, false);
+
+//            ws.addCell(new Label(3, i, String.valueOf(MathTools.formatNum2(getPreMoney(bean
+//                    .getCustomerId()))), format31));
+
+            ws.mergeCells(3, i, 9, i);
+
+//            i++;
+//            ws.addCell(new Label(0, i, content5, format2));
+//            setWS(ws, i, 300, true);
+//
+//            i++;
+//            ws.addCell(new Label(0, i, content6, format2));
+//            setWS(ws, i, 300, true);
+//            i++;
+//
+//            ws.addCell(new Label(0, i, "永银文化创意产业发展有限责任公司", format21));
+//            setWS(ws, i, 300, true);
+//
+//            i++;
+//            ws.addCell(new Label(0, i, TimeTools.changeFormat(
+//                    TimeTools.changeTimeToDate(TimeTools.now()), "yyyy-MM-dd",
+//                    "yyyy年MM月dd日"), format21));
+//            setWS(ws, i, 300, true);
+//
+//            i++;
+//            ws.addCell(new Label(0, i, "结论:", format4));
+//            setWS(ws, i, 300, true);
+//
+//            i++;
+//            ws.addCell(new Label(0, i, "1. 信息证明无误。", format4));
+//            setWS(ws, i, 300, false);
+//            ws.mergeCells(0, i, 2, i);
+//            ws.addCell(new Label(3, i, "2．信息不符，请列明不符项目及具体内容。", format4));
+//
+//            ws.mergeCells(3, i, 9, i);
+//
+//            i++;
+//            ws.addCell(new Label(0, i, "", format4));
+//            setWS(ws, i, 1600, false);
+//            ws.mergeCells(0, i, 2, i);
+//
+//            ws.addCell(new Label(3, i, "", format4));
+//
+//            ws.mergeCells(3, i, 9, i);
+//
+//            i++;
+//            ws.addCell(new Label(0, i, "（ 公司盖章）", format41));
+//
+//            ws.mergeCells(0, i, 2, i);
+//            setWS(ws, i, 800, false);
+//
+//            ws.addCell(new Label(3, i, "（ 公司盖章）", format41));
+//
+//            ws.mergeCells(3, i, 9, i);
+//
+//            i++;
+//            // 空行
+//
+//            i++;
+//            ws.addCell(new Label(0, i, "年   月  日 ", format41));
+//
+//            ws.mergeCells(0, i, 2, i);
+//            setWS(ws, i, 500, false);
+//
+//            ws.addCell(new Label(3, i, "年   月  日 ", format41));
+//
+//            ws.mergeCells(3, i, 9, i);
+//
+//            i++;
+//            // 空行
+//            i++;
+//            ws.addCell(new Label(0, i, "经办人 ", format41));
+//
+//            ws.mergeCells(0, i, 2, i);
+//            setWS(ws, i, 500, false);
+
+            ws.addCell(new Label(3, i, "经办人 ", format41));
+
+            ws.mergeCells(3, i, 9, i);
+        }
+        catch (Throwable e)
+        {
+//            _logger.error(e, e);
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (wwb != null)
+            {
+                try
+                {
+                    wwb.write();
+                    wwb.close();
+                }
+                catch (Exception e1)
+                {
+                }
+            }
+            if (out != null)
+            {
+                try
+                {
+                    out.close();
+                }
+                catch (IOException e1)
+                {
+                }
+            }
+        }
+    }
+
+    private void setWS(WritableSheet ws, int i, int rowHeight, boolean mergeCell)
+            throws WriteException, RowsExceededException
+    {
+        if (mergeCell) ws.mergeCells(0, i, 9, i);
+
+        ws.setRowView(i, rowHeight);
     }
 
     /**
