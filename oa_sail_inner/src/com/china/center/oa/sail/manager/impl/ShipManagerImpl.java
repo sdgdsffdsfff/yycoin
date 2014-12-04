@@ -13,8 +13,10 @@ import java.util.Set;
 
 import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.publics.manager.CommonMailManager;
+import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.vo.BranchRelationVO;
+import com.china.center.tools.StringTools;
 import jxl.Workbook;
 import jxl.format.PageOrientation;
 import jxl.format.PaperSize;
@@ -30,12 +32,6 @@ import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.product.bean.DepotBean;
 import com.china.center.oa.product.dao.DepotDAO;
 import com.china.center.oa.publics.dao.CommonDAO;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.PackageBean;
-import com.china.center.oa.sail.bean.PackageItemBean;
-import com.china.center.oa.sail.bean.PackageVSCustomerBean;
-import com.china.center.oa.sail.bean.PreConsignBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.ShipConstant;
 import com.china.center.oa.sail.manager.ShipManager;
@@ -71,6 +67,10 @@ public class ShipManagerImpl implements ShipManager
     private CommonMailManager commonMailManager = null;
 
     private BranchRelationDAO branchRelationDAO = null;
+
+    private OutImportDAO outImportDAO = null;
+
+    private ConsignDAO consignDAO = null;
 	
 	public ShipManagerImpl()
 	{
@@ -712,17 +712,6 @@ public class ShipManagerImpl implements ShipManager
             ws.addCell(new Label(0, i, "收货人:"+ bean.getReceiver(), format2));
             setWS(ws, i, 300, true);
 
-            // 第6行
-            i++;
-            ws.addCell(new Label(0, i, "快递单号:", format2));
-            setWS(ws, i, 300, true);
-
-            // 第7行
-            i++;
-            ws.addCell(new Label(0, i, "快递公司:"+bean.getTransportName1(), format2));
-            System.out.println("************transport**********" + bean.getTransportName2());
-            setWS(ws, i, 300, true);
-
             i++;
             // 正文表格
             ws.addCell(new Label(0, i, "序号", format3));
@@ -734,10 +723,23 @@ public class ShipManagerImpl implements ShipManager
             ws.addCell(new Label(3, i, "银行订单号", format3));
 
             List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
+            StringBuilder transportNo = new StringBuilder();
             if (!ListTools.isEmptyOrNull(itemList)){
                 System.out.println("itemlist***********"+itemList.size());
 
                 i++;
+
+                PackageItemBean first = itemList.get(0);
+                first.getOutId();
+                ConditionParse con3 = new ConditionParse();
+                con3.addWhereStr();
+                con3.addCondition("OutImportBean.oano", "=", first.getOutId());
+                List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
+                String citicNo = "";
+                if (!ListTools.isEmptyOrNull(importBeans)){
+                    OutImportBean b = importBeans.get(0);
+                    citicNo = b.getCiticNo();
+                }
 
                 for (PackageItemBean each : itemList)
                 {
@@ -745,12 +747,36 @@ public class ShipManagerImpl implements ShipManager
                     setWS(ws, i, 300, false);
                     ws.addCell(new Label(j++, i, each.getProductName(), format3));
                     ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format31));
-                    ws.addCell(new Label(j++, i, "订单号", format31));
+                    ws.addCell(new Label(j++, i, citicNo, format31));
 
                     j = 0;
                     i++;
+
+                    //查询快递单号
+//                    ConditionParse con4 = new ConditionParse();
+//                    con4.addWhereStr();
+//                    con4.addCondition("ConsignBean.fullid", "=", each.getOutId());
+                    List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
+                    if (!ListTools.isEmptyOrNull(consignBeans)){
+                        ConsignBean b = consignBeans.get(0);
+                        if (!StringTools.isNullOrNone(b.getTransportNo())){
+                            transportNo.append(b.getTransportNo()).append(";");
+                        }
+                    }
                 }
+
             }
+
+            // 第6行
+            i++;
+            ws.addCell(new Label(0, i, "快递单号:"+transportNo.toString(), format2));
+            setWS(ws, i, 300, true);
+
+            // 第7行
+            i++;
+            ws.addCell(new Label(0, i, "快递公司:"+bean.getTransportName1(), format2));
+            System.out.println("************transport**********" + bean.getTransportName2());
+            setWS(ws, i, 300, true);
         }
         catch (Throwable e)
         {
@@ -949,5 +975,21 @@ public class ShipManagerImpl implements ShipManager
 
     public void setBranchRelationDAO(BranchRelationDAO branchRelationDAO) {
         this.branchRelationDAO = branchRelationDAO;
+    }
+
+    public OutImportDAO getOutImportDAO() {
+        return outImportDAO;
+    }
+
+    public void setOutImportDAO(OutImportDAO outImportDAO) {
+        this.outImportDAO = outImportDAO;
+    }
+
+    public ConsignDAO getConsignDAO() {
+        return consignDAO;
+    }
+
+    public void setConsignDAO(ConsignDAO consignDAO) {
+        this.consignDAO = consignDAO;
     }
 }
