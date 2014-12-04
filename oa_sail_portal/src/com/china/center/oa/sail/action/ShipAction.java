@@ -1,5 +1,6 @@
 package com.china.center.oa.sail.action;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,6 +16,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.center.china.osgi.publics.file.read.ReadeFileFactory;
+import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.dao.*;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -47,31 +53,12 @@ import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.AuthBean;
 import com.china.center.oa.publics.constant.AuthConstant;
 import com.china.center.oa.publics.manager.UserManager;
-import com.china.center.oa.sail.bean.ExpressBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.OutImportBean;
-import com.china.center.oa.sail.bean.PackageItemBean;
-import com.china.center.oa.sail.bean.PackageVSCustomerBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.ShipConstant;
-import com.china.center.oa.sail.dao.BaseDAO;
-import com.china.center.oa.sail.dao.DistributionDAO;
-import com.china.center.oa.sail.dao.ExpressDAO;
-import com.china.center.oa.sail.dao.OutDAO;
-import com.china.center.oa.sail.dao.OutImportDAO;
-import com.china.center.oa.sail.dao.PackageDAO;
-import com.china.center.oa.sail.dao.PackageItemDAO;
-import com.china.center.oa.sail.dao.PackageVSCustomerDAO;
 import com.china.center.oa.sail.manager.ShipManager;
 import com.china.center.oa.sail.vo.PackageVO;
 import com.china.center.oa.sail.wrap.PackageWrap;
 import com.china.center.oa.sail.wrap.PickupWrap;
-import com.china.center.tools.CommonTools;
-import com.china.center.tools.ListTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.RequestTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 public class ShipAction extends DispatchAction
 {
@@ -104,6 +91,8 @@ public class ShipAction extends DispatchAction
 	private UserManager userManager = null;
 	
 	private DepotDAO depotDAO = null;
+
+    private BranchRelationDAO branchRelationDAO = null;
 	
 	private final static String QUERYPACKAGE = "queryPackage";
 	
@@ -1382,6 +1371,235 @@ public class ShipAction extends DispatchAction
 		
 		return mapping.findForward("queryPickup");
 	}
+
+    /**
+     * 批量导入分支行对应关系信息
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward importBranchRelation(ActionMapping mapping, ActionForm form,
+                                       HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<BranchRelationBean> importItemList = new ArrayList<BranchRelationBean>();
+
+        StringBuilder builder = new StringBuilder();
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importConsign");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importConsign");
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    BranchRelationBean bean = new BranchRelationBean();
+
+                    // 客户ID
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        bean.setId(obj[0]);
+                    }
+                    else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("客户ID不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    //支行名称
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        bean.setSubBranchName(obj[1]);
+                    } else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("支行名称不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    //分行名称
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        bean.setBranchName(obj[2]);
+                    }  else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("分行名称不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    //分行邮件地址
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                       bean.setBranchMail(obj[3]);
+                    }
+
+
+                    //支行邮件地址
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        bean.setSubBranchMail(obj[4]);
+                    }else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("支行邮件地址不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    //发送邮件标志
+                    if ( !StringTools.isNullOrNone(obj[5]))
+                    {
+                        bean.setSendMailFlag(Integer.valueOf(obj[5]));
+                    }else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("发送邮件标志不能为空，比如为0或1")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    //抄送分行标志
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        bean.setCopyToBranchFlag(Integer.valueOf(obj[6]));
+                    }
+                    importItemList.add(bean);
+
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足7格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("importBranchRelation");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("importBranchRelation");
+        }
+
+        try
+        {
+            this.shipManager.saveAllEntityBeans(importItemList);
+            request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getMessage());
+
+            return mapping.findForward("importBranchRelation");
+        }
+        return mapping.findForward("importBranchRelation");
+    }
+
+    /**
+     *
+     * @param obj
+     * @return
+     */
+    private String[] fillObj(String[] obj)
+    {
+        String[] result = new String[50];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
+    }
 	
 	public PackageDAO getPackageDAO()
 	{
@@ -1546,4 +1764,12 @@ public class ShipAction extends DispatchAction
 	{
 		this.depotDAO = depotDAO;
 	}
+
+    public BranchRelationDAO getBranchRelationDAO() {
+        return branchRelationDAO;
+    }
+
+    public void setBranchRelationDAO(BranchRelationDAO branchRelationDAO) {
+        this.branchRelationDAO = branchRelationDAO;
+    }
 }

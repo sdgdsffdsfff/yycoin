@@ -155,6 +155,7 @@
             <forward name="printPostReceipt" path="/transport/printPostReceipt.jsp" />
             <forward name="printPufaReceipt" path="/transport/printPufaReceipt.jsp" />
             <forward name="printShipment" path="/transport/printShipment.jsp" />
+            <forward name="importBranchRelation" path="/sailImport/importBranchRelation.jsp" />
             
         </action>
         

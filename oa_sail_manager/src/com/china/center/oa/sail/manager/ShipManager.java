@@ -2,8 +2,11 @@ package com.china.center.oa.sail.manager;
 
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
+import com.china.center.oa.sail.bean.BranchRelationBean;
 import com.china.center.oa.sail.bean.PreConsignBean;
 import com.china.center.oa.sail.vo.OutVO;
+
+import java.util.List;
 
 public interface ShipManager
 {
@@ -20,6 +23,8 @@ public interface ShipManager
 	void createPackage(PreConsignBean pre, OutVO out) throws MYException;
 
     void sendMailForShipping() throws MYException;
+
+    void saveAllEntityBeans(List<BranchRelationBean> importItemList) throws MYException;
 //	
 //	void createInsPackage(PreConsignBean pre, String insId) throws MYException;
 }

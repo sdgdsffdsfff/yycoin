@@ -220,4 +220,6 @@
 	<osgi:reference id="bankSailDAO" interface="com.china.center.oa.sail.dao.BankSailDAO" />
 	
 	<osgi:reference id="estimateProfitDAO" interface="com.china.center.oa.sail.dao.EstimateProfitDAO" />
+
+    <osgi:reference id="branchRelationDAO" interface="com.china.center.oa.sail.dao.BranchRelationDAO" />
 </beans>

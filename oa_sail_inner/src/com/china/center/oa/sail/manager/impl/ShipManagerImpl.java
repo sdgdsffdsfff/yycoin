@@ -686,16 +686,17 @@ public class ShipManagerImpl implements ShipManager
 
 //            setWS(ws, i, 800, true);
 
+            //set column width
             ws.setColumnView(0, 5);
             ws.setColumnView(1, 40);
             ws.setColumnView(2, 10);
-            ws.setColumnView(3, 10);
-            ws.setColumnView(4, 10);
-            ws.setColumnView(5, 10);
-            ws.setColumnView(6, 10);
-            ws.setColumnView(7, 10);
-            ws.setColumnView(8, 10);
-            ws.setColumnView(9, 10);
+            ws.setColumnView(3, 40);
+//            ws.setColumnView(4, 10);
+//            ws.setColumnView(5, 10);
+//            ws.setColumnView(6, 10);
+//            ws.setColumnView(7, 10);
+//            ws.setColumnView(8, 10);
+//            ws.setColumnView(9, 10);
 
 //            第三行
             i++;
@@ -815,6 +816,13 @@ public class ShipManagerImpl implements ShipManager
         if (mergeCell) ws.mergeCells(0, i, 9, i);
 
         ws.setRowView(i, rowHeight);
+    }
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void saveAllEntityBeans(List<BranchRelationBean> branchRelationBeans) throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        this.branchRelationDAO.saveAllEntityBeans(branchRelationBeans);
     }
 
     /**
