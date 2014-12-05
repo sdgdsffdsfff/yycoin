@@ -64,12 +64,9 @@ function queryForConfirmStockPay()
 	
     if (getRadio('fullId'))
     {
-//        document.location.href = '../sail/out.do?method=queryForConfirmOutIns&firstLoad=1&invoiceId=' + getRadioValue("fullId")
-//        + '&total=' + getRadio("fullId").pmoney  + '&invoiceName=' + getRadio("fullId").pinvoiceName
-//        + '&providerId=' + getRadio("fullId").pproviderId + '&providerName='+getRadio("fullId").pproviderName;
         document.location.href = '../sail/out.do?method=queryForConfirmOutIns&firstLoad=1&invoiceId=' + getRadioValue("fullId")
-                + '&total=2.80396E7'  + '&invoiceName=' + getRadio("fullId").pinvoiceName
-                + '&providerId=' + getRadio("fullId").pproviderId + '&providerName='+getRadio("fullId").pproviderName;
+        + '&total=' + getRadio("fullId").pmoney  + '&invoiceName=' + getRadio("fullId").pinvoiceName
+        + '&providerId=' + getRadio("fullId").pproviderId + '&providerName='+getRadio("fullId").pproviderName;
     }
     else
     {
