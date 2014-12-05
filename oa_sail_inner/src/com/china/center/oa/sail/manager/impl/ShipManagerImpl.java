@@ -560,6 +560,9 @@ public class ShipManagerImpl implements ShipManager
                             + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                     System.out.println("************fileName****"+fileName);
 
+                    //TODO XX号取前一天的日期
+                    String title ="永银文化XX号发货信息";
+                    String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
                     if(relation.getSendMailFlag() == 1){
                         createMailAttachment(vo,relation , fileName);
 
@@ -572,8 +575,7 @@ public class ShipManagerImpl implements ShipManager
                         }
 
                         // send mail contain attachment
-                        commonMailManager.sendMail(relation.getSubBranchMail(), "发货信息邮件",
-                                "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。", fileName);
+                        commonMailManager.sendMail(relation.getSubBranchMail(), title,content, fileName);
 
                         //Update sendMailFlag to 1
                         PackageBean packBean = packageDAO.find(vo.getId());
@@ -585,8 +587,7 @@ public class ShipManagerImpl implements ShipManager
 
                     if(relation.getCopyToBranchFlag() == 1){
                         // 抄送分行
-                        commonMailManager.sendMail(relation.getBranchMail(), "发货信息邮件",
-                                "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。", fileName);
+                        commonMailManager.sendMail(relation.getBranchMail(), title,content, fileName);
                     }
 
                 }
@@ -691,12 +692,11 @@ public class ShipManagerImpl implements ShipManager
             ws.setColumnView(1, 40);
             ws.setColumnView(2, 10);
             ws.setColumnView(3, 40);
-//            ws.setColumnView(4, 10);
-//            ws.setColumnView(5, 10);
-//            ws.setColumnView(6, 10);
-//            ws.setColumnView(7, 10);
-//            ws.setColumnView(8, 10);
-//            ws.setColumnView(9, 10);
+            ws.setColumnView(4, 10);
+            ws.setColumnView(5, 10);
+            ws.setColumnView(6, 10);
+            ws.setColumnView(7, 10);
+            ws.setColumnView(8, 10);
 
 //            第三行
             i++;
@@ -716,18 +716,15 @@ public class ShipManagerImpl implements ShipManager
             i++;
             // 正文表格
             ws.addCell(new Label(0, i, "序号", format3));
-
             ws.addCell(new Label(1, i, "分行名称", format3));
-
             ws.addCell(new Label(2, i, "支行名称", format3));
+            ws.addCell(new Label(3, i, "产品名称", format3));
+            ws.addCell(new Label(4, i, "数量", format3));
+            ws.addCell(new Label(5, i, "银行订单号", format3));
+            ws.addCell(new Label(6, i, "收货人", format3));
+            ws.addCell(new Label(7, i, "快递单号", format3));
+            ws.addCell(new Label(8, i, "快递公司", format3));
 
-            ws.addCell(new Label(3, i, "收货人", format3));
-
-            ws.addCell(new Label(4, i, "产品名称", format3));
-
-            ws.addCell(new Label(5, i, "数量", format3));
-
-            ws.addCell(new Label(6, i, "银行订单号", format3));
 
             List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
             StringBuilder transportNo = new StringBuilder();
