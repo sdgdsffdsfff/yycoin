@@ -3,6 +3,7 @@ package com.china.center.oa.sail.action;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -5558,8 +5559,13 @@ public class OutAction extends ParentOutAction
     	String providerId = request.getParameter("providerId");
     	
     	String providerName = request.getParameter("providerName");
-    	
-    	double total = MathTools.parseDouble(request.getParameter("total"));
+
+        String total =  request.getParameter("total");
+        double totalValue = Double.parseDouble(total);
+        System.out.println(total+"************"+totalValue);
+//    	double total = MathTools.parseDouble(totalValue);
+        DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");//格式化设置
+        System.out.println(decimalFormat.format(totalValue));
     	
     	User user = Helper.getUser(request);
     	
@@ -5626,7 +5632,7 @@ public class OutAction extends ParentOutAction
     	request.setAttribute("wrapList", list);
     	
     	request.setAttribute("invoiceId", invoiceId);
-    	request.setAttribute("total", total);
+    	request.setAttribute("total", decimalFormat.format(totalValue));
     	request.setAttribute("invoiceName", invoiceName);
     	
     	request.setAttribute("providerId", providerId);

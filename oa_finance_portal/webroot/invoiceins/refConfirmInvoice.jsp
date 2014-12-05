@@ -131,7 +131,7 @@ function query()
 	</tr>
 
 	<p:title>
-		<td class="caption"><strong>发票【${invoiceName}】,客户/供应商【${providerName}】可用于确认的金额:${my:formatNum(total)}</strong></td>
+		<td class="caption"><strong>发票【${invoiceName}】,客户/供应商【${providerName}】可用于确认的金额:${my:formatNum(total)}:${total}</strong></td>
 	</p:title>
 
 	<p:line flag="0" />

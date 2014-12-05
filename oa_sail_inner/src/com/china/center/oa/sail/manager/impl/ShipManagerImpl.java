@@ -717,11 +717,17 @@ public class ShipManagerImpl implements ShipManager
             // 正文表格
             ws.addCell(new Label(0, i, "序号", format3));
 
-            ws.addCell(new Label(1, i, "产品名称", format3));
+            ws.addCell(new Label(1, i, "分行名称", format3));
 
-            ws.addCell(new Label(2, i, "数量", format3));
+            ws.addCell(new Label(2, i, "支行名称", format3));
 
-            ws.addCell(new Label(3, i, "银行订单号", format3));
+            ws.addCell(new Label(3, i, "收货人", format3));
+
+            ws.addCell(new Label(4, i, "产品名称", format3));
+
+            ws.addCell(new Label(5, i, "数量", format3));
+
+            ws.addCell(new Label(6, i, "银行订单号", format3));
 
             List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
             StringBuilder transportNo = new StringBuilder();
