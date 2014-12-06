@@ -4,12 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import com.center.china.osgi.config.ConfigLoader;
 import com.china.center.oa.publics.manager.CommonMailManager;
@@ -528,18 +525,11 @@ public class ShipManagerImpl implements ShipManager
         //To change body of implemented methods use File | Settings | File Templates.
         long now = System.currentTimeMillis();
         System.out.println("**************run schedule****************"+now);
-//        this.commonMailManager.sendMail("smartman2014@qq.com","test","test message");
-
 
         ConditionParse con = new ConditionParse();
-
         con.addWhereStr();
         con.addIntCondition("PackageBean.sendMailFlag", "=", 0);
-
         con.addIntCondition("PackageBean.status", "=", 2);
-        System.out.println("***********con**************"+con);
-
-//        setInnerCondition(distVO, location, con);
 
         List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(packageList))
@@ -552,7 +542,6 @@ public class ShipManagerImpl implements ShipManager
                 con2.addCondition("BranchRelationBean.id", "=", vo.getCustomerId());
                 List<BranchRelationVO> relationList = this.branchRelationDAO.queryVOsByCondition(con2);
                 if (!ListTools.isEmptyOrNull(relationList)){
-                    System.out.println("**********relationList******"+relationList.size());
                     BranchRelationVO relation = relationList.get(0);
                     System.out.println("**********relation******"+relation);
 
@@ -560,8 +549,11 @@ public class ShipManagerImpl implements ShipManager
                             + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                     System.out.println("************fileName****"+fileName);
 
-                    //TODO XX号取前一天的日期
-                    String title ="永银文化XX号发货信息";
+                    //TODO
+                    Date date = new Date();
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    String specifiedDay = sdf.format(date);
+                    String title = String.format("永银文化%s发货信息", this.getSpecifiedDayBefore(specifiedDay));
                     String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
                     if(relation.getSendMailFlag() == 1){
                         createMailAttachment(vo,relation , fileName);
@@ -579,10 +571,8 @@ public class ShipManagerImpl implements ShipManager
 
                         //Update sendMailFlag to 1
                         PackageBean packBean = packageDAO.find(vo.getId());
-                        System.out.println(vo.getId() + "***********pacBean********" + packBean);
                         packBean.setSendMailFlag(1);
                         this.packageDAO.updateEntityBean(packBean);
-                        System.out.println("***********finish update pacBean********"+packBean);
                     }
 
                     if(relation.getCopyToBranchFlag() == 1){
@@ -596,6 +586,30 @@ public class ShipManagerImpl implements ShipManager
             System.out.println("**************no Vo found***************");
         }
 
+    }
+
+    /**
+     * 获得指定日期的前一天
+     *
+     * @param specifiedDay
+     * @return
+     * @throws Exception
+     */
+    public String getSpecifiedDayBefore(String specifiedDay) {
+        Calendar c = Calendar.getInstance();
+        Date date = null;
+        try {
+            date = new SimpleDateFormat("yy-MM-dd").parse(specifiedDay);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        c.setTime(date);
+        int day = c.get(Calendar.DATE);
+        c.set(Calendar.DATE, day - 1);
+
+        String dayBefore = new SimpleDateFormat("MM月dd日").format(c
+                .getTime());
+        return dayBefore;
     }
 
     /**
@@ -690,28 +704,13 @@ public class ShipManagerImpl implements ShipManager
             //set column width
             ws.setColumnView(0, 5);
             ws.setColumnView(1, 40);
-            ws.setColumnView(2, 10);
+            ws.setColumnView(2, 40);
             ws.setColumnView(3, 40);
-            ws.setColumnView(4, 10);
-            ws.setColumnView(5, 10);
+            ws.setColumnView(4, 5);
+            ws.setColumnView(5, 30);
             ws.setColumnView(6, 10);
-            ws.setColumnView(7, 10);
+            ws.setColumnView(7, 20);
             ws.setColumnView(8, 10);
-
-//            第三行
-            i++;
-            ws.addCell(new Label(0, i, "分行名称:" +relationVO.getBranchName() , format2));
-            setWS(ws, i, 300, true);
-
-            i++;
-            // 第4行
-            ws.addCell(new Label(0, i, "支行名称:" + bean.getCustomerName(), format2));
-            setWS(ws, i, 300, true);
-//
-            // 第5行
-            i++;
-            ws.addCell(new Label(0, i, "收货人:"+ bean.getReceiver(), format2));
-            setWS(ws, i, 300, true);
 
             i++;
             // 正文表格
@@ -727,12 +726,10 @@ public class ShipManagerImpl implements ShipManager
 
 
             List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
-            StringBuilder transportNo = new StringBuilder();
             if (!ListTools.isEmptyOrNull(itemList)){
-                System.out.println("itemlist***********"+itemList.size());
+                System.out.println("package itemlist size***********"+itemList.size());
 
                 i++;
-
                 PackageItemBean first = itemList.get(0);
                 first.getOutId();
                 ConditionParse con3 = new ConditionParse();
@@ -749,38 +746,37 @@ public class ShipManagerImpl implements ShipManager
                 {
                     ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
                     setWS(ws, i, 300, false);
+
+                    //分行名称
+                    ws.addCell(new Label(j++, i, relationVO.getBranchName(), format3));
+                    //支行名称
+                    ws.addCell(new Label(j++, i, bean.getCustomerName(), format3));
+                    //产品名称
                     ws.addCell(new Label(j++, i, each.getProductName(), format3));
-                    ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format31));
-                    ws.addCell(new Label(j++, i, citicNo, format31));
-
-                    j = 0;
-                    i++;
-
-                    //查询快递单号
-//                    ConditionParse con4 = new ConditionParse();
-//                    con4.addWhereStr();
-//                    con4.addCondition("ConsignBean.fullid", "=", each.getOutId());
+                    //数量
+                    ws.addCell(new Label(j++, i, String.valueOf(each.getAmount()), format3));
+                    //银行订单号
+                    ws.addCell(new Label(j++, i, citicNo, format3));
+                    //收货人
+                    ws.addCell(new Label(j++, i, bean.getReceiver(), format3));
+                    //快递单号
+                    String transportNo = "";
                     List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
                     if (!ListTools.isEmptyOrNull(consignBeans)){
                         ConsignBean b = consignBeans.get(0);
                         if (!StringTools.isNullOrNone(b.getTransportNo())){
-                            transportNo.append(b.getTransportNo()).append(";");
+                            transportNo = b.getTransportNo();
                         }
                     }
-                }
+                    ws.addCell(new Label(j++, i, transportNo, format3));
+                    //快递公司
+                    ws.addCell(new Label(j++, i, bean.getTransportName1(), format3));
 
+                    j = 0;
+                    i++;
+                }
             }
 
-            // 第6行
-            i++;
-            ws.addCell(new Label(0, i, "快递单号:"+transportNo.toString(), format2));
-            setWS(ws, i, 300, true);
-
-            // 第7行
-            i++;
-            ws.addCell(new Label(0, i, "快递公司:"+bean.getTransportName1(), format2));
-            System.out.println("************transport**********" + bean.getTransportName2());
-            setWS(ws, i, 300, true);
         }
         catch (Throwable e)
         {
