@@ -5565,8 +5565,8 @@ public class OutAction extends ParentOutAction
         System.out.println(total+"************"+totalValue);
 //    	double total = MathTools.parseDouble(totalValue);
         DecimalFormat decimalFormat = new DecimalFormat("#.00");//格式化设置
-        System.out.println(decimalFormat.format(totalValue));
-    	
+        System.out.println(total+"************"+totalValue+"*****formatted:****"+decimalFormat.format(totalValue));
+
     	User user = Helper.getUser(request);
     	
     	List<OutVO> list = null;
