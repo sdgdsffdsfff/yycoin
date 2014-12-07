@@ -549,11 +549,7 @@ public class ShipManagerImpl implements ShipManager
                             + "_" + TimeTools.now("yyyyMMddHHmmss") + ".xls";
                     System.out.println("************fileName****"+fileName);
 
-                    //TODO
-                    Date date = new Date();
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                    String specifiedDay = sdf.format(date);
-                    String title = String.format("永银文化%s发货信息", this.getSpecifiedDayBefore(specifiedDay));
+                    String title = String.format("永银文化%s发货信息", this.getYesterday());
                     String content = "永银文化创意产业发展有限责任公司发货信息，请查看附件，谢谢。";
                     if(relation.getSendMailFlag() == 1){
                         createMailAttachment(vo,relation , fileName);
@@ -588,6 +584,13 @@ public class ShipManagerImpl implements ShipManager
 
     }
 
+    private String getYesterday(){
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String specifiedDay = sdf.format(date);
+        return this.getSpecifiedDayBefore(specifiedDay);
+    }
+
     /**
      * 获得指定日期的前一天
      *
@@ -595,7 +598,7 @@ public class ShipManagerImpl implements ShipManager
      * @return
      * @throws Exception
      */
-    public String getSpecifiedDayBefore(String specifiedDay) {
+    private String getSpecifiedDayBefore(String specifiedDay) {
         Calendar c = Calendar.getInstance();
         Date date = null;
         try {
@@ -711,6 +714,7 @@ public class ShipManagerImpl implements ShipManager
             ws.setColumnView(6, 10);
             ws.setColumnView(7, 20);
             ws.setColumnView(8, 10);
+            ws.setColumnView(9, 10);
 
             i++;
             // 正文表格
@@ -723,6 +727,7 @@ public class ShipManagerImpl implements ShipManager
             ws.addCell(new Label(6, i, "收货人", format3));
             ws.addCell(new Label(7, i, "快递单号", format3));
             ws.addCell(new Label(8, i, "快递公司", format3));
+            ws.addCell(new Label(9, i, "发货时间", format3));
 
 
             List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
@@ -771,6 +776,18 @@ public class ShipManagerImpl implements ShipManager
                     ws.addCell(new Label(j++, i, transportNo, format3));
                     //快递公司
                     ws.addCell(new Label(j++, i, bean.getTransportName1(), format3));
+                    //发货时间,如没有默认为前1天
+                    List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(each.getOutId());
+                    if (ListTools.isEmptyOrNull(distList)){
+                        ws.addCell(new Label(j++, i, this.getYesterday(), format3));
+                    } else{
+                        String outboundDate = distList.get(0).getOutboundDate();
+                        if (StringTools.isNullOrNone(outboundDate)){
+                           ws.addCell(new Label(j++, i, this.getYesterday(), format3));
+                        } else{
+                           ws.addCell(new Label(j++, i, distList.get(0).getOutboundDate(), format3));
+                        }
+                    }
 
                     j = 0;
                     i++;
