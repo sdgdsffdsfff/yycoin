@@ -2438,8 +2438,8 @@ public class ParentOutAction extends DispatchAction
 
 			line.writeColumn("单据日期");
 
-			line.writeColumn("客户编码");
-			// line.writeColumn("客户名称");
+//			line.writeColumn("客户编码");
+			line.writeColumn("客户名称");
 			line.writeColumn("客户分类1");
 
 			line.writeColumn("事业部");
@@ -2592,8 +2592,8 @@ public class ParentOutAction extends DispatchAction
 
 					line.writeColumn(element.getOutTime());
 
-					line.writeColumn(element.getCustomerCode());
-					// line.writeColumn(element.getCustomerName());
+//					line.writeColumn(element.getCustomerCode());
+					line.writeColumn(element.getCustomerName());
 					line.writeColumn(protype);
 
 					line.writeColumn(element.getIndustryName());
