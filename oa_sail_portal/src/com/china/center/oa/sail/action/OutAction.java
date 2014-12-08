@@ -5493,7 +5493,13 @@ public class OutAction extends ParentOutAction
     	
     	String providerName = request.getParameter("providerName");
     	
-    	double total = MathTools.parseDouble(request.getParameter("total"));
+//    	double total = MathTools.parseDouble(request.getParameter("total"));
+        String total =  request.getParameter("total");
+        double totalValue = Double.parseDouble(total);
+        System.out.println(total+"************"+totalValue);
+//    	double total = MathTools.parseDouble(totalValue);
+        DecimalFormat decimalFormat = new DecimalFormat("#.00");//格式化设置
+        _logger.info("total from request:"+total+"****total value********"+totalValue+"*****formatted total:****"+decimalFormat.format(totalValue));
     	
     	User user = Helper.getUser(request);
     	
@@ -5526,7 +5532,8 @@ public class OutAction extends ParentOutAction
     	request.setAttribute("wrapList", wrapList);
     	
     	request.setAttribute("invoiceId", invoiceId);
-    	request.setAttribute("total", total);
+//    	request.setAttribute("total", total);
+        request.setAttribute("total", decimalFormat.format(totalValue));
     	request.setAttribute("invoiceName", invoiceName);
     	
     	request.setAttribute("providerId", providerId);
@@ -5565,7 +5572,7 @@ public class OutAction extends ParentOutAction
         System.out.println(total+"************"+totalValue);
 //    	double total = MathTools.parseDouble(totalValue);
         DecimalFormat decimalFormat = new DecimalFormat("#.00");//格式化设置
-        System.out.println(total+"************"+totalValue+"*****formatted:****"+decimalFormat.format(totalValue));
+        _logger.info("total from request:"+total+"****total value********"+totalValue+"*****formatted total:****"+decimalFormat.format(totalValue));
 
     	User user = Helper.getUser(request);
     	
