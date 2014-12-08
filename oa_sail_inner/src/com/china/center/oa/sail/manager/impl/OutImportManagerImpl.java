@@ -662,6 +662,9 @@ public class OutImportManagerImpl implements OutImportManager
     	
     	// 赠送类型
     	newOutBean.setPresentFlag(bean.getPresentFlag());
+
+        //podate to be same as 中信订单时间
+        newOutBean.setPodate(bean.getCiticOrderDate());
     	
     	newOutBean.setDescription("数据接口批量导入，银行单号" + bean.getCiticNo() + "." + bean.getDescription());
     	

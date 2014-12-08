@@ -8474,6 +8474,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         outBean.setOutTime(TimeTools.now_short());
         
         outBean.setLogTime(TimeTools.now());
+
+        //2014/12/8 add podate,default same as outTime
+        outBean.setPodate(TimeTools.now_short());
         
         // 增加管理员操作在数据库事务中完成
         TransactionTemplate tran = new TransactionTemplate(transactionManager);

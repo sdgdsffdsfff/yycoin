@@ -447,6 +447,8 @@ public class OutBean implements Serializable
      * 赠送类型
      */
     private int presentFlag = 0;
+
+    private String podate = "";
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -1976,7 +1978,21 @@ public class OutBean implements Serializable
 		this.presentFlag = presentFlag;
 	}
 
-	/**
+    /**
+     * @return the podate
+     */
+    public String getPodate() {
+        return podate;
+    }
+
+    /**
+     * @param podate the podate to set
+     */
+    public void setPodate(String podate) {
+        this.podate = podate;
+    }
+
+    /**
 	 * @return the distList
 	 */
 	public List<DistributionBean> getDistList()
