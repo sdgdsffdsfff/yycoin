@@ -516,19 +516,20 @@ public class OutImportAction extends DispatchAction
 			double price = MathTools.parseDouble(obj[7]);
 			
 			bean.setPrice(price);
-			
-			if (bean.getOutType() != OutConstant.OUTTYPE_OUT_PRESENT){
-				
-				if (price <= 0)
-				{
-					builder
-		            .append("第[" + currentNumber + "]错误:")
-		            .append("非赠送类型时，单价须大于0")
-		            .append("<br>");
-					
-					importError = true;
-				}
-			}
+
+            //2014/12/8 取消批量导入结算价为0的控制,将此控制移到商务审批
+//			if (bean.getOutType() != OutConstant.OUTTYPE_OUT_PRESENT){
+//
+//				if (price <= 0)
+//				{
+//					builder
+//		            .append("第[" + currentNumber + "]错误:")
+//		            .append("非赠送类型时，单价须大于0")
+//		            .append("<br>");
+//
+//					importError = true;
+//				}
+//			}
 		}
 		else
 		{
