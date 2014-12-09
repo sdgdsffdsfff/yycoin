@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 
 /**
- * 库单(销售单、入库单) CORE
+ * 分支行对应关系表：自动发货邮件功能
  * 
  * @author Simon
  * @version 2014-12-02
@@ -36,12 +36,12 @@ public class BranchRelationBean implements Serializable
     private String branchName = "";
 
     /**
-     * 分行邮件地址
+     * 支行邮件地址
      */
     private String subBranchMail = "";
 
     /**
-     * 支行邮件地址
+     * 分行邮件地址
      */
     private String branchMail = "";
 
@@ -51,8 +51,8 @@ public class BranchRelationBean implements Serializable
     private int sendMailFlag = 0;
 
     /**
-     * 抄送分行
-     * 内容为1/0，1代表同时抄送分行，0代表不发送
+     * 抄送支行
+     * 内容为1/0，1代表同时抄送支行，0代表不发送
      */
     private int copyToBranchFlag = 0;
 
