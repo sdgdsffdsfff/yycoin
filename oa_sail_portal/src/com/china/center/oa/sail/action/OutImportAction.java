@@ -13,6 +13,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.product.bean.*;
+import com.china.center.oa.product.constant.ProductConstant;
+import com.china.center.oa.publics.constant.PublicConstant;
+import com.china.center.oa.sail.bean.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
@@ -41,10 +45,6 @@ import com.china.center.oa.client.dao.CiticVSStafferDAO;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.vs.StafferVSCustomerBean;
-import com.china.center.oa.product.bean.CiticVSOAProductBean;
-import com.china.center.oa.product.bean.DepotBean;
-import com.china.center.oa.product.bean.DepotpartBean;
-import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.product.dao.CiticVSOAProductDAO;
 import com.china.center.oa.product.dao.DepotDAO;
 import com.china.center.oa.product.dao.DepotpartDAO;
@@ -58,19 +58,6 @@ import com.china.center.oa.publics.dao.AreaDAO;
 import com.china.center.oa.publics.dao.CityDAO;
 import com.china.center.oa.publics.dao.ProvinceDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
-import com.china.center.oa.sail.bean.BankSailBean;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.BatchApproveBean;
-import com.china.center.oa.sail.bean.BatchSwatchBean;
-import com.china.center.oa.sail.bean.ConsignBean;
-import com.china.center.oa.sail.bean.DistributionBean;
-import com.china.center.oa.sail.bean.EstimateProfitBean;
-import com.china.center.oa.sail.bean.ExpressBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.OutImportBean;
-import com.china.center.oa.sail.bean.OutImportLogBean;
-import com.china.center.oa.sail.bean.ReplenishmentBean;
-import com.china.center.oa.sail.bean.TransportBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.dao.BankSailDAO;
@@ -517,19 +504,18 @@ public class OutImportAction extends DispatchAction
 			
 			bean.setPrice(price);
 
-            //2014/12/8 取消批量导入结算价为0的控制,将此控制移到商务审批
-//			if (bean.getOutType() != OutConstant.OUTTYPE_OUT_PRESENT){
-//
-//				if (price <= 0)
-//				{
-//					builder
-//		            .append("第[" + currentNumber + "]错误:")
-//		            .append("非赠送类型时，单价须大于0")
-//		            .append("<br>");
-//
-//					importError = true;
-//				}
-//			}
+            if (bean.getOutType() != OutConstant.OUTTYPE_OUT_PRESENT){
+
+				if (price <= 0)
+				{
+					builder
+		            .append("第[" + currentNumber + "]错误:")
+		            .append("非赠送类型时，单价须大于0")
+		            .append("<br>");
+
+					importError = true;
+				}
+			}
 		}
 		else
 		{
@@ -3115,7 +3101,23 @@ public class OutImportAction extends DispatchAction
             		{
             			throw new MYException("中信银行订单号不能为空");
             		}
-            		
+
+                   System.out.println("**************check price************"+bean.getOutId());
+                    //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
+                    List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(bean.getOutId());
+                    if (!ListTools.isEmptyOrNull(baseBeans)){
+                        for (BaseBean base : baseBeans){
+                            if (base.getInputPrice() == 0)
+                            {
+                                String msg = base.getProductName() + " 业务员结算价不能为0";
+                                _logger.warn(msg);
+                                throw new RuntimeException(msg);
+                            }
+                        }
+                    } else{
+                        System.out.println("**************check price not found************");
+                    }
+
             		// 申请人
             		if ( !StringTools.isNullOrNone(obj[1]))
             		{

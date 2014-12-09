@@ -771,10 +771,11 @@ public class OutImportManagerImpl implements OutImportManager
             // 业务员结算价就是事业部结算价
             base.setInputPrice(base.getIprice());
 
-            if (base.getInputPrice() == 0)
-            {
-                throw new RuntimeException(base.getProductName() + " 业务员结算价不能为0");
-            }
+            //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
+//            if (base.getInputPrice() == 0)
+//            {
+//                throw new RuntimeException(base.getProductName() + " 业务员结算价不能为0");
+//            }
             
 			// 配送 方式及毛利率
             base.setDeliverType(0);

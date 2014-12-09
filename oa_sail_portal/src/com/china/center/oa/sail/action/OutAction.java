@@ -1570,6 +1570,28 @@ public class OutAction extends ParentOutAction
                         || statuss == OutConstant.STATUS_FLOW_PASS
                         || statuss == OutConstant.STATUS_PASS)
                     {
+                        //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
+                        if (statuss == OutConstant.STATUS_MANAGER_PASS){
+                            _logger.info("***销售商务审批时检查结算价是否为0***");
+                            System.out.println("***销售商务审批时检查结算价是否为0***");
+                            List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
+                            if (!ListTools.isEmptyOrNull(baseBeans)){
+                                for (BaseBean base : baseBeans){
+                                    if (base.getInputPrice() == 0)
+                                    {
+                                        String msg = base.getProductName() + " 业务员结算价不能为0";
+                                        _logger.warn(msg);
+                                        request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
+
+                                        return mapping.findForward("error");
+                                    }
+                                }
+                            } else{
+                                System.out.println("**************check price not found************");
+                            }
+                        }
+
+
                         // 这里需要计算客户的信用金额-是否报送物流中心经理审批
                         boolean outCredit = parameterDAO.getBoolean(SysConfigConstant.OUT_CREDIT);
 
