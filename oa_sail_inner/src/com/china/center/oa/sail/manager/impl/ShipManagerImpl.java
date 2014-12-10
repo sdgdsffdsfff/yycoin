@@ -15,8 +15,7 @@ import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.vo.BranchRelationVO;
 import com.china.center.tools.StringTools;
 import jxl.Workbook;
-import jxl.format.PageOrientation;
-import jxl.format.PaperSize;
+import jxl.format.*;
 import jxl.write.*;
 import jxl.write.biff.RowsExceededException;
 import org.apache.commons.logging.Log;
@@ -810,11 +809,10 @@ public class ShipManagerImpl implements ShipManager
             format41.setVerticalAlignment(jxl.format.VerticalAlignment.CENTRE);
 
             int i = 0, j = 0, i1 = 1;
+            String title = String.format("永银文化%s发货信息", this.getYesterday());
 
             // 完成标题
-            ws.addCell(new Label(0, i, "发货信息", format));
-
-//            setWS(ws, i, 800, true);
+            ws.addCell(new Label(1, i, title, format));
 
             //set column width
             ws.setColumnView(0, 5);
@@ -844,7 +842,7 @@ public class ShipManagerImpl implements ShipManager
             for (PackageVO bean :beans){
                 List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(bean.getId());
                 if (!ListTools.isEmptyOrNull(itemList)){
-                    i++;
+//                    i++;
                     PackageItemBean first = itemList.get(0);
                     first.getOutId();
                     ConditionParse con3 = new ConditionParse();
@@ -853,12 +851,30 @@ public class ShipManagerImpl implements ShipManager
                     List<OutImportBean> importBeans = this.outImportDAO.queryEntityBeansByCondition(con3);
                     String citicNo = "";
                     if (!ListTools.isEmptyOrNull(importBeans)){
-                        OutImportBean b = importBeans.get(0);
-                        citicNo = b.getCiticNo();
+                        for (OutImportBean b: importBeans){
+                           if (!StringTools.isNullOrNone(b.getCiticNo())){
+                               citicNo = b.getCiticNo();
+                           }
+                        }
+                    }
+
+                    //First get transportNo for this package
+                    String transportNo = "";
+                    for (PackageItemBean each : itemList){
+                        //快递单号
+                        List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
+                        if (!ListTools.isEmptyOrNull(consignBeans)){
+                            ConsignBean b = consignBeans.get(0);
+                            if (!StringTools.isNullOrNone(b.getTransportNo())){
+                                transportNo = b.getTransportNo();
+                                break;
+                            }
+                        }
                     }
 
                     for (PackageItemBean each : itemList)
                     {
+                        i++;
                         ws.addCell(new Label(j++, i, String.valueOf(i1++), format3));
                         setWS(ws, i, 300, false);
 
@@ -875,32 +891,34 @@ public class ShipManagerImpl implements ShipManager
                         //收货人
                         ws.addCell(new Label(j++, i, bean.getReceiver(), format3));
                         //快递单号
-                        String transportNo = "";
-                        List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
-                        if (!ListTools.isEmptyOrNull(consignBeans)){
-                            ConsignBean b = consignBeans.get(0);
-                            if (!StringTools.isNullOrNone(b.getTransportNo())){
-                                transportNo = b.getTransportNo();
-                            }
-                        }
+//                        String transportNo = "";
+//                        List<ConsignBean> consignBeans = this.consignDAO.queryConsignByFullId(each.getOutId());
+//                        if (!ListTools.isEmptyOrNull(consignBeans)){
+//                            ConsignBean b = consignBeans.get(0);
+//                            if (!StringTools.isNullOrNone(b.getTransportNo())){
+//                                transportNo = b.getTransportNo();
+//                            }
+//                        }
                         ws.addCell(new Label(j++, i, transportNo, format3));
+
                         //快递公司
                         ws.addCell(new Label(j++, i, bean.getTransportName1(), format3));
-                        //发货时间,如没有默认为前1天
-                        List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(each.getOutId());
-                        if (ListTools.isEmptyOrNull(distList)){
-                            ws.addCell(new Label(j++, i, this.getYesterday(), format3));
-                        } else{
-                            String outboundDate = distList.get(0).getOutboundDate();
-                            if (StringTools.isNullOrNone(outboundDate)){
-                                ws.addCell(new Label(j++, i, this.getYesterday(), format3));
-                            } else{
-                                ws.addCell(new Label(j++, i, distList.get(0).getOutboundDate(), format3));
-                            }
-                        }
+                        //发货时间默认为前1天
+                        ws.addCell(new Label(j++, i, this.getYesterday(), format3));
+//                        List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(each.getOutId());
+//                        if (ListTools.isEmptyOrNull(distList)){
+//                            ws.addCell(new Label(j++, i, this.getYesterday(), format3));
+//                        } else{
+//                            String outboundDate = distList.get(0).getOutboundDate();
+//                            if (StringTools.isNullOrNone(outboundDate)){
+//                                ws.addCell(new Label(j++, i, this.getYesterday(), format3));
+//                            } else{
+//                                ws.addCell(new Label(j++, i, distList.get(0).getOutboundDate(), format3));
+//                            }
+//                        }
 
                         j = 0;
-                        i++;
+//                        i++;
                     }
                 }
             }
