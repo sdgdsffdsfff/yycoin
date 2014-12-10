@@ -26,6 +26,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.manager.PriceConfigManager;
+import com.china.center.oa.sail.manager.SailConfigManager;
 import jxl.Workbook;
 import jxl.write.Label;
 import jxl.write.WritableCellFormat;
@@ -79,11 +82,6 @@ import com.china.center.oa.product.bean.ProviderBean;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.constant.StorageConstant;
-import com.china.center.oa.product.dao.DepotDAO;
-import com.china.center.oa.product.dao.DepotpartDAO;
-import com.china.center.oa.product.dao.ProductDAO;
-import com.china.center.oa.product.dao.ProviderDAO;
-import com.china.center.oa.product.dao.StorageDAO;
 import com.china.center.oa.product.helper.StorageRelationHelper;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.publics.Helper;
@@ -325,6 +323,12 @@ public class ParentOutAction extends DispatchAction
 	protected PreInvoiceVSOutDAO preInvoiceVSOutDAO = null;
 	
 	protected BatchReturnLogDAO batchReturnLogDAO = null;
+
+    protected PriceConfigDAO priceConfigDAO = null;
+
+    protected PriceConfigManager priceConfigManager = null;
+
+    protected SailConfigManager sailConfigManager = null;
 
 	protected static String QUERYSELFOUT = "querySelfOut";
 
@@ -10153,4 +10157,28 @@ public class ParentOutAction extends DispatchAction
 	{
 		this.batchReturnLogDAO = batchReturnLogDAO;
 	}
+
+    public PriceConfigDAO getPriceConfigDAO() {
+        return priceConfigDAO;
+    }
+
+    public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
+        this.priceConfigDAO = priceConfigDAO;
+    }
+
+    public PriceConfigManager getPriceConfigManager() {
+        return priceConfigManager;
+    }
+
+    public void setPriceConfigManager(PriceConfigManager priceConfigManager) {
+        this.priceConfigManager = priceConfigManager;
+    }
+
+    public SailConfigManager getSailConfigManager() {
+        return sailConfigManager;
+    }
+
+    public void setSailConfigManager(SailConfigManager sailConfigManager) {
+        this.sailConfigManager = sailConfigManager;
+    }
 }

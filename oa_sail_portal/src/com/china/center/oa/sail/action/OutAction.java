@@ -19,6 +19,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.client.vo.StafferVSCustomerVO;
+import com.china.center.oa.product.bean.PriceConfigBean;
+import com.china.center.oa.product.constant.ProductConstant;
+import com.china.center.oa.sail.bean.*;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -107,17 +111,6 @@ import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.publics.vo.InvoiceCreditVO;
 import com.china.center.oa.publics.wrap.ResultBean;
-import com.china.center.oa.sail.bean.AppOutVSOutBean;
-import com.china.center.oa.sail.bean.BaseBalanceBean;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.BaseRepaireBean;
-import com.china.center.oa.sail.bean.ConsignBean;
-import com.china.center.oa.sail.bean.DistributionBean;
-import com.china.center.oa.sail.bean.OutBalanceBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.OutRepaireBean;
-import com.china.center.oa.sail.bean.PromotionBean;
-import com.china.center.oa.sail.bean.StatsDeliveryRankBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.constanst.PromotionConstant;
@@ -1576,19 +1569,82 @@ public class OutAction extends ParentOutAction
                             System.out.println("***销售商务审批时检查结算价是否为0***");
                             List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
                             if (!ListTools.isEmptyOrNull(baseBeans)){
+                                _logger.info("***baseBeans size***"+baseBeans.size());
+                                System.out.println("***baseBeans size***"+baseBeans.size());
                                 for (BaseBean base : baseBeans){
-                                    if (base.getInputPrice() == 0)
+//                                    if (base.getInputPrice() == 0)
+//                                    {
+//                                        String msg = base.getProductName() + " 业务员结算价不能为0";
+//                                        _logger.warn(msg);
+//                                        request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
+//
+//                                        return mapping.findForward("error");
+//                                    }
+
+                                    // 业务员结算价，总部结算价
+                                    ProductBean product = productDAO.find(base.getProductId());
+
+                                    if (null == product)
                                     {
+                                        throw new RuntimeException("产品不存在");
+                                    }
+
+                                    double sailPrice = product.getSailPrice();
+
+                                    // 根据配置获取结算价
+                                    List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+
+                                    if (!ListTools.isEmptyOrNull(pcblist))
+                                    {
+                                        PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+
+                                        sailPrice = cb.getSailPrice();
+                                    }
+
+//                                    String stafferId = "";
+//                                    if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
+//                                    {
+//                                        stafferId = out.getStafferId();
+//                                    }else
+//                                    {
+//                                        StafferVSCustomerVO vsCustVO = stafferVSCustomerDAO.findVOByUnique(out.getCustomerId());
+//
+//                                        stafferId = vsCustVO.getStafferId();
+//                                    }
+//                                    final StafferBean stafferBean = stafferDAO.find(stafferId);
+//                                    // 获取销售配置
+//                                    SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+//                                            product);
+//
+//                                    // 总部结算价(产品结算价 * (1 + 总部结算率))
+//                                    base.setPprice(sailPrice
+//                                            * (1 + sailConf.getPratio() / 1000.0d));
+//
+//                                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+//                                    base.setIprice(sailPrice
+//                                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
+//                                            .getPratio() / 1000.0d));
+//
+//                                    // 业务员结算价就是事业部结算价
+//                                    base.setInputPrice(base.getIprice());
+
+                                    //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
+                                    _logger.info(base.getProductName()+"***sailPrice***"+sailPrice);
+                                    System.out.println(base.getProductName()+"***sailPrice***"+sailPrice);
+                                    if (sailPrice == 0)
+                                    {
+//                                        throw new RuntimeException(base.getProductName() + " 业务员结算价不能为0");
                                         String msg = base.getProductName() + " 业务员结算价不能为0";
                                         _logger.warn(msg);
                                         request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
-
                                         return mapping.findForward("error");
                                     }
                                 }
                             } else{
                                 System.out.println("**************check price not found************");
+                                _logger.warn("**************check price not found************");
                             }
+
                         }
 
 

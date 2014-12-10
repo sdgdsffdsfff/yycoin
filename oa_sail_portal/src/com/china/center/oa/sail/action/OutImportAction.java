@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.ProductConstant;
+import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.bean.*;
 import org.apache.commons.logging.Log;
@@ -45,10 +47,6 @@ import com.china.center.oa.client.dao.CiticVSStafferDAO;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.client.dao.StafferVSCustomerDAO;
 import com.china.center.oa.client.vs.StafferVSCustomerBean;
-import com.china.center.oa.product.dao.CiticVSOAProductDAO;
-import com.china.center.oa.product.dao.DepotDAO;
-import com.china.center.oa.product.dao.DepotpartDAO;
-import com.china.center.oa.product.dao.ProductDAO;
 import com.china.center.oa.product.manager.StorageRelationManager;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.CityBean;
@@ -145,6 +143,10 @@ public class OutImportAction extends DispatchAction
 	private BankSailDAO bankSailDAO = null;
 	
 	private EstimateProfitDAO estimateProfitDAO = null;
+
+    private PriceConfigDAO priceConfigDAO = null;
+
+    private PriceConfigManager priceConfigManager = null;
 	
 	private static String QUERYOUTIMPORT = "queryOutImport";
 	
@@ -3106,12 +3108,73 @@ public class OutImportAction extends DispatchAction
                     //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
                     List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(bean.getOutId());
                     if (!ListTools.isEmptyOrNull(baseBeans)){
+                        System.out.println("**************baseBeans size ************"+baseBeans.size());
+                        _logger.info("**************baseBeans size ************"+baseBeans.size());
                         for (BaseBean base : baseBeans){
-                            if (base.getInputPrice() == 0)
+//                            if (base.getInputPrice() == 0)
+//                            {
+//                                String msg = base.getProductName() + " 业务员结算价不能为0";
+//                                _logger.warn(msg);
+//                                throw new RuntimeException(msg);
+//                            }
+
+                            // 业务员结算价，总部结算价
+                            ProductBean product = productDAO.find(base.getProductId());
+
+                            if (null == product)
                             {
+                                throw new RuntimeException("产品不存在");
+                            }
+
+                            double sailPrice = product.getSailPrice();
+
+                            // 根据配置获取结算价
+                            List<PriceConfigBean> pcblist = priceConfigDAO.querySailPricebyProductId(product.getId());
+
+                            if (!ListTools.isEmptyOrNull(pcblist))
+                            {
+                                PriceConfigBean cb = priceConfigManager.calcSailPrice(pcblist.get(0));
+
+                                sailPrice = cb.getSailPrice();
+                            }
+
+//                                    String stafferId = "";
+//                                    if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
+//                                    {
+//                                        stafferId = out.getStafferId();
+//                                    }else
+//                                    {
+//                                        StafferVSCustomerVO vsCustVO = stafferVSCustomerDAO.findVOByUnique(out.getCustomerId());
+//
+//                                        stafferId = vsCustVO.getStafferId();
+//                                    }
+//                                    final StafferBean stafferBean = stafferDAO.find(stafferId);
+//                                    // 获取销售配置
+//                                    SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+//                                            product);
+//
+//                                    // 总部结算价(产品结算价 * (1 + 总部结算率))
+//                                    base.setPprice(sailPrice
+//                                            * (1 + sailConf.getPratio() / 1000.0d));
+//
+//                                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+//                                    base.setIprice(sailPrice
+//                                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
+//                                            .getPratio() / 1000.0d));
+//
+//                                    // 业务员结算价就是事业部结算价
+//                                    base.setInputPrice(base.getIprice());
+
+                            //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
+                            _logger.info(base.getProductName()+"***sailPrice***"+sailPrice);
+                            System.out.println(base.getProductName()+"***sailPrice***"+sailPrice);
+                            if (sailPrice == 0)
+                            {
+//                                throw new RuntimeException(base.getProductName() + " 业务员结算价不能为0");
                                 String msg = base.getProductName() + " 业务员结算价不能为0";
                                 _logger.warn(msg);
-                                throw new RuntimeException(msg);
+                                request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
+                                return mapping.findForward("error");
                             }
                         }
                     } else{
@@ -5236,4 +5299,20 @@ public class OutImportAction extends DispatchAction
 	{
 		this.estimateProfitDAO = estimateProfitDAO;
 	}
+
+    public PriceConfigDAO getPriceConfigDAO() {
+        return priceConfigDAO;
+    }
+
+    public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
+        this.priceConfigDAO = priceConfigDAO;
+    }
+
+    public PriceConfigManager getPriceConfigManager() {
+        return priceConfigManager;
+    }
+
+    public void setPriceConfigManager(PriceConfigManager priceConfigManager) {
+        this.priceConfigManager = priceConfigManager;
+    }
 }
