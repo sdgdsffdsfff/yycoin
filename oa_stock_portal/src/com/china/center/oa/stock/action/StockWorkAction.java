@@ -96,7 +96,7 @@ public class StockWorkAction extends DispatchAction
 		ActionTools.processJSONDataQueryCondition(QUERYSELFSTOCKWORK, request,
 				condtion, initMap);
 
-		condtion.addCondition("StockWorkBean.stafferId", "=", user.getStafferId());
+//		condtion.addCondition("StockWorkBean.stafferId", "=", user.getStafferId());
 
 		condtion.addCondition("order by StockWorkBean.logTime desc");
 
