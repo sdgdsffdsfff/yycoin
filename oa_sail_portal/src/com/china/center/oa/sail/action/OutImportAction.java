@@ -3179,6 +3179,9 @@ public class OutImportAction extends DispatchAction
                                 _logger.warn(msg);
                                 request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
                                 return mapping.findForward("error");
+                            }  else{
+                                _logger.debug(base.getProductName()+"更新结算价");
+                                this.baseDAO.updateEntityBean(base);
                             }
                         }
                     } else{
