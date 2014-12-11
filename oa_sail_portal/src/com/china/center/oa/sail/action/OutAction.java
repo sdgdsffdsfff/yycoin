@@ -1601,39 +1601,38 @@ public class OutAction extends ParentOutAction
                                         sailPrice = cb.getSailPrice();
                                     }
 
-//                                    String stafferId = "";
-//                                    if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
-//                                    {
-//                                        stafferId = out.getStafferId();
-//                                    }else
-//                                    {
-//                                        StafferVSCustomerVO vsCustVO = stafferVSCustomerDAO.findVOByUnique(out.getCustomerId());
-//
-//                                        stafferId = vsCustVO.getStafferId();
-//                                    }
-//                                    final StafferBean stafferBean = stafferDAO.find(stafferId);
-//                                    // 获取销售配置
-//                                    SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
-//                                            product);
-//
-//                                    // 总部结算价(产品结算价 * (1 + 总部结算率))
-//                                    base.setPprice(sailPrice
-//                                            * (1 + sailConf.getPratio() / 1000.0d));
-//
-//                                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
-//                                    base.setIprice(sailPrice
-//                                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
-//                                            .getPratio() / 1000.0d));
-//
-//                                    // 业务员结算价就是事业部结算价
-//                                    base.setInputPrice(base.getIprice());
+                                    String stafferId = "";
+                                    if (out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
+                                    {
+                                        stafferId = out.getStafferId();
+                                    }else
+                                    {
+                                        StafferVSCustomerVO vsCustVO = stafferVSCustomerDAO.findVOByUnique(out.getCustomerId());
+
+                                        stafferId = vsCustVO.getStafferId();
+                                    }
+                                    final StafferBean stafferBean = stafferDAO.find(stafferId);
+                                    // 获取销售配置
+                                    SailConfBean sailConf = sailConfigManager.findProductConf(stafferBean,
+                                            product);
+
+                                    // 总部结算价(产品结算价 * (1 + 总部结算率))
+                                    base.setPprice(sailPrice
+                                            * (1 + sailConf.getPratio() / 1000.0d));
+
+                                    // 事业部结算价(产品结算价 * (1 + 总部结算率 + 事业部结算率))
+                                    base.setIprice(sailPrice
+                                            * (1 + sailConf.getIratio() / 1000.0d + sailConf
+                                            .getPratio() / 1000.0d));
+
+                                    // 业务员结算价就是事业部结算价
+                                    base.setInputPrice(base.getIprice());
 
                                     //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
-                                    _logger.info(base.getProductName()+"***sailPrice***"+sailPrice);
-                                    System.out.println(base.getProductName()+"***sailPrice***"+sailPrice);
-                                    if (sailPrice == 0)
+                                    _logger.info(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
+                                    System.out.println(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
+                                    if (base.getInputPrice() == 0)
                                     {
-//                                        throw new RuntimeException(base.getProductName() + " 业务员结算价不能为0");
                                         String msg = base.getProductName() + " 业务员结算价不能为0";
                                         _logger.warn(msg);
                                         request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
