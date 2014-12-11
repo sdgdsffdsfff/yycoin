@@ -20,6 +20,7 @@ import com.china.center.oa.product.dao.*;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.manager.OutManager;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -151,6 +152,8 @@ public class OutImportAction extends DispatchAction
     private PriceConfigManager priceConfigManager = null;
 
     private SailConfigManager sailConfigManager = null;
+
+    private OutManager outManager = null;
 	
 	private static String QUERYOUTIMPORT = "queryOutImport";
 	
@@ -3181,7 +3184,12 @@ public class OutImportAction extends DispatchAction
                                 return mapping.findForward("error");
                             }  else{
                                 _logger.debug(base.getProductName()+"更新结算价");
-                                this.baseDAO.updateEntityBean(base);
+//                                this.baseDAO.updateEntityBean(base);
+                                try{
+                                    this.outManager.updateBase(base);
+                                }catch(Exception e){
+                                    e.printStackTrace();
+                                }
                             }
                         }
                     } else{
@@ -5321,5 +5329,21 @@ public class OutImportAction extends DispatchAction
 
     public void setPriceConfigManager(PriceConfigManager priceConfigManager) {
         this.priceConfigManager = priceConfigManager;
+    }
+
+    public OutManager getOutManager() {
+        return outManager;
+    }
+
+    public void setOutManager(OutManager outManager) {
+        this.outManager = outManager;
+    }
+
+    public SailConfigManager getSailConfigManager() {
+        return sailConfigManager;
+    }
+
+    public void setSailConfigManager(SailConfigManager sailConfigManager) {
+        this.sailConfigManager = sailConfigManager;
     }
 }

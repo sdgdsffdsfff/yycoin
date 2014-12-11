@@ -10924,7 +10924,14 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 			processBuyBaseList(user, outBean, baseList, StorageConstant.OPR_STORAGE_SWATH);
 		}
 	}
-    
+
+    @Transactional(rollbackFor = {MYException.class})
+    @Override
+    public boolean updateBase(BaseBean baseBean) throws MYException {
+        this.baseDAO.updateEntityBean(baseBean);
+        return true;
+    }
+
     /**
      * @return the mailAttchmentPath
      */

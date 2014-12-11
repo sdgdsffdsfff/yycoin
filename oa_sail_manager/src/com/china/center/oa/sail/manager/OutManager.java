@@ -633,4 +633,13 @@ public interface OutManager extends ListenerManager<OutListener>
     boolean checkSwithToSail(String outId) throws MYException;
     
     boolean checkOutBack(String outId) throws MYException;
+
+    /**
+     * 更新BaseBean
+     *
+     * @param base
+     * @return
+     * @throws MYException
+     */
+    boolean updateBase(final BaseBean base) throws MYException;
 }

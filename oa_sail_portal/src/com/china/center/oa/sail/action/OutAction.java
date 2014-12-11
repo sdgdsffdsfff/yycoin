@@ -1638,11 +1638,16 @@ public class OutAction extends ParentOutAction
                                         request.setAttribute(KeyConstant.ERROR_MESSAGE,msg);
                                         return mapping.findForward("error");
                                     } else{
-                                        String msg2 = base.getProductName()+"更新结算价:"+base.getInputPrice()+":"+base.getPrice();
+                                        String msg2 = base.getProductName()+"更新结算价:"+base.getInputPrice()+":"+base.getPprice();
                                         System.out.println(msg2);
                                         _logger.info(msg2);
                                         //TODO 不能在Action中调用DAO的update操作，必须在Transaction中操作才能生效
-                                        this.baseDAO.updateEntityBean(base);
+//                                        this.baseDAO.updateEntityBean(base);
+                                        try{
+                                            this.outManager.updateBase(base);
+                                        }catch(Exception e){
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
                             } else{
