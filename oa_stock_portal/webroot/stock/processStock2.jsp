@@ -14,10 +14,16 @@
 <script language="javascript">
 
 var g_id;
+var to_be_warehouse;
 
-function fech(id)
+function fech(id,amount,totalWarehouseNum)
 {
+    console.log("id:"+id);
+    console.log("amount:"+amount);
+    console.log("totalWarehouseNum:"+totalWarehouseNum);
     g_id = id;
+    to_be_warehouse = parseInt(amount)-parseInt(totalWarehouseNum);
+    console.log("to_be_warehouse:"+to_be_warehouse);
     
 	$('#dlg').dialog({closed:false});
 }
@@ -47,8 +53,17 @@ function updatePrice()
         alert('请选择仓区');
         return false;
     }
+
+    console.log(to_be_warehouse);
+    console.log(parseInt($$('warehouseNum')));
+    if (parseInt($$('warehouseNum'))>to_be_warehouse){
+        alert('此次入库数量不能大于待入库数量');
+        return false;
+    }
     
-    document.location.href = '../stock/stock.do?method=fechProduct&id=${bean.id}&itemId=' + g_id + '&depotpartId=' + $$('depotpartId');
+    document.location.href = '../stock/stock.do?method=fechProduct&id=${bean.id}&itemId='
+            + g_id + '&depotpartId=' + $$('depotpartId')+ '&warehouseNum=' + $$('warehouseNum')
+            + '&to_be_warehouse=' + to_be_warehouse;
 }
 
 </script>
@@ -159,8 +174,9 @@ function updatePrice()
 			<tr align="center" class="content0">
 				<td width="10%" align="center">采购产品</td>
 				<td width="5%" align="center">采量</td>
-				<td width="10%" align="center">当前数量</td>
-				<td width="10%" align="center">是否询价</td>
+				<td width="10%" align="center">待入库数量</td>
+                <td width="10%" align="center">入库数量</td>
+				<%--<td width="10%" align="center">是否询价</td>--%>
 				<td width="10%" align="center">参考/实际价格</td>
 				<td width="10%" align="center">付款时间</td>
 				<td width="15%" align="center">供应商</td>
@@ -177,9 +193,10 @@ function updatePrice()
 
 					<td align="center">${item.amount}</td>
 					
-					<td align="center">${item.productNum}</td>
+					<td align="center">${item.amount-item.totalWarehouseNum}</td>
+                    <td align="center"><a href="test">${item.totalWarehouseNum}</a></td>
 
-					<td align="center">${item.status == 0 ? "<font color=red>否</font>" : "<font color=blue>是</font>"}</td>
+					<%--<td align="center">${item.status == 0 ? "<font color=red>否</font>" : "<font color=blue>是</font>"}</td>--%>
 
 					<td align="center">${my:formatNum(item.prePrice)}/${my:formatNum(item.price)}</td>
 
@@ -194,9 +211,10 @@ function updatePrice()
 					<td align="center">${item.stafferName}</td>
 
 					<td align="center">
-					<c:if test="${item.fechProduct == 0 && item.stafferId == user.stafferId}">
+					<%--<c:if test="${item.fechProduct == 0 && item.stafferId == user.stafferId}">--%>
+                    <c:if test="${item.totalWarehouseNum <item.productNum && item.stafferId == user.stafferId}">
 					<a title="拿货"
-						href="javascript:fech('${item.id}')">
+						href="javascript:fech('${item.id}','${item.amount}','${item.totalWarehouseNum}')">
 					<img src="../images/opr/change.gif" border="0" height="15" width="15"></a>
 					</c:if>
 					</td>
@@ -223,6 +241,9 @@ function updatePrice()
     <c:forEach items="${depotpartList}" var="item" varStatus="vs">
      <input type="radio" name="depotpartId" value="${item.id}"  ${vs.index == 0 ? 'checked=checked' : '' }>${item.name}<br>
     </c:forEach>
+        <label for="warehouseNum">
+            <input type="text" id="warehouseNum" name="warehouseNum" placeholder="此次入库数量">
+        </label>
    </div>
 </div>
 </form>

@@ -6,6 +6,7 @@ Bundle-Version: 1.0.0
 Bundle-Activator: com.china.center.oa.stock.inner.Activator
 Require-Bundle: 
  com.china.center.oa.stock.manager;bundle-version="1.0.0",
+ com.china.center.oa.sail.manager;bundle-version="1.0.0",
  com.china.center.oa.product.manager;bundle-version="1.0.0",
  com.china.center.oa.note.manager;bundle-version="1.0.0",
  com.china.center.oa.publics.manager;bundle-version="1.0.0",

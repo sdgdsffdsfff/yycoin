@@ -12,6 +12,10 @@ package com.china.center.oa.stock.manager.impl;
 import java.util.Collection;
 import java.util.List;
 
+import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -57,12 +61,6 @@ import com.china.center.oa.stock.manager.StockManager;
 import com.china.center.oa.stock.vo.PriceAskProviderBeanVO;
 import com.china.center.oa.stock.vo.StockItemVO;
 import com.china.center.oa.stock.vo.StockVO;
-import com.china.center.tools.JudgeTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.RandomTools;
-import com.china.center.tools.SequenceTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 
 /**
@@ -108,6 +106,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     private PriceAskProviderDAO priceAskProviderDAO = null;
     
     private StockWorkDAO stockWorkDAO = null;
+
+    private BaseDAO baseDAO = null;
 
     /*
      * (non-Javadoc)
@@ -344,6 +344,28 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         StockVO vo = stockDAO.findVO(id);
 
         List<StockItemVO> itemVO = stockItemDAO.queryEntityVOsByFK(id);
+
+        System.out.println("******************8811111111111111111******************");
+        //2014/12/14 查询商品对应的入库数量总数
+        if (!ListTools.isEmptyOrNull(itemVO)){
+            ConditionParse con = new ConditionParse();
+            con.addCondition("OutBean.description","like","%"+id+"%");
+            con.addIntCondition("OutBean.status","=",3);
+
+//            con.addCondition("left join t_center_out OutBean on BaseBean.outId=OutBean.fullid where OutBean.description like '%'"+id+"%'");
+            int totalWarehouseNum = 0;
+            for (StockItemVO item : itemVO){
+//                List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(con);
+                List<BaseBean> baseBeans = this.baseDAO.queryBaseByOneCondition(con);
+                 if (!ListTools.isEmptyOrNull(baseBeans)){
+                     for (BaseBean base: baseBeans){
+                         totalWarehouseNum += base.getAmount();
+                     }
+                     item.setTotalWarehouseNum(totalWarehouseNum);
+                     System.out.println("******************totalWarehouseNum******************"+totalWarehouseNum);
+                 }
+             }
+        }
 
         vo.setItemVO(itemVO);
 
@@ -1075,10 +1097,10 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             throw new MYException("系统错误");
         }
         
-        if (item.getExtraStatus() == 0)
-        {
-        	throw new MYException("需进行采购入库预确认.");
-        }
+//        if (item.getExtraStatus() == 0)
+//        {
+//        	throw new MYException("需进行采购入库预确认.");
+//        }
 
         StockBean stock = stockDAO.findVO(item.getStockId());
 
@@ -1103,11 +1125,13 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         Collection<StockListener> listenerMapValues = this.listenerMapValues();
         for (StockListener stockListener : listenerMapValues)
         {
+            System.out.println("*************stockListener***********"+stockListener);
             stockListener.onEndStockItem(user, stock, item);
         }
         List<StockItemBean> items = stockItemDAO.queryEntityBeansByFK(item.getStockId());
         boolean all = true;
 
+        //TODO 检查待入库数量=当前待入库数据-本次入库数量
         for (StockItemBean stockItemBean : items)
         {
             if (stockItemBean.getFechProduct() == StockConstant.STOCK_ITEM_FECH_NO)
@@ -1121,22 +1145,103 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         addLog(user, item.getStockId(), stock.getStatus(), stock, PublicConstant.OPRMODE_PASS,
             "询价人拿货");
 
+
+        //TODO 待入库数量为0时，将采购单状态置为“待结束采购”
         if (all)
         {
+            System.out.println("****************修改成待结束采购****************");
             // 修改成待结束采购
             updateStockStatus(user, item.getStockId(), StockConstant.STOCK_STATUS_END,
-                PublicConstant.OPRMODE_PASS, "拿货结束");
+                    PublicConstant.OPRMODE_PASS, "拿货结束");
+        }
+
+        return true;
+    }
+
+    //2014/12/14 拿货可以输入本次入库数量，而不是一次性入库
+    @Transactional(rollbackFor = {MYException.class})
+    @Override
+    public boolean fetchProduct(User user, String itemId, String depotpartId, int warehouseNum, int toBeWarehouse) throws MYException {
+        JudgeTools.judgeParameterIsNull(itemId, user, depotpartId, warehouseNum);
+
+        StockItemBean item = stockItemDAO.find(itemId);
+
+        if (item == null)
+        {
+            throw new MYException("系统错误");
+        }
+
+//        if (item.getExtraStatus() == 0)
+//        {
+//        	throw new MYException("需进行采购入库预确认.");
+//        }
+
+        StockBean stock = stockDAO.findVO(item.getStockId());
+
+        if (stock == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        //2014/12/14 拿货标志需要根据已入库数量与
+        if (item.getFechProduct() == StockConstant.STOCK_ITEM_FECH_YES)
+        {
+            throw new MYException("已经拿货");
+        } else if (warehouseNum == toBeWarehouse){
+            //如果本次入库数量==待入库数量，则本产品入库结束
+            item.setFechProduct(StockConstant.STOCK_ITEM_FECH_YES);
+        }
+
+        item.setDepotpartId(depotpartId);
+
+        // 更新item
+        stockItemDAO.updateEntityBean(item);
+
+        item.setWarehouseNum(warehouseNum);
+
+        // 采购入库
+        Collection<StockListener> listenerMapValues = this.listenerMapValues();
+        for (StockListener stockListener : listenerMapValues)
+        {
+            System.out.println(stockListener+"*************stockListener***********"+item.getWarehouseNum());
+            stockListener.onEndStockItem(user, stock, item);
+        }
+        List<StockItemBean> items = stockItemDAO.queryEntityBeansByFK(item.getStockId());
+        boolean all = false;
+
+        //检查是否所有的商品已入库完毕
+        for (StockItemBean stockItemBean : items)
+        {
+            if (stockItemBean.getFechProduct() == StockConstant.STOCK_ITEM_FECH_NO)
+            {
+                all = false;
+
+                break;
+            }
+        }
+
+        addLog(user, item.getStockId(), stock.getStatus(), stock, PublicConstant.OPRMODE_PASS,
+                "询价人拿货");
+
+
+        //所有商品结束入库时，将采购单状态置为“待结束采购”
+        if (all)
+        {
+            System.out.println("****************修改成待结束采购****************");
+            // 修改成待结束采购
+            updateStockStatus(user, item.getStockId(), StockConstant.STOCK_STATUS_END,
+                    PublicConstant.OPRMODE_PASS, "拿货结束");
         }
 
         return true;
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see com.china.center.oa.stock.manager.StockManager#stockItemAskForNet(com.china.center.oa.stock.bean.StockItemBean,
-     *      java.util.List)
-     */
+         * (non-Javadoc)
+         *
+         * @see com.china.center.oa.stock.manager.StockManager#stockItemAskForNet(com.china.center.oa.stock.bean.StockItemBean,
+         *      java.util.List)
+         */
     @Transactional(rollbackFor = {MYException.class})
     public boolean stockItemAskForNet(StockItemBean oldItem, List<StockItemBean> newItemList)
         throws MYException
@@ -1716,4 +1821,18 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 	{
 		this.stockWorkDAO = stockWorkDAO;
 	}
+
+    /**
+     * @return the baseDAO
+     */
+    public BaseDAO getBaseDAO() {
+        return baseDAO;
+    }
+
+    /**
+     * @param baseDAO the baseDAO to set
+     */
+    public void setBaseDAO(BaseDAO baseDAO) {
+        this.baseDAO = baseDAO;
+    }
 }

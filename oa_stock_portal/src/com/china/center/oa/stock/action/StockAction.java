@@ -686,11 +686,15 @@ public class StockAction extends DispatchAction
 
             String depotpartId = request.getParameter("depotpartId");
 
+            String warehouseNum = request.getParameter("warehouseNum");
+            String to_be_buy_count = request.getParameter("to_be_buy_count");
+            System.out.println("warehouseNum*********"+warehouseNum+"****to_be_buy_count*****"+to_be_buy_count);
+
             try
             {
                 User user = Helper.getUser(request);
 
-                stockManager.fechProduct(user, itemId, depotpartId);
+                stockManager.fetchProduct(user, itemId, depotpartId, Integer.valueOf(warehouseNum), 0);
 
                 request.setAttribute(KeyConstant.MESSAGE, "成功拿货,且自动生成入库单");
             }
@@ -1754,6 +1758,7 @@ public class StockAction extends DispatchAction
                                     HttpServletRequest request, HttpServletResponse reponse)
         throws ServletException
     {
+        System.out.println("1111111111111111111111111111111");
         CommonTools.saveParamers(request);
 
         ConditionParse condtion = new ConditionParse();
@@ -1765,7 +1770,7 @@ public class StockAction extends DispatchAction
         String type = getL2Type(request);
         
         String extraStatus = getExtraStatus(request);
-        
+        System.out.println("22222222222222222222222222222222");
         // 鉴权
         try
         {
@@ -1782,7 +1787,7 @@ public class StockAction extends DispatchAction
 
             return mapping.findForward("error");
         }
-
+        System.out.println("333333333333333333");
         List<StockVO> list = null;
         
         List<StockVO> viewList = new ArrayList<StockVO>();
@@ -1806,6 +1811,7 @@ public class StockAction extends DispatchAction
         		
         	}
         }
+        System.out.println("444444444444444444444444444444444444");
         try
         {
             if (OldPageSeparateTools.isFirstLoad(request))
@@ -1828,7 +1834,7 @@ public class StockAction extends DispatchAction
                     request, "queryStock"), OldPageSeparateTools.getPageSeparate(request,
                     "queryStock"));
             }
-
+            System.out.println("555555555555555555555555555");
             // 页面显示div用
             Map<String, String> div = new HashMap<String, String>();
 
@@ -1857,7 +1863,7 @@ public class StockAction extends DispatchAction
                 div.put(StockVO.getId(), StockHelper.createTable(itemVO, CommonTools
                     .parseInt(ltype)));
             }
-
+            System.out.println("666666666666666666666666666666");
             List<LocationBean> locations = locationDAO.listEntityBeans();
             
             request.setAttribute("locations", locations);

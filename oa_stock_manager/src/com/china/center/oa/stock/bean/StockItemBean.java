@@ -137,6 +137,18 @@ public class StockItemBean implements Serializable
      */
     private int extraStatus = 0;
 
+    /**2014/12/14
+     * 本次入库数量,不存数据库，此值会存入对应生成的入库单中。
+     */
+    @Ignore
+    private int warehouseNum = 0;
+
+    /**  2014/12/14
+     * 该商品累计已入库数量
+     */
+    @Ignore
+    private int totalWarehouseNum = 0;
+
     @Ignore
     private List<PriceAskProviderBean> asks = null;
 
@@ -622,7 +634,23 @@ public class StockItemBean implements Serializable
 		this.extraStatus = extraStatus;
 	}
 
-	/**
+    public int getWarehouseNum() {
+        return warehouseNum;
+    }
+
+    public void setWarehouseNum(int warehouseNum) {
+        this.warehouseNum = warehouseNum;
+    }
+
+    public int getTotalWarehouseNum() {
+        return totalWarehouseNum;
+    }
+
+    public void setTotalWarehouseNum(int totalWarehouseNum) {
+        this.totalWarehouseNum = totalWarehouseNum;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

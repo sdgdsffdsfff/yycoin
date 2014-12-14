@@ -41,6 +41,9 @@ public interface StockManager extends ListenerManager<StockListener>
     boolean fechProduct(User user, String itemId, String depotpartId)
         throws MYException;
 
+    boolean fetchProduct(User user, String itemId, String depotpartId, int warehouseNum, int toBeWarehouse)
+            throws MYException;
+
     boolean stockItemAsk(StockItemBean bean)
         throws MYException;
 
