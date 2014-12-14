@@ -308,8 +308,11 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 
         apply.setId(commonDAO.getSquenceString20());
 
-        apply.setDescription("合并后系统生成付款申请:<br>" + idBuffer.toString() + "采购单:<br>"
-                             + stockBuffer.toString());
+        //2014/12/14 因Description字段长度限制，无法合并任意数量的采购单，
+        // 去掉Description栏位后，合并对应关系需查询T_CENTER_VS_STOCKPAYCOMP
+        apply.setDescription("合并后系统生成付款申请");
+//        apply.setDescription("合并后系统生成付款申请:<br>" + idBuffer.toString() + "采购单:<br>"
+//                             + stockBuffer.toString());
 
         apply.setDutyId(beanList.get(0).getDutyId());
 
