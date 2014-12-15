@@ -5,6 +5,7 @@
 <head>
 <p:link title="采购单" />
 <link href="../js/plugin/dialog/css/dialog.css" type="text/css" rel="stylesheet"/>
+<script language="JavaScript" src="../js/title_div.js"></script>
 <script language="JavaScript" src="../js/key.js"></script>
 <script language="JavaScript" src="../js/common.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
@@ -16,20 +17,35 @@
 var g_id;
 var to_be_warehouse;
 
+var jmap = new Object();
+<c:forEach items="${bean.itemVO}" var="item">
+jmap['${item.id}'] = "${divMap[item.id]}";
+</c:forEach>
+//console.log(jmap);
+
+function showDiv(id)
+{
+//    console.log("ID*******"+id);
+//    console.log("jamp*****"+jmap[id]);
+    tooltip.showTable(jmap[id]);
+}
+
 function fech(id,amount,totalWarehouseNum)
 {
-    console.log("id:"+id);
-    console.log("amount:"+amount);
-    console.log("totalWarehouseNum:"+totalWarehouseNum);
     g_id = id;
     to_be_warehouse = parseInt(amount)-parseInt(totalWarehouseNum);
-    console.log("to_be_warehouse:"+to_be_warehouse);
+//    console.log("id:"+id);
+//    console.log("amount:"+amount);
+//    console.log("totalWarehouseNum:"+totalWarehouseNum);
+//    console.log("to_be_warehouse:"+to_be_warehouse);
     
 	$('#dlg').dialog({closed:false});
 }
 
 function load()
 {
+    tooltip.init();
+
      $('#dlg').dialog({
                 modal:true,
                 closed:true,
@@ -189,12 +205,14 @@ function updatePrice()
 			<c:forEach items="${bean.itemVO}" var="item" varStatus="vs">
 			    <c:if test="${bean.stafferId == user.stafferId || item.stafferId == user.stafferId}">
 				<tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
-					<td align="center">${item.productName}</td>
+					<td align="center" >${item.productName}</td>
 
 					<td align="center">${item.amount}</td>
 					
 					<td align="center">${item.amount-item.totalWarehouseNum}</td>
-                    <td align="center"><a href="test">${item.totalWarehouseNum}</a></td>
+                    <td align="center" onMouseOver="showDiv('${item.id}')" onmousemove="tooltip.move()" onmouseout="tooltip.hide()">
+                        <a href="javascript:void(0);">${item.totalWarehouseNum}</a>
+                    </td>
 
 					<%--<td align="center">${item.status == 0 ? "<font color=red>否</font>" : "<font color=blue>是</font>"}</td>--%>
 
@@ -211,12 +229,12 @@ function updatePrice()
 					<td align="center">${item.stafferName}</td>
 
 					<td align="center">
-					<%--<c:if test="${item.fechProduct == 0 && item.stafferId == user.stafferId}">--%>
-                    <c:if test="${item.totalWarehouseNum <item.productNum && item.stafferId == user.stafferId}">
-					<a title="拿货"
-						href="javascript:fech('${item.id}','${item.amount}','${item.totalWarehouseNum}')">
-					<img src="../images/opr/change.gif" border="0" height="15" width="15"></a>
-					</c:if>
+                        <%--<c:if test="${item.fechProduct == 0 && item.stafferId == user.stafferId}">--%>
+                        <c:if test="${item.totalWarehouseNum <item.productNum && item.stafferId == user.stafferId}">
+                            <a title="拿货"
+                                href="javascript:fech('${item.id}','${item.amount}','${item.totalWarehouseNum}')">
+                            <img src="../images/opr/change.gif" border="0" height="15" width="15"></a>
+                        </c:if>
 					</td>
 				</tr>
 				</c:if>

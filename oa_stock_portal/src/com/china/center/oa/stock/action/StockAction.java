@@ -1051,6 +1051,7 @@ public class StockAction extends DispatchAction
         vo = stockManager.findStockVO(id);
 
         request.setAttribute("bean", vo);
+        request.setAttribute("divMap", vo.getDivMap());
 
         prepare(request);
 

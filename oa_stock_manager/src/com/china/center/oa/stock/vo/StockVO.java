@@ -5,6 +5,7 @@ package com.china.center.oa.stock.vo;
 
 
 import java.util.List;
+import java.util.Map;
 
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.Ignore;
@@ -45,6 +46,12 @@ public class StockVO extends StockBean
 
     @Ignore
     private List<StockItemVO> itemVO = null;
+
+    /**
+     * 2014/12/15 采购拿货增强显示拿货历史记录tooltip
+     */
+    @Ignore
+    private Map divMap = null;
 
     /**
      * @return the userName
@@ -221,5 +228,13 @@ public class StockVO extends StockBean
     public void setIndustryName(String industryName)
     {
         this.industryName = industryName;
+    }
+
+    public Map getDivMap() {
+        return divMap;
+    }
+
+    public void setDivMap(Map divMap) {
+        this.divMap = divMap;
     }
 }

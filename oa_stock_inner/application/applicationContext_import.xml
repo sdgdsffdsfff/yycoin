@@ -52,4 +52,6 @@
 	<osgi:reference id="productManager" interface="com.china.center.oa.product.manager.ProductManager" />
 
     <osgi:reference id="baseDAO" interface="com.china.center.oa.sail.dao.BaseDAO" />
+
+    <osgi:reference id="outDAO" interface="com.china.center.oa.sail.dao.OutDAO" />
 </beans>

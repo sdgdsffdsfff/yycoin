@@ -10,18 +10,21 @@ package com.china.center.oa.stock.manager.impl;
 
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.china.center.jdbc.util.ConditionParse;
 import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.tools.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
 import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.center.china.osgi.publics.AbstractListenerManager;
 import com.center.china.osgi.publics.User;
 import com.china.center.common.MYException;
@@ -108,6 +111,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     private StockWorkDAO stockWorkDAO = null;
 
     private BaseDAO baseDAO = null;
+
+    private OutDAO outDAO = null;
 
     /*
      * (non-Javadoc)
@@ -345,7 +350,9 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
         List<StockItemVO> itemVO = stockItemDAO.queryEntityVOsByFK(id);
 
-        System.out.println("******************8811111111111111111******************");
+        Map divMap = new HashMap();
+        Map outTimeMap = new HashMap();
+
         //2014/12/14 查询商品对应的入库数量总数
         if (!ListTools.isEmptyOrNull(itemVO)){
             ConditionParse con = new ConditionParse();
@@ -360,13 +367,23 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                  if (!ListTools.isEmptyOrNull(baseBeans)){
                      for (BaseBean base: baseBeans){
                          totalWarehouseNum += base.getAmount();
+                         OutBean out = this.outDAO.find(base.getOutId());
+                         if (out!= null){
+                            outTimeMap.put(base.getId(), out.getOutTime());
+                         }
                      }
                      item.setTotalWarehouseNum(totalWarehouseNum);
+                     item.setBaseBeans(baseBeans);
+
+
+                     divMap.put(item.getId(),
+                             this.createTable(baseBeans, outTimeMap));
                      System.out.println("******************totalWarehouseNum******************"+totalWarehouseNum);
                  }
              }
         }
 
+        vo.setDivMap(divMap);
         vo.setItemVO(itemVO);
 
         if (StringTools.isNullOrNone(vo.getOwerName()))
@@ -375,6 +392,47 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         }
 
         return vo;
+    }
+
+    private String createTable(List<BaseBean> list, Map outTimeMap)
+    {
+        StringBuffer buffer = new StringBuffer();
+
+        buffer.append("<table width='100%' border='0' cellspacing='1'>");
+        buffer.append("<tr align='center' class='content0'>");
+        buffer.append("<td width='25%' align='center'>采购单号</td>");
+        buffer.append("<td width='50%' align='center'>品名</td>");
+        buffer.append("<td width='10%' align='center'>入库数量</td>");
+        buffer.append("<td width='15%' align='center'>入库日期</td>");
+
+        int index = 0;
+        String cls = null;
+        for (BaseBean bean : list)
+        {
+            if (index % 2 == 0)
+            {
+                cls = "content1";
+            }
+            else
+            {
+                cls = "content2";
+            }
+
+            buffer.append("<tr class='" + cls + "'>");
+
+            buffer.append("<td width='25%' align='center'>"
+                    + bean.getOutId() + "</td>");
+            buffer.append("<td width='50%' align='center'>"
+                    + StringTools.getLineString(bean.getProductName()) + "</td>");
+            buffer.append("<td width='10%' align='center'>" + bean.getAmount() + "</td>");
+            buffer.append(" <td width='15%' align='center'>" + outTimeMap.get(bean.getId()) + "</td>");
+
+            index++ ;
+        }
+
+        buffer.append("</table>");
+
+        return StringTools.getLineString(buffer.toString());
     }
 
     /*
@@ -1084,6 +1142,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
      * @return
      * @throws MYException
      */
+    @Deprecated
     @Transactional(rollbackFor = {MYException.class})
     public boolean fechProduct(User user, String itemId, String depotpartId)
         throws MYException
@@ -1171,10 +1230,10 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             throw new MYException("系统错误");
         }
 
-//        if (item.getExtraStatus() == 0)
-//        {
-//        	throw new MYException("需进行采购入库预确认.");
-//        }
+        if (item.getExtraStatus() == 0)
+        {
+        	throw new MYException("需进行采购入库预确认.");
+        }
 
         StockBean stock = stockDAO.findVO(item.getStockId());
 
@@ -1834,5 +1893,19 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
      */
     public void setBaseDAO(BaseDAO baseDAO) {
         this.baseDAO = baseDAO;
+    }
+
+    /**
+     * @return the outDAO
+     */
+    public OutDAO getOutDAO() {
+        return outDAO;
+    }
+
+    /**
+     * @param outDAO the outDAO to set
+     */
+    public void setOutDAO(OutDAO outDAO) {
+        this.outDAO = outDAO;
     }
 }
