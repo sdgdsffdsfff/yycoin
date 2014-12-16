@@ -166,10 +166,10 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
 
             BaseBean baseBean = new BaseBean();
 
-            baseBean.setValue(item.getTotal());
+//            baseBean.setValue(item.getTotal());
             baseBean.setLocationId(out.getLocation());
 
-            //TODO 2014/12/14 入库单根据实际入库数量分批次生成
+            //2014/12/14 入库单根据实际入库数量分批次生成
             System.out.println("*************getWarehouseNum************"+each.getWarehouseNum());
             baseBean.setAmount(each.getWarehouseNum());
 //            baseBean.setAmount(item.getAmount());
@@ -177,7 +177,10 @@ public class StockListenerSailImpl extends AbstractListenerManager<FechProductLi
             baseBean.setProductName(item.getProductName());
             baseBean.setUnit("套");
             baseBean.setPrice(item.getPrice());
-            baseBean.setValue(item.getTotal());
+//            baseBean.setValue(item.getTotal());
+            //2014/12/16 根据实际入库数量计算金额
+            baseBean.setValue(item.getPrice()*each.getWarehouseNum());
+
             baseBean.setShowId(item.getShowId());
 
             baseBean.setCostPrice(item.getPrice());
