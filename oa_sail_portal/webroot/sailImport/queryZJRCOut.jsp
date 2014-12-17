@@ -195,8 +195,8 @@ function receive(flag)
 	if (flag == '1')
 	{
         //银行签收
-        //暂时允许两种状态都能进入:配送中/主出纳签收
-		if (getRadio('fullId').statuss == '3' || getRadio('fullId').statuss == '6')
+        //2014/12/17 必须已通过”住出纳签收"
+		if ( getRadio('fullId').statuss == '6')
 		{
 			if (window.confirm("确定该操作?"))
 			 {
@@ -209,7 +209,7 @@ function receive(flag)
 			 	adminForm.submit();
 			 }
 		}else{
-			alert('此状态不能操作!');
+			alert('此状态不能操作!必须已通过主出纳签收!');
 		}
 	}else if (flag == '2'){
 		if (getRadio('fullId').statuss == '4')
@@ -226,7 +226,7 @@ function receive(flag)
 			 	adminForm.submit();
 			 }
 		}else{
-			alert('此状态不能操作!');
+			alert('此状态不能操作!必须已通过银行签收!');
 		}
 	} else if (flag == '3'){
         //主出纳签收   “
