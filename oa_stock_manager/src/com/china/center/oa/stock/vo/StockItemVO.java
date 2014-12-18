@@ -9,7 +9,7 @@ import java.util.List;
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
-import com.china.center.oa.sail.bean.BaseBean;
+//import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.stock.bean.StockItemBean;
 
 
@@ -43,8 +43,8 @@ public class StockItemVO extends StockItemBean
     /**
      * 2014/12/15 拿货功能增强显示拿货历史记录
      */
-    @Ignore
-    private List<BaseBean> baseBeans = null;
+//    @Ignore
+//    private List<BaseBean> baseBeans = null;
 
     /**
      *
@@ -172,13 +172,13 @@ public class StockItemVO extends StockItemBean
         this.dutyName = dutyName;
     }
 
-    public List<BaseBean> getBaseBeans() {
-        return baseBeans;
-    }
-
-    public void setBaseBeans(List<BaseBean> baseBeans) {
-        this.baseBeans = baseBeans;
-    }
+//    public List<BaseBean> getBaseBeans() {
+//        return baseBeans;
+//    }
+//
+//    public void setBaseBeans(List<BaseBean> baseBeans) {
+//        this.baseBeans = baseBeans;
+//    }
 
     /**
      * Constructs a <code>String</code> with all attributes in name = value format.

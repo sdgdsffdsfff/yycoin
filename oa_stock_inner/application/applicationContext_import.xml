@@ -53,5 +53,5 @@
 
     <osgi:reference id="baseDAO" interface="com.china.center.oa.sail.dao.BaseDAO" />
 
-    <osgi:reference id="outDAO" interface="com.china.center.oa.sail.dao.OutDAO" />
+    <!--<osgi:reference id="outDAO" interface="com.china.center.oa.sail.dao.OutDAO" />-->
 </beans>

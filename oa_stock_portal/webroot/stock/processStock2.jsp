@@ -17,18 +17,18 @@
 var g_id;
 var to_be_warehouse;
 
-var jmap = new Object();
-<c:forEach items="${bean.itemVO}" var="item">
-jmap['${item.id}'] = "${divMap[item.id]}";
-</c:forEach>
+<%--var jmap = new Object();--%>
+<%--<c:forEach items="${bean.itemVO}" var="item">--%>
+<%--jmap['${item.id}'] = "${divMap[item.id]}";--%>
+<%--</c:forEach>--%>
 //console.log(jmap);
 
-function showDiv(id)
-{
-//    console.log("ID*******"+id);
-//    console.log("jamp*****"+jmap[id]);
-    tooltip.showTable(jmap[id]);
-}
+//function showDiv(id)
+//{
+////    console.log("ID*******"+id);
+////    console.log("jamp*****"+jmap[id]);
+//    tooltip.showTable(jmap[id]);
+//}
 
 function fech(id,amount,totalWarehouseNum)
 {
@@ -210,7 +210,8 @@ function updatePrice()
 					<td align="center">${item.amount}</td>
 					
 					<td align="center">${item.amount-item.totalWarehouseNum}</td>
-                    <td align="center" onMouseOver="showDiv('${item.id}')" onmousemove="tooltip.move()" onmouseout="tooltip.hide()">
+                    <%--<td align="center" onMouseOver="showDiv('${item.id}')" onmousemove="tooltip.move()" onmouseout="tooltip.hide()">--%>
+                    <td align="center">
                         <a href="javascript:void(0);">${item.totalWarehouseNum}</a>
                     </td>
 

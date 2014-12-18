@@ -112,7 +112,7 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
 
     private BaseDAO baseDAO = null;
 
-    private OutDAO outDAO = null;
+//    private OutDAO outDAO = null;
 
     /*
      * (non-Javadoc)
@@ -367,17 +367,15 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
                  if (!ListTools.isEmptyOrNull(baseBeans)){
                      for (BaseBean base: baseBeans){
                          totalWarehouseNum += base.getAmount();
-                         OutBean out = this.outDAO.find(base.getOutId());
-                         if (out!= null){
-                            outTimeMap.put(base.getId(), out.getOutTime());
-                         }
+//                         OutBean out = this.outDAO.find(base.getOutId());
+//                         if (out!= null){
+//                            outTimeMap.put(base.getId(), out.getOutTime());
+//                         }
                      }
                      item.setTotalWarehouseNum(totalWarehouseNum);
-                     item.setBaseBeans(baseBeans);
-
-
-                     divMap.put(item.getId(),
-                             this.createTable(baseBeans, outTimeMap));
+//                     item.setBaseBeans(baseBeans);
+//                     divMap.put(item.getId(),
+//                             this.createTable(baseBeans, outTimeMap));
                      System.out.println("******************totalWarehouseNum******************"+totalWarehouseNum);
                  }
              }
@@ -394,46 +392,46 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         return vo;
     }
 
-    private String createTable(List<BaseBean> list, Map outTimeMap)
-    {
-        StringBuffer buffer = new StringBuffer();
-
-        buffer.append("<table width='100%' border='0' cellspacing='1'>");
-        buffer.append("<tr align='center' class='content0'>");
-        buffer.append("<td width='25%' align='center'>采购单号</td>");
-        buffer.append("<td width='50%' align='center'>品名</td>");
-        buffer.append("<td width='10%' align='center'>入库数量</td>");
-        buffer.append("<td width='15%' align='center'>入库日期</td>");
-
-        int index = 0;
-        String cls = null;
-        for (BaseBean bean : list)
-        {
-            if (index % 2 == 0)
-            {
-                cls = "content1";
-            }
-            else
-            {
-                cls = "content2";
-            }
-
-            buffer.append("<tr class='" + cls + "'>");
-
-            buffer.append("<td width='25%' align='center'>"
-                    + bean.getOutId() + "</td>");
-            buffer.append("<td width='50%' align='center'>"
-                    + StringTools.getLineString(bean.getProductName()) + "</td>");
-            buffer.append("<td width='10%' align='center'>" + bean.getAmount() + "</td>");
-            buffer.append(" <td width='15%' align='center'>" + outTimeMap.get(bean.getId()) + "</td>");
-
-            index++ ;
-        }
-
-        buffer.append("</table>");
-
-        return StringTools.getLineString(buffer.toString());
-    }
+//    private String createTable(List<BaseBean> list, Map outTimeMap)
+//    {
+//        StringBuffer buffer = new StringBuffer();
+//
+//        buffer.append("<table width='100%' border='0' cellspacing='1'>");
+//        buffer.append("<tr align='center' class='content0'>");
+//        buffer.append("<td width='25%' align='center'>采购单号</td>");
+//        buffer.append("<td width='50%' align='center'>品名</td>");
+//        buffer.append("<td width='10%' align='center'>入库数量</td>");
+//        buffer.append("<td width='15%' align='center'>入库日期</td>");
+//
+//        int index = 0;
+//        String cls = null;
+//        for (BaseBean bean : list)
+//        {
+//            if (index % 2 == 0)
+//            {
+//                cls = "content1";
+//            }
+//            else
+//            {
+//                cls = "content2";
+//            }
+//
+//            buffer.append("<tr class='" + cls + "'>");
+//
+//            buffer.append("<td width='25%' align='center'>"
+//                    + bean.getOutId() + "</td>");
+//            buffer.append("<td width='50%' align='center'>"
+//                    + StringTools.getLineString(bean.getProductName()) + "</td>");
+//            buffer.append("<td width='10%' align='center'>" + bean.getAmount() + "</td>");
+//            buffer.append(" <td width='15%' align='center'>" + outTimeMap.get(bean.getId()) + "</td>");
+//
+//            index++ ;
+//        }
+//
+//        buffer.append("</table>");
+//
+//        return StringTools.getLineString(buffer.toString());
+//    }
 
     /*
      * (non-Javadoc)
@@ -1895,17 +1893,17 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
         this.baseDAO = baseDAO;
     }
 
-    /**
-     * @return the outDAO
-     */
-    public OutDAO getOutDAO() {
-        return outDAO;
-    }
-
-    /**
-     * @param outDAO the outDAO to set
-     */
-    public void setOutDAO(OutDAO outDAO) {
-        this.outDAO = outDAO;
-    }
+//    /**
+//     * @return the outDAO
+//     */
+//    public OutDAO getOutDAO() {
+//        return outDAO;
+//    }
+//
+//    /**
+//     * @param outDAO the outDAO to set
+//     */
+//    public void setOutDAO(OutDAO outDAO) {
+//        this.outDAO = outDAO;
+//    }
 }
