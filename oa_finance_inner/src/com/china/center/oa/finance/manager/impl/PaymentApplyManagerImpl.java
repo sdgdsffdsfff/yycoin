@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.china.center.oa.publics.constant.AuthConstant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -125,6 +126,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     private DutyDAO dutyDAO = null;
     
     private OutBillDAO outBillDAO = null;
+
+    private Object PAYMENT_APPLY_LOCK = new Object();
     
     /**
      * default constructor
@@ -2559,7 +2562,36 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         
         return condtion;
 	}
-	
+
+    @Override
+    public void passPaymentApplyJob() throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        try {
+            System.out.println("**************run passPaymentApplyJob****************");
+            _logger.info("**************run passPaymentApplyJob****************");
+            ConditionParse condtion = new ConditionParse();
+
+            condtion.addWhereStr();
+            condtion.addIntCondition("PaymentApplyBean.status", "=",
+                    FinanceConstant.PAYAPPLY_STATUS_INIT);
+            condtion.addIntCondition("PaymentApplyBean.badMoney", "=",0);
+            List<PaymentApplyBean> beans = this.paymentApplyDAO.queryEntityBeansByCondition(condtion);
+            if (!ListTools.isEmptyOrNull(beans)){
+               for (PaymentApplyBean bean: beans){
+                   System.out.println("PaymentApplyBean with badMoney==0**********"+beans.size());
+                   _logger.info("PaymentApplyBean with badMoney==0**********"+beans.size());
+                   synchronized (PAYMENT_APPLY_LOCK)
+                   {
+                       //TODO
+                       this.passPaymentApply(null, bean.getId(), "","");
+                   }
+               }
+            }
+        } catch (MYException e) {
+            _logger.warn(e, e);
+        }
+    }
+
     /**
      * @return the paymentApplyDAO
      */

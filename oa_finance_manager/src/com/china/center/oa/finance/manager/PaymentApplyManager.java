@@ -129,4 +129,11 @@ public interface PaymentApplyManager extends ListenerManager<PaymentApplyListene
     
     boolean refPurchaseBack(User user, String customerId, String ids)
     throws MYException;
+
+    /**
+     * 2014/12/21
+     * 申请中的“坏帐金额”为0的申请，均自动审批通过，相关凭证同手工审批动作
+     * @throws MYException
+     */
+    void passPaymentApplyJob() throws MYException;
 }

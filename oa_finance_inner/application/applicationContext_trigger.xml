@@ -91,6 +91,20 @@
         <property name="jobDetail" ref="createPackageJob" />
         <property name="cronExpression" value="0 0/10 * * * ?" />
     </bean>
+
+    <!--资金管理-收款审核/收款稽核 每10分钟运行一次，只要申请中的“坏帐金额”为0的申请，均自动审批通过-->
+    <bean id="passPaymentApplyJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="paymentApplyManager" />
+        <property name="targetMethod" value="passPaymentApplyJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="passPaymentApplyJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="passPaymentApplyJob" />
+        <property name="cronExpression" value="0 0/10 * * * ?" />
+    </bean>
     
     <bean
 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
