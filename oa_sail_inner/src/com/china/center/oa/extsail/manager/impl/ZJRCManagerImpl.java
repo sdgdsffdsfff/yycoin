@@ -694,9 +694,19 @@ public class ZJRCManagerImpl implements ZJRCManager
 	    	
 	    	newOutBean.setOperatorName(zjrcOut.getStafferName());
 	    	
-	    	newOutBean.setDescription(new StringBuilder().append("紫金农商订单转OA订单 ").append(zjrcOut.getFullId()).append(".发票抬头：")
-	    	    	.append(zjrcOut.getInvoiceHead()).append("，发票明细:").append(zjrcOut.getInvoiceDetail())
-	    	    	.append(",发票备注:").append(zjrcOut.getInvoiceDescription()).toString());
+//	    	newOutBean.setDescription(new StringBuilder().append("紫金农商订单转OA订单 ").append(zjrcOut.getFullId()).append(".发票抬头：")
+//	    	    	.append(zjrcOut.getInvoiceHead()).append("，发票明细:").append(zjrcOut.getInvoiceDetail())
+//	    	    	.append(",发票备注:").append(zjrcOut.getInvoiceDescription()).toString());
+
+            //2014/12/20发货备注和销售单备注也需要写入out表的备注栏位
+            StringBuilder description = new StringBuilder();
+            description.append("紫金农商订单转OA订单 ").append(zjrcOut.getFullId())
+                    .append(".发货备注：").append(zjrcOut.getShipDescription())
+                    .append(".发票抬头：").append(zjrcOut.getInvoiceHead())
+                    .append("，发票明细:").append(zjrcOut.getInvoiceDetail())
+                    .append(",发票备注:").append(zjrcOut.getInvoiceDescription())
+                    .append(".销售单备注：").append(zjrcOut.getDescription());
+            newOutBean.setDescription(description.toString());
 	    	
 	    	final StafferBean stafferBean = stafferDAO.find(newOutBean.getStafferId());
 	    	
@@ -838,12 +848,14 @@ public class ZJRCManagerImpl implements ZJRCManager
 	        
 	        distBean.setTransportPay(-1);
 	        
-	        distBean.setTransport1(-1);
+//	        distBean.setTransport1(-1);
+            //2014/12/21 默认使用顺风，见t_center_express表
+            distBean.setTransport1(1);
 	        
 	        distBean.setTransport2(-1);
 	        
 	        distBean.setShipping(2);
-	        
+
 	        distributionDAO.saveEntityBean(distBean);
 	        
 	    	// 记录退货审批日志 操作人系统，自动审批 
