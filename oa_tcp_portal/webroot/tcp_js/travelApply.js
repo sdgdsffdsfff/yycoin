@@ -430,11 +430,11 @@ var stafferObj;
 
 function selectStaffer2(obj)
 {
-	//stafferObj = obj;
+    stafferObj = obj;
 	
-	//sflag = 2;
+	sflag = 2;
 	
-    //window.common.modal('../admin/pop.do?method=rptQueryStaffer&load=1&selectMode=1');
+    window.common.modal('../admin/pop.do?method=rptQueryStaffer&load=1&selectMode=1');
 }
 
 var taxStafferObj;
