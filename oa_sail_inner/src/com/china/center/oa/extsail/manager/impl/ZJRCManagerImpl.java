@@ -843,8 +843,10 @@ public class ZJRCManagerImpl implements ZJRCManager
 	        distBean.setMobile(zjrcOut.getHandPhone());
 	        
 	        distBean.setReceiver(zjrcOut.getReceiver());
-	        
-	        distBean.setExpressPay(-1);
+
+//	        distBean.setExpressPay(-1);
+            //2014/12/22 默认“公司支付”
+            distBean.setExpressPay(2);
 	        
 	        distBean.setTransportPay(-1);
 	        
