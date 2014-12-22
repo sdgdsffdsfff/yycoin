@@ -136,4 +136,11 @@ public interface PaymentApplyManager extends ListenerManager<PaymentApplyListene
      * @throws MYException
      */
     void passPaymentApplyJob() throws MYException;
+
+    /**
+     * 2014/12/22
+     * 稽核中的“坏帐金额”为0的申请，均自动审批通过，相关凭证同手工审批动作
+     * @throws MYException
+     */
+    void passPaymentApply2Job() throws MYException;
 }

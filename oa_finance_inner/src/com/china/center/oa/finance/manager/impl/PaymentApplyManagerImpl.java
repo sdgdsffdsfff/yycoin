@@ -1514,6 +1514,10 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     private void tryUpdateOutPayStatus(User user, OutBean out)
         throws MYException
     {
+        if (user == null){
+            _logger.warn(out+"***tryUpdateOutPayStatus without user****");
+            return;
+        }
         // 看看销售单是否可以结帐
         ResultBean result = outManager.checkOutPayStatus(user, out);
 
@@ -2583,13 +2587,367 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
                    synchronized (PAYMENT_APPLY_LOCK)
                    {
                        //TODO
-                       this.passPaymentApply(null, bean.getId(), "","");
+                       this.passPaymentApplyForJob(null, bean.getId(), "","");
                    }
                }
             }
         } catch (MYException e) {
             _logger.warn(e, e);
         }
+    }
+
+    /**
+     * 2014/12/22 add for 后台job
+     * @param user
+     * @param id
+     * @param reason
+     * @param description
+     * @return
+     * @throws MYException
+     */
+    @Transactional(rollbackFor = MYException.class)
+    public boolean passPaymentApplyForJob(User user, String id, String reason,String description)
+            throws MYException
+    {
+//        JudgeTools.judgeParameterIsNull(user, id);
+
+        PaymentApplyBean apply = checkPass(id);
+        apply.setStatus(FinanceConstant.PAYAPPLY_STATUS_PASS);
+
+        paymentApplyDAO.updateEntityBean(apply);
+
+        PaymentBean payment = paymentDAO.find(apply.getPaymentId());
+
+        // CORE 生成收款单,更新销售单和委托清单付款状态/或者转成费用
+        createInbillForJob(apply, payment, reason,description);
+
+        // 更新回款单的状态和使用金额
+        updatePayment(apply);
+
+        // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用 通过
+        Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
+
+        for (PaymentApplyListener listener : listenerMapValues)
+        {
+            listener.onPassBean(user, apply);
+        }
+
+        savePassLog(user, FinanceConstant.PAYAPPLY_STATUS_INIT, apply, reason);
+
+        return true;
+    }
+
+    /** 2014/12/22 add for job
+     * createInbillForJob
+     *
+     * @param apply
+     * @param payment
+     * @throws MYException
+     */
+    private void createInbillForJob(PaymentApplyBean apply, PaymentBean payment, String reason,String description)
+            throws MYException
+    {
+        List<PaymentVSOutBean> vsList = apply.getVsList();
+
+        for (PaymentVSOutBean item : vsList)
+        {
+            if (item.getMoneys() == 0.0d)
+            {
+                continue;
+            }
+
+            // 生成收款单(回款转预收)
+            if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT)
+            {
+                // 回款转收款通过,增加收款单
+                saveBillInnerForJob(apply, payment, item, reason,description);
+            }
+            // 预收转费用
+            else if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_CHANGEFEE)
+            {
+                // 把预收转成费用,且新生成的需要核对
+                String billId = item.getBillId();
+
+                // 更新预付金额
+                InBillBean bill = inBillDAO.find(billId);
+
+                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS)
+                {
+                    throw new MYException("预收转费用必须是关联申请态,请确认操作");
+                }
+
+                bill.setStatus(FinanceConstant.INBILL_STATUS_PAYMENTS);
+
+                bill.setOutId("");
+
+                bill.setOutBalanceId("");
+
+                // 变成未核对的状态
+                bill.setCheckStatus(PublicConstant.CHECK_STATUS_INIT);
+
+                // 转成费用的收款单
+                bill.setType(FinanceConstant.INBILL_TYPE_FEE);
+
+                bill.setDescription(bill.getDescription() + " " + description);
+
+                inBillDAO.updateEntityBean(bill);
+            }
+            // 预收拆分
+            else if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_TRANSPAYMENT)
+            {
+                // 把预收转成费用,且新生成的需要核对
+                String billId = item.getBillId();
+
+                // 更新预付金额
+                InBillBean bill = inBillDAO.find(billId);
+
+                if (bill.getStatus() != FinanceConstant.INBILL_STATUS_PREPAYMENTS)
+                {
+                    throw new MYException("预收拆分必须是关联申请态,请确认操作");
+                }
+
+                bill.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
+
+                bill.setOutId("");
+
+                bill.setOutBalanceId("");
+
+                // 变成未核对的状态
+                bill.setCheckStatus(PublicConstant.CHECK_STATUS_INIT);
+
+                // 转成销售收入的收款单
+                bill.setType(FinanceConstant.INBILL_TYPE_SAILOUT);
+
+                bill.setDescription(bill.getDescription() + " " + apply.getDescription());
+
+                inBillDAO.updateEntityBean(bill);
+            }
+            else
+            {
+                // 绑定销售单(回款转预收&&预收转应收)
+                InBillBean bill = inBillDAO.find(item.getBillId());
+
+                if (bill == null)
+                {
+                    throw new MYException("数据错误,请确认操作");
+                }
+
+                if (bill.getStatus() == FinanceConstant.INBILL_STATUS_PAYMENTS)
+                {
+                    throw new MYException("收款单状态错误,请确认操作");
+                }
+
+                // 这里防止并行对销售单操作
+                synchronized (LockHelper.getLock(item.getOutId()))
+                {
+                    OutBean outBean = outDAO.find(item.getOutId());
+
+                    if (outBean == null)
+                    {
+                        throw new MYException("数据错误,请确认操作");
+                    }
+
+                    if ( !OutHelper.canFeeOpration(outBean))
+                    {
+                        throw new MYException("销售单状态错误,请确认操作");
+                    }
+
+                    if ( !StringTools.isNullOrNone(outBean.getChecks()))
+                    {
+                        bill.setDescription(bill.getDescription() + "<br>销售单核对信息:"
+                                + outBean.getChecks() + "<br>审批意见(" + item.getOutId()
+                                + "):" + reason  + " " + description);
+                    }
+
+                    if (bill.getCheckStatus() == PublicConstant.CHECK_STATUS_END)
+                    {
+                        bill.setDescription(bill.getDescription() + "<br>与销售单关联付款所以重置核对状态,原核对信息:"
+                                + bill.getChecks() + "<br>审批意见(" + item.getOutId()
+                                + "):" + reason  + " " + description);
+                    }
+                    else
+                    {
+                        bill.setDescription(bill.getDescription() + "<br>审批意见(" + item.getOutId()
+                                + "):" + reason  + " " + description);
+                    }
+
+                    if (BillHelper.isPreInBill(bill))
+                    {
+                        // 这里需要把收款单的状态变成未核对
+                        BillHelper.initInBillCheckStatus(bill);
+                    }
+
+                    bill.setOutId(item.getOutId());
+
+                    bill.setOutBalanceId(item.getOutBalanceId());
+
+                    bill.setStatus(FinanceConstant.INBILL_STATUS_PAYMENTS);
+
+                    // 谁审批的就是谁的单子
+//                    bill.setStafferId(user.getStafferId());
+
+                    // 用坏账勾款 标记  借用createType add by f 2012-8-2
+                    if (bill.getType()== FinanceConstant.INBILL_TYPE_BADOUT){
+
+                        bill.setCreateType(FinanceConstant.BILL_CREATETYPE_HANDBADOUT);
+                    }
+
+                    inBillDAO.updateEntityBean(bill);
+                }
+            }
+        }
+
+        // 更新收款单ID到申请里面
+        paymentVSOutDAO.updateAllEntityBeans(vsList);
+
+        // 销售单绑定
+        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_BING)
+        {
+            String outId = vsList.get(0).getOutId();
+
+            String outBalanceId = vsList.get(0).getOutBalanceId();
+
+            // 可能存在坏账处理
+            //TODO
+            processOut(null, apply, outId, outBalanceId);
+        }
+
+        // 里面存在多个销售单或者委托清单(回款转收款 )/这里没有坏账
+        if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT)
+        {
+            // 指定认领的操作检查
+            if ( !"0".equals(payment.getDestStafferId())
+                    && !StringTools.isNullOrNone(payment.getDestStafferId()))
+            {
+                if ( !apply.getStafferId().equals(payment.getDestStafferId()))
+                {
+                    throw new MYException("此回款只能[%s]认领,请确认操作", "Nobody");
+                }
+            }
+
+            // 手续费
+            if (payment.getHandling() > 0)
+            {
+                int maxFee = parameterDAO.getInt(SysConfigConstant.MAX_RECVIVE_FEE);
+
+                OutBillBean out = new OutBillBean();
+
+                out.setBankId(payment.getBankId());
+                out.setDescription("回款转收款自动生成手续费:" + payment.getId() + ".回款金额:"
+                        + MathTools.formatNum(payment.getMoney()));
+//                out.setLocationId(user.getLocationId());
+                out.setMoneys(payment.getHandling());
+
+                if (payment.getMoney() < maxFee)
+                {
+                    // 个人承担这个费用
+                    out.setOwnerId(apply.getStafferId());
+                }
+
+                out.setType(FinanceConstant.OUTBILL_TYPE_HANDLING);
+
+                out.setProvideId(payment.getCustomerId());
+
+//                out.setStafferId(user.getStafferId());
+
+                // REF
+                out.setStockId(payment.getId());
+
+                billManager.addOutBillBeanWithoutTransaction(null, out);
+            }
+
+            // 处理销售的回款和付款绑定的核心
+            for (PaymentVSOutBean item : vsList)
+            {
+                if (StringTools.isNullOrNone(item.getOutId()))
+                {
+                    continue;
+                }
+
+                String outId = item.getOutId();
+
+                String outBalanceId = item.getOutBalanceId();
+
+                // 这里肯定是没有坏账的(从设计上就保证)
+                apply.setBadMoney(0);
+                //TODO
+                processOut(null, apply, outId, outBalanceId);
+            }
+        }
+    }
+
+    /**
+     * 2014/12/22 add for job
+     * @param user
+     * @param apply
+     * @param payment
+     * @param item
+     * @param reason
+     * @param description
+     * @throws MYException
+     */
+    private void saveBillInnerForJob(PaymentApplyBean apply, PaymentBean payment,
+                               PaymentVSOutBean item, String reason,String description)
+            throws MYException
+    {
+        InBillBean inBean = new InBillBean();
+
+        inBean.setBankId(payment.getBankId());
+
+        inBean.setCustomerId(apply.getCustomerId());
+
+        //TODO
+//        inBean.setLocationId(user.getLocationId());
+
+        inBean.setLogTime(TimeTools.now());
+
+        inBean.setMoneys(item.getMoneys());
+
+        inBean.setSrcMoneys(item.getMoneys());
+
+        if (StringTools.isNullOrNone(item.getOutId()))
+        {
+            inBean.setStatus(FinanceConstant.INBILL_STATUS_NOREF);
+
+            inBean.setDescription("自动生成预收收款单,从回款单:" + payment.getId() + ",未关联销售单.审批意见:" + reason + " " + description);
+        }
+        else
+        {
+            // 控制如果销售单正在对账,则不能操作
+            OutBean out = outDAO.find(item.getOutId());
+
+            if (out.getFeedBackCheck() == 1)
+            {
+                throw new MYException("销售单[%s]正在对账中，不能勾款", item.getOutId());
+            }
+
+            inBean.setStatus(FinanceConstant.INBILL_STATUS_PAYMENTS);
+
+            inBean.setDescription("自动生成收款单,从回款单:" + payment.getId() + ",关联的销售单:" + item.getOutId()
+                    + ".审批意见:" + reason + " " + description);
+        }
+
+        inBean.setOutId(item.getOutId());
+
+        inBean.setOutBalanceId(item.getOutBalanceId());
+
+        inBean.setOwnerId(apply.getStafferId());
+
+        inBean.setPaymentId(payment.getId());
+
+//        inBean.setStafferId(user.getStafferId());
+
+        inBean.setType(FinanceConstant.INBILL_TYPE_SAILOUT);
+
+        billManager.addInBillBeanWithoutTransaction(null, inBean);
+
+        item.setBillId(inBean.getId());
+    }
+
+    @Override
+    public void passPaymentApply2Job() throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        System.out.println("***********run passPaymentApply2Job************");
     }
 
     /**
