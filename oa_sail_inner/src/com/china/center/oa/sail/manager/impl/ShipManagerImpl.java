@@ -589,8 +589,9 @@ public class ShipManagerImpl implements ShipManager
     @Transactional(rollbackFor = MYException.class)
     public void sendMailForShipping() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
-        long now = System.currentTimeMillis();
-        System.out.println("**************run schedule****************"+now);
+        String msg =  "**************run sendMailForShipping job****************";
+        System.out.println(msg);
+        _logger.info(msg);
 
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
@@ -690,7 +691,8 @@ public class ShipManagerImpl implements ShipManager
                 }
             }
         } else {
-            System.out.println("**************no Vo found***************");
+//            System.out.println("**************no Vo found***************");
+            _logger.info("*****no VO found to send mail****");
         }
 
     }
