@@ -49,6 +49,8 @@ import com.china.center.oa.tcp.listener.TcpPayListener;
 import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -61,6 +63,8 @@ import com.china.center.tools.TimeTools;
  */
 public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private DutyDAO dutyDAO = null;
 
     private DepartmentDAO departmentDAO = null;
@@ -1196,6 +1200,10 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 	@Override
 	public void onSubmitMidTravelApply(User user, TravelApplyBean bean, int type)
 			throws MYException {
+
+        System.out.println("***************onSubmitMidTravelApply**********"+user);
+        _logger.info("***************onSubmitMidTravelApply**********"+user);
+
 		
         FinanceBean financeBean = new FinanceBean();
 
@@ -1289,6 +1297,8 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
         // 辅助核算 部门和职员
         itemIn.setDepartmentId(staffer.getPrincipalshipId());
+
+        //TODO 2014/12/23 使用承担人替换掉当前登录帐号
         itemIn.setStafferId(staffer.getId());
 
         itemList.add(itemIn);

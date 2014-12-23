@@ -319,6 +319,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     public boolean submitTravelApplyBean(User user, String id, String processId)
         throws MYException
     {
+        System.out.println("*******************submitTravelApplyBean*****************");
+        _logger.info("*******************submitTravelApplyBean*****************");
         JudgeTools.judgeParameterIsNull(user, id);
 
         TravelApplyVO bean = findVO(id);
@@ -357,6 +359,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
             for (TcpPayListener tcpPayListener : listenerMapValues)
             {
+                System.out.println("************tcpPayListener************"+tcpPayListener);
+                _logger.info("************tcpPayListener************"+tcpPayListener);
                 tcpPayListener.onSubmitMidTravelApply(user, bean);
             }
         }

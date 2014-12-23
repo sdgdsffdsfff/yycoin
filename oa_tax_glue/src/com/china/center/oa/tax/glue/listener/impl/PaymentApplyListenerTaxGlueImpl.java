@@ -710,9 +710,15 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
             PaymentBean payment, BankBean bank) throws MYException {
         FinanceBean financeBean = new FinanceBean();
 
-        String name = user.getStafferName() + "通过预收转应收(销售单关联):" + item.getPaymentId() + '.';
+        if (user == null){
+            String name = "后台Job" + "通过预收转应收(销售单关联):" + item.getPaymentId() + '.';
 
-        financeBean.setName(name);
+            financeBean.setName(name);
+        }  else{
+            String name = user.getStafferName() + "通过预收转应收(销售单关联):" + item.getPaymentId() + '.';
+
+            financeBean.setName(name);
+        }
 
         financeBean.setType(TaxConstanst.FINANCE_TYPE_MANAGER);
 
@@ -727,7 +733,9 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setDutyId(bank.getDutyId());
 
-        financeBean.setCreaterId(user.getStafferId());
+        if (user!= null){
+            financeBean.setCreaterId(user.getStafferId());
+        }
 
         financeBean.setDescription(financeBean.getName());
 
@@ -1117,8 +1125,13 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         if (outBean == null) {
             throw new MYException("数据错误,请确认操作");
         }
+        String name = "";
+        if (user == null){
+            name =  "后台Job通过预收转应收(销售单关联):" + item.getPaymentId() + '.';
+        } else{
+            name = user.getStafferName() + "通过预收转应收(销售单关联):" + item.getPaymentId() + '.';
+        }
 
-        String name = user.getStafferName() + "通过预收转应收(销售单关联):" + item.getPaymentId() + '.';
 
         // 银行对应的暂记户科目（没有手续费）/应收账款
         FinanceItemBean itemIn = new FinanceItemBean();
