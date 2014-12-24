@@ -40,12 +40,11 @@ import com.china.center.oa.tax.dao.FinanceMonthDAO;
 import com.china.center.oa.tax.dao.TaxDAO;
 import com.china.center.oa.tax.helper.FinanceHelper;
 import com.china.center.oa.tax.manager.FinanceManager;
-import com.china.center.oa.tcp.bean.AbstractTcpBean;
-import com.china.center.oa.tcp.bean.ExpenseApplyBean;
-import com.china.center.oa.tcp.bean.RebateApplyBean;
-import com.china.center.oa.tcp.bean.TravelApplyBean;
+import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.listener.TcpPayListener;
+import com.china.center.oa.tcp.vo.TcpShareVO;
+import com.china.center.oa.tcp.vo.TravelApplyVO;
 import com.china.center.tools.ListTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
@@ -1255,6 +1254,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
                                 List<FinanceItemBean> itemList, int type)
         throws MYException
     {
+        System.out.println("****************bean class************"+bean.getClass()+"*****************");
         // 收款人
         StafferBean staffer = stafferDAO.find(bean.getStafferId());
 
@@ -1298,8 +1298,18 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         // 辅助核算 部门和职员
         itemIn.setDepartmentId(staffer.getPrincipalshipId());
 
-        //TODO 2014/12/23 使用承担人替换掉当前登录帐号
-        itemIn.setStafferId(staffer.getId());
+        //2014/12/24 使用承担人替换掉当前登录帐号
+        // itemIn.setStafferId(staffer.getId());
+        if (bean instanceof TravelApplyVO){
+            TravelApplyVO vo = (TravelApplyVO)bean;
+            List<TcpShareVO> beans = vo.getShareVOList();
+            if (ListTools.isEmptyOrNull(beans)){
+                System.out.println("TcpShareVO can not be empty!");
+                _logger.warn("TcpShareVO can not be empty!");
+            }else {
+                itemIn.setStafferId(beans.get(0).getBearId());
+            }
+        }
 
         itemList.add(itemIn);
 

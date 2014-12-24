@@ -341,6 +341,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             checkBudget(user, bean, 0);
         }
 
+
         // 获得当前的处理环节
         TcpFlowBean token = tcpFlowDAO.findByUnique(bean.getFlowKey(), bean.getStatus());
 
