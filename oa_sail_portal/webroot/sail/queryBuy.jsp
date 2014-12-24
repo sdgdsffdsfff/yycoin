@@ -230,10 +230,19 @@ function processInvoke()
 
 function sureBack()
 {
-	if (getRadio('fullId').statuss == 1 && (getRadio('fullId').outtype == 4 || getRadio('fullId').outtype == 5 || getRadio('fullId').outtype == 7))
+    console.log(getRadio('fullId').outtype);
+    if (getRadio('fullId').statuss == 1 && (getRadio('fullId').outtype == 4 || getRadio('fullId').outtype == 7))
+    {
+        if (window.confirm('确认退库?')) {
+           document.location.href = '../sail/out.do?method=submitOut&outId=' + getRadioValue("fullId");
+        }
+    }
+	else if (getRadio('fullId').statuss == 1 && getRadio('fullId').outtype == 5 )
 	{
-	   if (window.confirm('确认退库?'))
-        document.location.href = '../sail/out.do?method=submitOut&outId=' + getRadioValue("fullId");
+	   if (window.confirm('确认退库?')) {
+           //TODO
+           document.location.href = '../sail/out.do?method=lyxsBackDetail&outId=' + getRadioValue("fullId");
+       }
     }
     else
     alert('不能操作');
