@@ -1296,7 +1296,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         itemIn.setDescription(itemIn.getName());
 
         // 辅助核算 部门和职员
-        itemIn.setDepartmentId(staffer.getPrincipalshipId());
+//        itemIn.setDepartmentId(staffer.getPrincipalshipId());
 
         //2014/12/24 使用承担人替换掉当前登录帐号
         // itemIn.setStafferId(staffer.getId());
@@ -1307,7 +1307,14 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
                 System.out.println("TcpShareVO can not be empty!");
                 _logger.warn("TcpShareVO can not be empty!");
             }else {
-                itemIn.setStafferId(beans.get(0).getBearId());
+                String bearId = beans.get(0).getBearId();
+                itemIn.setStafferId(bearId);
+                //2014/12/25
+                // // 辅助核算 部门和职员 使用承担人部门替换掉当前登录帐号
+                StafferBean st = stafferDAO.find(bearId);
+                if (st!= null){
+                    itemIn.setDepartmentId(st.getPrincipalshipId());
+                }
             }
         }
 
