@@ -239,10 +239,7 @@ function sureBack()
     }
 	else if (getRadio('fullId').statuss == 1 && getRadio('fullId').outtype == 5 )
 	{
-	   if (window.confirm('确认退库?')) {
-           //TODO
-           document.location.href = '../sail/out.do?method=lyxsBackDetail&outId=' + getRadioValue("fullId");
-       }
+        document.location.href = '../sail/out.do?method=lyxsBackDetail&outId=' + getRadioValue("fullId");
     }
     else
     alert('不能操作');

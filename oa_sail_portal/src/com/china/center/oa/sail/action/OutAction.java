@@ -5917,6 +5917,38 @@ public class OutAction extends ParentOutAction
     	
     	return mapping.findForward("refPurchaseBack");
     }
+
+    /**
+     * lyxsBackDetail
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward lyxsBackDetail(ActionMapping mapping, ActionForm form,
+                                      HttpServletRequest request,
+                                      HttpServletResponse reponse)
+            throws ServletException
+    {
+        System.out.println("***********************888lyxsBackDetail****************");
+        String fullId = request.getParameter("outId");
+
+        OutBean out = outDAO.find(fullId);
+
+        User user = (User) request.getSession().getAttribute("user");
+
+        if (out == null)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据错误");
+
+            return mapping.findForward("error");
+        }
+
+        request.setAttribute("bean", out);
+        return mapping.findForward("lyxsBackDetail");
+    }
     
     /**
      * @return the userDAO

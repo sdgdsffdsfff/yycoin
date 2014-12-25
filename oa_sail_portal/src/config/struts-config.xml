@@ -62,6 +62,7 @@
 			<forward name="queryStatsRank" path="/sail/queryStatsRank.jsp" />
 			<forward name="refConfirmInvoice" path="/invoiceins/refConfirmInvoice.jsp" />
 			<forward name="refPurchaseBack" path="/sail/refPurchaseBack.jsp" />
+            <forward name="lyxsBackDetail" path="/sail/lyxsBackDetail.jsp" />
 		</action>
 		
 		<action path="/sail/transport" parameter="method"
