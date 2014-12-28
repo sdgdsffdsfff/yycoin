@@ -6522,6 +6522,119 @@ public class ParentOutAction extends DispatchAction
 		}
 	}
 
+    /**2014/12/28
+     * 领样销售退库
+     *
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward submitOut2(ActionMapping mapping, ActionForm form,
+                                   HttpServletRequest request, HttpServletResponse reponse)
+            throws ServletException
+    {
+        synchronized (S_LOCK)
+        {
+            String fullId = request.getParameter("outId");
+            String productList = request.getParameter("productList");
+            System.out.println("******************submitOut2*****************"+fullId+"***productList***"+productList);
+            User user = (User) request.getSession().getAttribute("user");
+
+            OutVO out = outDAO.findVO(fullId);
+            if (out == null)
+            {
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据错误");
+
+                return mapping.findForward("error");
+            }
+
+//            // 退库-事业部经理审批
+//            if (out.getType() == OutConstant.OUT_TYPE_INBILL
+//                    && (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
+//                    || out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
+//                    || out.getOutType() == OutConstant.OUTTYPE_IN_PRESENT))
+//            {
+//                if (out.getStatus() != OutConstant.BUY_STATUS_SUBMIT)
+//                {
+//                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "状态错误");
+//
+//                    return mapping.findForward("error");
+//                }
+//            }
+//            else
+//            {
+//                if (out.getStatus() != OutConstant.STATUS_SAVE)
+//                {
+//                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "状态错误");
+//
+//                    return mapping.findForward("error");
+//                }
+//            }
+//
+//            try
+//            {
+//                int type = OutConstant.OUTTYPE_IN_SWATCH;
+//
+//                if (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH)
+//                {
+//                    type = StorageConstant.OPR_STORAGE_SWATH;
+//
+//                    // add check 溢出
+//                    outManager.checkSwithToSail(out.getRefOutFullId());
+//                }
+//
+//                if (out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)
+//                {
+//                    type = StorageConstant.OPR_STORAGE_OUTBACK;
+//
+//                    // add check 溢出
+//                    outManager.checkOutBack(out.getRefOutFullId());
+//                }
+//
+//                outManager.submit(fullId, user, type);
+//            }
+//            catch (MYException e)
+//            {
+//                _logger.warn(e, e);
+//
+//                request.setAttribute(KeyConstant.ERROR_MESSAGE,
+//                        "处理错误:" + e.getErrorContent());
+//
+//                return mapping.findForward("error");
+//            }
+//
+//            if ((out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK || out
+//                    .getOutType() == OutConstant.OUTTYPE_IN_SWATCH)
+//                    && !StringTools.isNullOrNone(out.getRefOutFullId()))
+//            {
+//                // 验证(销售单)是否可以全部回款
+//                try
+//                {
+//                    outManager.payOut(user, out.getRefOutFullId(), "自动核对付款");
+//                }
+//                catch (MYException e)
+//                {
+//                    _logger.info(e, e);
+//                }
+//            }
+
+            CommonTools.saveParamers(request);
+
+            RequestTools.menuInitQuery(request);
+
+            request.setAttribute("queryType", "5");
+
+            request.setAttribute("holdCondition", "1");
+
+            request.setAttribute(KeyConstant.MESSAGE, "成功确认单据:" + fullId);
+
+            return queryBuy(mapping, form, request, reponse);
+        }
+    }
+
 	/**
 	 * 业务员查询销售单
 	 * 

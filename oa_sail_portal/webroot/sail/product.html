@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+    <script language="JavaScript" src="../sail_js/localforage.min.js"></script>
+    <script language="JavaScript" src="../js/jquery/jquery.js"></script>
+    <script>
+        function save(obj){
+//            console.log($(this).parent().parent());
+//            console.log($(this).closest("tr"));
+//            var $item = $(this).closest("tr")   // Finds the closest row <tr>
+//                    .find(".product")     // Gets a descendent with class="nr"
+//                    .value;
+//            console.log("item is:"+$item);
+//            console.log(obj);
+            trNode = obj.parentNode.parentNode
+            console.log(trNode);
+            inode = trNode.querySelector("td select")
+            inode.setAttribute("disabled", "disabled");
+            console.log(inode.value);
+//            console.log($(this));
+//            productNode = trNode.childNodes[0].childNodes[0];
+//            console.log(productNode);
+//            console.log(productNode.value);
+//    var rowcells = row.find('td')
+//    console.log(rowcells);
+//            console.log(trNode.children());
+//            console.log($(this).closest("tr"));
+//            console.log(trNode.closest("tr"));
+            window.open('product2.html')
+        }
+    </script>
+    <title></title>
+</head>
+<body>
+<table>
+    <thead>
+        <th>商品名</th>
+        <th>数量</th>
+        <th>..</th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <select name="locationIds" class="select_class"  style="width: 100%">
+                    <option value="">--</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                </select>
+                <input type="text" class="product"></td>
+            <td><input type="text"></td>
+            <td><input type="button" onclick="save(this)"></td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

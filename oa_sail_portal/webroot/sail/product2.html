@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+    <title></title>
+    <script language="JavaScript" src="../sail_js/localforage.min.js"></script>
+    <script language="JavaScript" src="../js/jquery/jquery.js"></script>
+    <script>
+        function save(){
+            var formData = $( "#accessoryForm" ).serialize();
+            console.log(formData);
+            var formData2 = $("#accessoryForm").serializeArray();
+            console.info(formData2);
+            var formData3 = JSON.parse(JSON.stringify($('#accessoryForm').serializeArray()))
+            console.info(formData3);
+            console.log(formData3.length);
+            if (formData3.length >1){
+                accessoryData = formData3.slice(1);
+                console.log("accessoryData*********"+accessoryData);
+                localforage.setItem('100', accessoryData, function(err, value) {
+                    // Do other things once the value has been saved.
+                    console.log(value);
+                });
+            }
+
+            localforage.getItem('100', function(err, value) {
+                // Run this code once the value has been
+                // loaded from the offline store.
+                console.log("****************");
+                console.log(value);
+            });
+//            localforage.getItem('key', function(err, value) { alert(value) });
+//            localforage.setItem('key', 'value222', console.log("haha"));
+
+//            str ="bomProductName=&amount=1&location=&bomProductName=16455085&amount=1&location=99000000000000000002&bomProductName=16670185&amount=1&location=99000000000000000001"
+
+        }
+    </script>
+</head>
+<body>
+<form method="post" id="accessoryForm">
+<table>
+    <thead>
+        <th>配件名</th>
+        <th>数量</th>
+        <th>..</th>
+    </thead>
+    <tbody>
+        <tr>
+            <td><input type="text" name="product"></td>
+            <td><input type="text" name="amount"></td>
+            <td><input type="button" onclick="window.open('')"></td>
+        </tr>
+    </tbody>
+</table>
+
+    <input type="button" value="提交" onclick="save()">
+</form>
+
+</body>
+</html>

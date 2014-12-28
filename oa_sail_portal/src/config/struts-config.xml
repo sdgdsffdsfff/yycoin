@@ -63,6 +63,7 @@
 			<forward name="refConfirmInvoice" path="/invoiceins/refConfirmInvoice.jsp" />
 			<forward name="refPurchaseBack" path="/sail/refPurchaseBack.jsp" />
             <forward name="lyxsBackDetail" path="/sail/lyxsBackDetail.jsp" />
+             <forward name="accessoryInStorage" path="/sail/accessoryInStorage.jsp" />
 		</action>
 		
 		<action path="/sail/transport" parameter="method"

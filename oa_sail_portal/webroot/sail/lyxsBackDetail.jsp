@@ -13,144 +13,49 @@
 <script language="JavaScript" src="../js/compatible.js"></script>
 <script language="JavaScript" src="../js/jquery/jquery.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
-<script language="JavaScript" src="../sail_js/addOut50.js"></script>
+<script language="JavaScript" src="../sail_js/accessoryInStorage.js"></script>
+<script language="JavaScript" src="../sail_js/localforage.min.js"></script>
 <script language="javascript">
-<%@include file="../sail_js/out501.jsp"%>
+<%--<%@include file="../sail_js/out501.jsp"%>--%>
+    var productList = [];
+    <c:forEach items="${bean.baseList}" var="item">
+    productList.push("${item.productId}")
+    </c:forEach>
+    console.log(productList);
 
-var duesMap = {};
-var duesTypeMap = {};
-<c:forEach items="${dutyList}" var="item">
-duesMap['${item.id}'] = '${item.dues}';
-duesTypeMap['${item.id}'] = '${item.mtype}';
-</c:forEach>
-/**
- * 查询库存
- */
-function opens(obj)
-{
-	var ret = checkCurrentUser();
-
-	if (!ret)
-	{
-		window.parent.location.reload();
-
-		return false;
-	}
-
-	var os = obj.parentNode.parentNode;
-//    alert(os.innerHTML);
-
-//	var location = os.cells[0].childNodes[0].value;
-    var location = document.getElementById("unLocationId").value;
-//    alert(location);
-//    alert(os.cells[0].innerHTML);
-//    alert(os.cells[0].childNodes[0].innerHTML);
-
-	if (location == '' || typeof location === 'undefined')
+    function load()
     {
-        alert('请选择仓库');
-        
-        return false;
+        loadForm();
     }
-    
-    //if ($$('dutyId') == '')
-    //{
-        //alert('请选择纳税实体');
-        
-        //return false;
-    //}
-    
-    var mtype = "";
-    oo = obj;
-    // 配件
-    window.common.modal('../depot/storage.do?method=rptQueryStorageRelationInDepot&sailLocation=${g_staffer.industryId}&load=1&depotId='
-	                    + location + '&code=' + obj.productcode + '&mtype=' + mtype 
-	                    + '&init=1');
-}
 
-function load()
-{	
-    blackForbid();
-    
-    titleChange();
-    
-    loadForm();
-    
-     //load show
-    //loadShow();
-    
-    //loadForm();
-    
-    managerChange();
+//    function accessoryInStorage(){
+//        window.open('../sail/out.do?method=accessoryInStorage&productId=product1&outId=' + getRadioValue("fullId"));
+//    }
 
-
-}
-
-function changePrice()
-{
-    var ssList = document.getElementsByName('price');
-    
-    for (var i = 0; i < ssList.length; i++)
-    {
-        if (ssList[i].value != '')
-        {
-           ccs(ssList[i]);
-           total();
+    function confirmBack(){
+        var len=productList.length;
+        for(var i=0; i<len; i++) {
+            var value = productList[i];
+            console.log("product:"+value);
+            localforage.getItem(value, function(err, value) {
+                // Run this code once the value has been
+                // loaded from the offline store.
+                console.log(value);
+                $O('productList').value = value;
+            });
         }
+
+        backForm.submit();
     }
-}
-
-function blackForbid()
-{
-	
-	var black = "${black}";
-
-	if (black > '')
-	{
-		alert(black);
-
-		document.location.href = '../admin/welcome.jsp';
-		return false;
-	}
-
-	return true;
-}
 
 </script>
 </head>
 <body class="body_class" onload="load()">
-<form name="outForm" method="post" action="../sail/out.do?method=addOut">
+<form name="backForm" method="post" action="../sail/out.do?method=submitOut2">
 <input type=hidden name="update" value="0" />
-<input type=hidden name="nameList" /> 
-<input type=hidden name="idsList" /> 
-<input type=hidden name="amontList" />
-
-<input type=hidden name="totalList" /> 
-<input type=hidden name="totalss" /> 
-<input type=hidden name="customerId" /> 
-<input type=hidden name="type" value='0' /> 
-<input type=hidden name="saves" value="" />
-<input type=hidden name="desList" value="" />
-<input type=hidden name="showCostList" value="" />
-<input type=hidden name="otherList" value="" />
-<input type=hidden name="depotList" value="" />
-<input type=hidden name="mtypeList" value="" />
-<input type=hidden name="oldGoodsList" value="" />
-<input type=hidden name="taxList" value="" />
-<input type=hidden name="taxrateList" value="" />
-<input type=hidden name="inputRateList" value="" />
-
-<input type=hidden name="customercreditlevel" value="" />
-<input type=hidden name="id" value="" />
-<input type=hidden name="priceList"> 
-<input type=hidden name="inputPriceList">
-<input type=hidden name="mtype" value="" />
-<input type=hidden name="hasProm" value="${hasProm}" />
-<input type=hidden name="step" value="1" />
-
-<input type=hidden name="locationShadow" value="">
-<!-- 批量开单 -->
-<input type=hidden name="oprType" value="0">
+<input type=hidden name="nameList" />
+<input type=hidden name="productList" />
+<input type=hidden name="outId" value="${bean.fullId}"/>
 
 <p:navigation
 	height="22">
@@ -168,38 +73,40 @@ function blackForbid()
 		<td height="10" colspan='2'></td>
 	</tr>
 
-	<%--<tr>--%>
-		<%--<td colspan='2' align='center'>--%>
-		<%--<table width="100%" border="0" cellpadding="0" cellspacing="0"--%>
-			<%--class="border">--%>
-			<%--<tr>--%>
-				<%--<td>--%>
-				<%--<table width="100%" border="0" cellspacing='1'>--%>
-					<%--<tr class="content2">--%>
-						<%--<td width="15%" align="right">商品名：</td>--%>
-
-						<%--<td width="35%"><input type="text" name="outTime"--%>
-							<%--value="${current}" maxlength="20" size="20"--%>
-							<%--readonly="readonly"><font color="#FF0000">*</font></td>--%>
-
-							<%--<td width="15%" align="right">数量：</td>--%>
-							<%--<td width="35%"><select name="outType" class="select_class" onchange="managerChange()">--%>
-								<%--<p:option type="outType_out"></p:option>--%>
-							<%--</select><font color="#FF0000">*</font></td>--%>
-					<%--</tr>--%>
-
-
-
-				<%--</table>--%>
-				<%--</td>--%>
-			<%--</tr>--%>
-		<%--</table>--%>
-
-		<%--</td>--%>
-	<%--</tr>--%>
-
 	<tr>
 		<td height="10" colspan='2'></td>
+        <table width="100%" border="0" cellpadding="0" cellspacing="0"
+               class="border">
+            <tr>
+                <td>
+                    <table width="100%" border="0" cellspacing='1'>
+                        <tr class="content2">
+                            <td width="15%" align="right">商品名：</td>
+                            <td width="35%">数量：</td>
+                        </tr>
+
+                        <c:forEach items="${bean.baseList}" var="item" varStatus="vs">
+                            <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
+                                <td align="center">
+                                    <input type="text" name="productName"
+                                           readonly="readonly"
+                                           style="width: 100%"
+                                           value="${item.productName}" />
+                                </td>
+
+                                <td align="center">
+                                    <input type="text" readonly="readonly" style="width: 100%"  value="${item.amount}"
+                                           maxlength="6" name="amount">
+                                </td>
+
+                            </tr>
+                        </c:forEach>
+
+
+                    </table>
+                </td>
+            </tr>
+        </table>
 	</tr>
 
 
@@ -229,44 +136,35 @@ function blackForbid()
 
 					<tr class="content1" id="trCopy" style="display: none;">
                         <td>
-                            <input type="text" name="productName"
-                                   onclick="opens(this)"
-                                   productid=""
-                                   productcode=""
-                                   price=""
-                                   addprice=""
-                                   stafferid=""
-                                   depotpartid=""
-                                   producttype=""
-                                   oldgoods=""
-                                   mtype=""
-                                   depotid=""
-                                   inputrate=""
-                                   readonly="readonly"
-                                   style="width: 100%; cursor: hand">
+                            <select name="productName" class="select_class product" style="width: 100%">
+                                <option value="">--</option>
+                                <c:forEach items='${bean.baseList}' var="item">
+                                    <option value="${item.productId}">${item.productName}</option>
+                                </c:forEach>
+                            </select>
                         </td>
-						<td>
-							<select name="locationIds" class="select_class" onchange="clearsItem(this)" style="width: 100%">
-								    <option value="">--</option>
-									<c:forEach items='${locationList}' var="item">
-										<option value="${item.id}">${item.name}</option>
-									</c:forEach>
-							</select>
-						</td>
 
+                        <td align="center">
+                            <input type="text" style="width: 100%" maxlength="6" name="amount">
+                        </td>
 
-						<td align="center">
-                            <input type="text" style="width: 100%" maxlength="6" onkeyup="cc(this)" name="amount">
+                        <td>
+                            <select name="location" class="select_class" style="width: 100%">
+                                <option value="">--</option>
+                                <c:forEach items='${locationList}' var="item">
+                                    <option value="${item.id}">${item.name}</option>
+                                </c:forEach>
+                            </select>
                         </td>
 
 
 						<td align="center"></td>
 					</tr>
 
-					<tr class="content2">
-                        <td><input type=button value="按配件入库"  class="button_class" onclick="clears()"></td>
-						<td><input type=button value="清空"  class="button_class" onclick="clears()"></td>
-					</tr>
+					<%--<tr class="content2">--%>
+                        <%--<td><input type=button value="按配件入库"  class="button_class" onclick="accessoryInStorage()"></td>--%>
+						<%--<td><input type=button value="清空"  class="button_class" onclick="clears()"></td>--%>
+					<%--</tr>--%>
 				</table>
 				</td>
 			</tr>
@@ -291,7 +189,7 @@ function blackForbid()
 		<td width="100%">
 		<div align="right">
 			<input type="button" class="button_class"
-			value="确认退库" onClick="save()" />&nbsp;&nbsp;
+			value="确认退库" onClick="confirmBack()" />&nbsp;&nbsp;
 			</div>
 		</td>
 		<td width="0%"></td>

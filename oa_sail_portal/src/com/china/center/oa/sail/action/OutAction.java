@@ -5932,9 +5932,58 @@ public class OutAction extends ParentOutAction
                                       HttpServletResponse reponse)
             throws ServletException
     {
-        System.out.println("***********************888lyxsBackDetail****************");
+        System.out.println("***********************lyxsBackDetail****************");
         String fullId = request.getParameter("outId");
 
+        OutVO out = outDAO.findVO(fullId);
+        if (out == null)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据错误");
+
+            return mapping.findForward("error");
+        }
+
+        List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
+        out.setBaseList(baseBeans);
+
+        User user = (User) request.getSession().getAttribute("user");
+
+        List<DepotBean> locationList = depotDAO.queryCommonDepotBean();
+        //TODO 入库仓库列表
+        request.setAttribute("bean", out);
+        request.setAttribute("locationList", locationList);
+        return mapping.findForward("lyxsBackDetail");
+    }
+
+    /**
+     * accessoryInStorage
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward accessoryInStorage(ActionMapping mapping, ActionForm form,
+                                        HttpServletRequest request,
+                                        HttpServletResponse reponse)
+            throws ServletException
+    {
+        String fullId = request.getParameter("outId");
+        String productId = request.getParameter("productId");
+        String amount = request.getParameter("amount");
+        System.out.println("***********************accessoryInStorage****************"+fullId+"***"+productId+"****"+amount);
+
+//        ConditionParse con = new ConditionParse();
+//        con.addCondition(" left join t_center_productbom bom on ProductBean.id=bom.subProductId where bom.productId="+productId);
+//        List<ProductBean> productBeans = this.productDAO.queryEntityBeansByCondition(con);
+        List<ProductBean> productBeans = this.productDAO.queryBomByProductId(productId);
+        if (ListTools.isEmptyOrNull(productBeans)){
+            System.out.println("********************product BOM not found***********");
+        }else{
+            System.out.println("********************product BOM bomList***********"+productBeans.size());
+            request.setAttribute("bomList", productBeans);
+        }
         OutBean out = outDAO.find(fullId);
 
         User user = (User) request.getSession().getAttribute("user");
@@ -5946,8 +5995,12 @@ public class OutAction extends ParentOutAction
             return mapping.findForward("error");
         }
 
+        List<DepotBean> locationList = depotDAO.queryCommonDepotBean();
+        request.setAttribute("locationList", locationList);
         request.setAttribute("bean", out);
-        return mapping.findForward("lyxsBackDetail");
+        request.setAttribute("productId", productId);
+        request.setAttribute("amount", amount);
+        return mapping.findForward("accessoryInStorage");
     }
     
     /**

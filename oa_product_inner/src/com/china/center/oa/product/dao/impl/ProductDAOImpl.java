@@ -58,4 +58,11 @@ public class ProductDAOImpl extends BaseDAO<ProductBean, ProductVO> implements P
 		
 		return this.jdbcOperation.queryForInt(sql, refProductId);
 	}
+
+    @Override
+    public List<ProductBean> queryBomByProductId(String s) {
+        String sql = "select product.* from t_center_product product left join t_center_productbom bom on product.id=bom.subProductId where productId="+s;
+
+        return this.jdbcOperation.queryForListBySql(sql, claz);
+    }
 }
