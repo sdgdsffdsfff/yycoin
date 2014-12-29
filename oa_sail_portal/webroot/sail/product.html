@@ -5,6 +5,32 @@
     <script language="JavaScript" src="../sail_js/localforage.min.js"></script>
     <script language="JavaScript" src="../js/jquery/jquery.js"></script>
     <script>
+        function save2(){
+            console.log("*************");
+            var result = {};
+            localforage.getItem('100', function(err, value) {
+                // Run this code once the value has been
+                // loaded from the offline store.
+                console.log("value:"+value);
+                console.log(JSON.stringify(value));
+                result['100'] = value;
+            });
+
+            localforage.iterate(function(value, key) {
+                // Resulting key/value pair -- this callback
+                // will be executed for every item in the
+                // database.
+                console.log([key, value]);
+                result[key] = value
+            }, function() {
+                console.log('Iteration has completed:'+JSON.stringify(result));
+            });
+
+            console.log("result:"+JSON.stringify(result));
+            $('#productList').value = result;
+
+//            backForm.submit();
+        }
         function save(obj){
 //            console.log($(this).parent().parent());
 //            console.log($(this).closest("tr"));
@@ -33,6 +59,8 @@
     <title></title>
 </head>
 <body>
+<form method="post" action="./submitOut" id="backForm">
+    <input hidden type="text" name="productList" id="productList">
 <table>
     <thead>
         <th>商品名</th>
@@ -53,6 +81,7 @@
         </tr>
     </tbody>
 </table>
-
+    <input type="button" value="submit" onclick="save2()">
+</form>
 </body>
 </html>
