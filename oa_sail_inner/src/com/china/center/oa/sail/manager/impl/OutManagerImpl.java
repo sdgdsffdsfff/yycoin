@@ -1584,6 +1584,46 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
     }
 
+    @Override
+    public int submit2(final String fullId, final User user, final int storageType, final List<BaseBean> baseBeans) throws MYException {
+        // LOCK 库存提交(当是入库单的时候是变动库存的)
+        synchronized (PublicLock.PRODUCT_CORE)
+        {
+            Integer result = 0;
+
+            try
+            {
+                // 增加管理员操作在数据库事务中完成
+                TransactionTemplate tran = new TransactionTemplate(transactionManager);
+
+                result = (Integer)tran.execute(new TransactionCallback()
+                {
+                    public Object doInTransaction(TransactionStatus arg0)
+                    {
+                        try
+                        {
+                            return submitWithOutAffair2(fullId, user, storageType, baseBeans);
+                        }
+                        catch (MYException e)
+                        {
+                            _logger.error(e, e);
+
+                            throw new RuntimeException(e.getErrorContent(), e);
+                        }
+                    }
+                });
+            }
+            catch (Exception e)
+            {
+                _logger.error(e, e);
+
+                throw new MYException(e.getMessage());
+            }
+
+            return result;
+        }
+    }
+
     /**
      * 暂时没有对外开放
      */
@@ -1701,6 +1741,131 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             addOutLog(fullId, user, outBean, logDesc, SailConstant.OPR_OUT_PASS, status);
         }
         
+        outBean.setStatus(status);
+
+        notifyOut(outBean, user, 0);
+
+        return status;
+    }
+
+    /**
+     * 暂时没有对外开放
+     */
+    private int submitWithOutAffair2(final String fullId, final User user, int type, List<BaseBean> baseList)
+            throws MYException
+    {
+        final OutBean outBean = outDAO.find(fullId);
+
+        if (outBean == null)
+        {
+            throw new MYException("数据错误,请确认操作");
+        }
+
+        // 检查日志核对
+        int outStatusInLog = this.findOutStatusInLog(outBean.getFullId());
+
+        if (outStatusInLog != -1 && outStatusInLog != OutConstant.STATUS_REJECT
+                && outStatusInLog != outBean.getStatus())
+        {
+            String msg = "严重错误,当前单据的状态应该是:" + OutHelper.getStatus(outStatusInLog) + ",而不是"
+                    + OutHelper.getStatus(outBean.getStatus()) + ".请联系管理员确认此单的正确状态!";
+
+            loggerError(outBean.getFullId() + ":" + msg);
+
+            throw new MYException(msg);
+        }
+
+        //TODO
+//        final List<BaseBean> baseList = checkSubmit(fullId, outBean);
+
+        // 这里是入库单的直接库存变动(部分)
+        processBuyBaseList(user, outBean, baseList, type);
+
+        //add 针对促销订单绑定历史订单，更新被绑定订单的相关信息
+        processPromBindOutId(user, outBean);
+
+        // CORE 修改库单(销售/入库)的状态(信用额度处理)
+        int status = processOutStutus(fullId, user, outBean);
+
+        try
+        {
+            if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+            {
+                outDAO.modifyOutStatus(fullId, status);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            throw new MYException(e);
+        }
+
+        // 处理APP 订单关联关系
+        if (outBean.getFlowId().startsWith("AP"))
+        {
+            AppOutVSOutBean appOut = appOutVSOutDAO.findByUnique(outBean.getFullId());
+
+            if (null == appOut)
+            {
+                AppOutVSOutBean appOutBean = new AppOutVSOutBean();
+
+                appOutBean.setOutId(outBean.getFullId());
+                appOutBean.setAppOutId(outBean.getFlowId());
+
+                appOutVSOutDAO.saveEntityBean(appOutBean);
+            }
+        }
+
+        // 处理在途(销售无关)/调入接受时
+        int result = processBuyOutInWay(user, fullId, outBean);
+
+        // 在途改变状态
+        if (result != -1)
+        {
+            status = result;
+        }
+
+        String desc = outBean.getDescription();
+
+        if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
+                && outBean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH)
+        {
+            if (desc.indexOf(OutConstant.SWATCH_COMMENT) == -1)
+            {
+                desc = OutConstant.SWATCH_COMMENT + desc;
+            }
+        }
+
+        int idx = desc.indexOf("&&");
+
+        if (idx == -1)
+        {
+            if (!desc.equals(outBean.getDescription())){
+                outDAO.updateDescription(fullId, desc);
+            }
+
+            // 增加数据库日志
+            addOutLog(fullId, user, outBean, "提交", SailConstant.OPR_OUT_PASS, status);
+        }
+        else
+        {
+            String newDesc = desc.substring(0, idx);
+
+            String logDesc = desc.substring(idx + 2, desc.length());
+
+//        	outBean.setDescription(newDesc);
+
+            outDAO.updateDescription(fullId, newDesc);
+
+            if (StringTools.isNullOrNone(logDesc))
+            {
+                logDesc = "提交";
+            }
+            // 增加数据库日志
+            addOutLog(fullId, user, outBean, logDesc, SailConstant.OPR_OUT_PASS, status);
+        }
+
         outBean.setStatus(status);
 
         notifyOut(outBean, user, 0);

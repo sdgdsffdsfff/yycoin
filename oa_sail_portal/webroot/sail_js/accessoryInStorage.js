@@ -267,10 +267,12 @@ function accessoryInStorage(obj){
     amountNode = trNode.querySelector("td input")
     amount = amountNode.value
     console.log(amount);
+    locationNode = trNode.querySelector("td .location")
 
     //禁止退库页面再编辑
     selectNode.setAttribute("disabled", "disabled");
     amountNode.setAttribute("disabled", "disabled");
+    locationNode.setAttribute("disabled", "disabled");
 
 //    trNode = obj.parentNode.parentNode
 //    console.log(trNode);

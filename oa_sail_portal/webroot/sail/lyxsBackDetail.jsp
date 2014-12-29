@@ -33,28 +33,44 @@
 //    }
 
     function confirmBack(){
-        var len=productList.length;
-        for(var i=0; i<len; i++) {
-            var value = productList[i];
-            console.log("product:"+value);
-            localforage.getItem(value, function(err, value) {
-                // Run this code once the value has been
-                // loaded from the offline store.
-                console.log(value);
-                $O('productList').value = value;
-            });
-        }
+        var result = {};
+//        var len=productList.length;
+//        for(var i=0; i<len; i++) {
+//            var value = productList[i];
+//            console.log("product:"+value);
+//            localforage.getItem(value, function(err, value) {
+//                // Run this code once the value has been
+//                // loaded from the offline store.
+//                console.log(value);
+//                $O('productList').value = value;
+//            });
+//        }
 
-        backForm.submit();
+        localforage.iterate(function(value, key) {
+            // Resulting key/value pair -- this callback
+            // will be executed for every item in the
+            // database.
+            console.log([key, value]);
+            result[key] = value
+        }, function() {
+            console.log('Iteration has completed:'+JSON.stringify(result));
+            $O('accessoryList').value = JSON.stringify(result);
+            console.log('productList:'+JSON.stringify($('#backForm').serializeArray()));
+            $O('productList').value = JSON.stringify($('#backForm').serializeArray());
+//            $O('productList').value = JSON.stringify(result);
+//            $O('accessoryList').value = JSON.stringify($('#backForm').serializeArray());
+            backForm.submit();
+        });
+
+//        backForm.submit();
     }
 
 </script>
 </head>
 <body class="body_class" onload="load()">
-<form name="backForm" method="post" action="../sail/out.do?method=submitOut2">
-<input type=hidden name="update" value="0" />
-<input type=hidden name="nameList" />
+<form name="backForm" id="backForm" method="post" action="../sail/out.do?method=submitOut2">
 <input type=hidden name="productList" />
+<input type=hidden name="accessoryList" />
 <input type=hidden name="outId" value="${bean.fullId}"/>
 
 <p:navigation
@@ -145,11 +161,11 @@
                         </td>
 
                         <td align="center">
-                            <input type="text" style="width: 100%" maxlength="6" name="amount">
+                            <input type="text" style="width: 100%" maxlength="6" name="amount" required="required">
                         </td>
 
                         <td>
-                            <select name="location" class="select_class" style="width: 100%">
+                            <select name="location" class="select_class location" style="width: 100%">
                                 <option value="">--</option>
                                 <c:forEach items='${locationList}' var="item">
                                     <option value="${item.id}">${item.name}</option>

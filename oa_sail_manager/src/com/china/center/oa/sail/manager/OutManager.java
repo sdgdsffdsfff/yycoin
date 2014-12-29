@@ -131,6 +131,21 @@ public interface OutManager extends ListenerManager<OutListener>
     int submit(final String fullId, final User user, int storageType)
         throws MYException;
 
+
+    /**  2014/12/29 拆分成品行退货
+     * submit
+     *
+     * @param fullId
+     * @param user
+     * @param storageType
+     *            库存变动类型
+     * @param baseBeans 成品行
+     * @return 修改后的单据状态
+     * @throws MYException
+     */
+    int submit2(final String fullId, final User user, int storageType, List<BaseBean> baseBeans)
+            throws MYException;
+
     /**
      * submitWithOutAffair(采购入库的时候使用)
      * 
