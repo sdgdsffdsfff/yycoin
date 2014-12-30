@@ -34,6 +34,7 @@
 
     function confirmBack(){
         var result = {};
+        var accessoryList = "";
 //        var len=productList.length;
 //        for(var i=0; i<len; i++) {
 //            var value = productList[i];
@@ -51,15 +52,25 @@
             // will be executed for every item in the
             // database.
             console.log([key, value]);
-            result[key] = value
+            result[key] = value;
+            temp = key+":"+value+"|";
+            console.log(temp);
+            accessoryList = accessoryList+temp
         }, function() {
-            console.log('Iteration has completed:'+JSON.stringify(result));
-            $O('accessoryList').value = JSON.stringify(result);
-            console.log('productList:'+JSON.stringify($('#backForm').serializeArray()));
-            $O('productList').value = JSON.stringify($('#backForm').serializeArray());
+            console.log('Iteration has completed:'+accessoryList);
+//            $O('accessoryList').value = JSON.stringify(result);
+            $O('accessoryList').value = accessoryList;
+//            console.log('productList:'+JSON.stringify($('#backForm').serializeArray()));
+//            $O('productList').value = JSON.stringify($('#backForm').serializeArray());
 //            $O('productList').value = JSON.stringify(result);
 //            $O('accessoryList').value = JSON.stringify($('#backForm').serializeArray());
             backForm.submit();
+
+            //Clear local DB
+            localforage.clear(function(err) {
+                // Run this code once the database has been entirely deleted.
+                console.log('Database is now empty.');
+            });
         });
 
 //        backForm.submit();

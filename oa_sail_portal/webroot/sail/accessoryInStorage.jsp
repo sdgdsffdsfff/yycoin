@@ -30,27 +30,23 @@
 
     function saveAccessory(){
         //TODO
-        localforage.clear(function(err) {
-            // Run this code once the database has been entirely deleted.
-            console.log('Database is now empty.');
+        var formData = $( "#accessoryForm" ).serialize();
+        localforage.setItem(productId, formData, function(err, value) {
+            // Do other things once the value has been saved.
+            console.log(value);
         });
-//        var formData = $( "#accessoryForm" ).serialize();
-//        localforage.setItem(productId, formData, function(err, value) {
-//            // Do other things once the value has been saved.
-//            console.log(value);
-//        });
 
-        var formData = JSON.parse(JSON.stringify($('#accessoryForm').serializeArray()))
-        console.info(formData);
-        if (formData.length >3){
-            accessoryArray = formData.slice(3);
-            accessoryStr = JSON.stringify(accessoryArray);
-            console.log(accessoryStr);
-            localforage.setItem(productId, accessoryStr, function(err, value) {
-                // Do other things once the value has been saved.
-                console.log(value);
-            });
-        }
+//        var formData = JSON.parse(JSON.stringify($('#accessoryForm').serializeArray()))
+//        console.info(formData);
+//        if (formData.length >3){
+//            accessoryArray = formData.slice(3);
+//            accessoryStr = JSON.stringify(accessoryArray);
+//            console.log(accessoryStr);
+//            localforage.setItem(productId, accessoryStr, function(err, value) {
+//                // Do other things once the value has been saved.
+//                console.log(value);
+//            });
+//        }
 
     }
 
