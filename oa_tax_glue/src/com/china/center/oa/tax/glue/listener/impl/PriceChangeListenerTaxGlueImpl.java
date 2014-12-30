@@ -114,7 +114,7 @@ public class PriceChangeListenerTaxGlueImpl implements PriceChangeListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -541,7 +541,7 @@ public class PriceChangeListenerTaxGlueImpl implements PriceChangeListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /*

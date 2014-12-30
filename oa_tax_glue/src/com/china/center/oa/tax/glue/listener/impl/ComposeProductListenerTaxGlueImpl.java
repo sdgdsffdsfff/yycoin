@@ -143,7 +143,7 @@ public class ComposeProductListenerTaxGlueImpl implements ComposeProductListener
 
             financeBean.setItemList(itemList);
 
-            financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
             
             processComposeTag(user, bean);
         }
@@ -193,7 +193,7 @@ public class ComposeProductListenerTaxGlueImpl implements ComposeProductListener
 
             financeBean.setItemList(itemList);
 
-            financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
             
             processComposeTag(user, bean);
         }
@@ -487,7 +487,7 @@ public class ComposeProductListenerTaxGlueImpl implements ComposeProductListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     
         // 产品拆分 财务数据标记
         processDecomposeTag(user, bean);

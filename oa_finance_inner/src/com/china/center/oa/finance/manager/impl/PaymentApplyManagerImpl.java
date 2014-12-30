@@ -20,6 +20,8 @@ import com.china.center.oa.publics.constant.AuthConstant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.center.china.osgi.publics.AbstractListenerManager;
@@ -76,6 +78,8 @@ import com.china.center.tools.ListTools;
 import com.china.center.tools.MathTools;
 import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 
 /**
@@ -128,6 +132,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     private OutBillDAO outBillDAO = null;
 
     private Object PAYMENT_APPLY_LOCK = new Object();
+
+    private PlatformTransactionManager transactionManager = null;
     
     /**
      * default constructor
@@ -1673,7 +1679,11 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         log.setFullId(apply.getId());
 
-        log.setActor(user.getStafferName());
+        if (user == null){
+            log.setActor("自动审批Job");
+        } else {
+            log.setActor(user.getStafferName());
+        }
 
         log.setOprMode(PublicConstant.OPRMODE_PASS);
 
@@ -2570,30 +2580,48 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     @Override
     public void passPaymentApplyJob() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
-        try {
             System.out.println("**************run passPaymentApplyJob****************");
             _logger.info("**************run passPaymentApplyJob****************");
-            ConditionParse condtion = new ConditionParse();
 
-            condtion.addWhereStr();
-            condtion.addIntCondition("PaymentApplyBean.status", "=",
-                    FinanceConstant.PAYAPPLY_STATUS_INIT);
-            condtion.addIntCondition("PaymentApplyBean.badMoney", "=",0);
-            List<PaymentApplyBean> beans = this.paymentApplyDAO.queryEntityBeansByCondition(condtion);
-            if (!ListTools.isEmptyOrNull(beans)){
-               for (PaymentApplyBean bean: beans){
-                   System.out.println("PaymentApplyBean with badMoney==0**********"+beans.size());
-                   _logger.info("PaymentApplyBean with badMoney==0**********"+beans.size());
-                   synchronized (PAYMENT_APPLY_LOCK)
-                   {
-                       //TODO
-                       this.passPaymentApplyForJob(null, bean.getId(), "","");
-                   }
-               }
-            }
-        } catch (MYException e) {
-            _logger.warn(e, e);
-        }
+        //后台Job必须以显示的Transaction方式操作，否则数据库操作有问题：写入后无法查询得到数据。
+            TransactionTemplate tran = new TransactionTemplate(transactionManager);
+
+            tran.execute(new TransactionCallback()
+            {
+                public Object doInTransaction(TransactionStatus arg0)
+                {
+                    try
+                    {
+                        ConditionParse condtion = new ConditionParse();
+
+                        condtion.addWhereStr();
+                        condtion.addIntCondition("PaymentApplyBean.status", "=",
+                                FinanceConstant.PAYAPPLY_STATUS_INIT);
+                        condtion.addIntCondition("PaymentApplyBean.badMoney", "=",0);
+//                        triggerLog.info("handleCheckPay 暂停统计，款到发货1小时内未付款，不会自动驳回...");
+                        List<PaymentApplyBean> beans = paymentApplyDAO.queryEntityBeansByCondition(condtion);
+                        if (!ListTools.isEmptyOrNull(beans)){
+                            for (PaymentApplyBean bean: beans){
+                                System.out.println("PaymentApplyBean with badMoney==0**********"+beans.size());
+                                _logger.info("PaymentApplyBean with badMoney==0**********"+beans.size());
+                                synchronized (PAYMENT_APPLY_LOCK)
+                                {
+                                    //TODO
+                                    passPaymentApplyForJob(null, bean.getId(), "", "");
+                                }
+                            }
+                        }
+                    }
+                    catch(Exception e){
+                        e.printStackTrace();
+                        _logger.warn(e, e);
+                        throw new RuntimeException(e);
+                    }
+
+                    return Boolean.TRUE;
+                }
+            });
+
     }
 
     /**
@@ -2605,7 +2633,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
      * @return
      * @throws MYException
      */
-    @Transactional(rollbackFor = MYException.class)
+    @Override
+//    @Transactional(rollbackFor = MYException.class)
     public boolean passPaymentApplyForJob(User user, String id, String reason,String description)
             throws MYException
     {
@@ -2627,6 +2656,9 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         // TAX_ADD 回款转预收/销售单绑定(预收转应收)/预收转费用 通过
         Collection<PaymentApplyListener> listenerMapValues = this.listenerMapValues();
 
+        // 2014/12/30
+        // 为自动审批job设置flag
+        apply.setAutoPayFlag(true);
         for (PaymentApplyListener listener : listenerMapValues)
         {
             listener.onPassBean(user, apply);
@@ -2648,14 +2680,16 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             throws MYException
     {
         List<PaymentVSOutBean> vsList = apply.getVsList();
+        System.out.println("***************vsList**************************"+vsList.size());
 
         for (PaymentVSOutBean item : vsList)
         {
+            System.out.println("***************createInbillForJob1111111111111111111**************************");
             if (item.getMoneys() == 0.0d)
             {
                 continue;
             }
-
+            System.out.println("***************222222222222222222222222**************************"+apply.getType());
             // 生成收款单(回款转预收)
             if (apply.getType() == FinanceConstant.PAYAPPLY_TYPE_PAYMENT)
             {
@@ -2939,7 +2973,8 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 
         inBean.setType(FinanceConstant.INBILL_TYPE_SAILOUT);
 
-        billManager.addInBillBeanWithoutTransaction(null, inBean);
+        boolean ret = billManager.addInBillBeanWithoutTransaction(null, inBean);
+        System.out.println(ret+"**********saveBillInnerForJob*************"+inBean.getId());
 
         item.setBillId(inBean.getId());
     }
@@ -3233,4 +3268,12 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
 	{
 		this.outBillDAO = outBillDAO;
 	}
+
+    public PlatformTransactionManager getTransactionManager() {
+        return transactionManager;
+    }
+
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
 }

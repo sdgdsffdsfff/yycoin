@@ -84,7 +84,7 @@ public class StorageApplyListenerTaxGlueImpl implements StorageApplyListener
 
             financeBean.setItemList(itemList);
 
-            financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
         }
         else
         {
@@ -114,7 +114,7 @@ public class StorageApplyListenerTaxGlueImpl implements StorageApplyListener
 
             financeBean.setItemList(itemList);
 
-            financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
         }
     }
 	

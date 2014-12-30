@@ -191,7 +191,7 @@ public class BillListenerTaxGlueImpl implements BillListener
         
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     /**
@@ -250,7 +250,7 @@ public class BillListenerTaxGlueImpl implements BillListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     private void mainFinanceInPreToPay(User user, OutBean bean, InBillBean inBillBean, BankBean bank)
@@ -290,7 +290,7 @@ public class BillListenerTaxGlueImpl implements BillListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -718,7 +718,7 @@ public class BillListenerTaxGlueImpl implements BillListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     private void createAddItem3(User user, BankBean bank, OutBillBean outBillBean,
@@ -958,7 +958,7 @@ public class BillListenerTaxGlueImpl implements BillListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
 
     }
     

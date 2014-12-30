@@ -137,7 +137,7 @@ public class FechProductListenerTaxGlueImpl implements FechProductListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
         
         // 采购入库 财务打标记
         processFetchProductTag(user, out);

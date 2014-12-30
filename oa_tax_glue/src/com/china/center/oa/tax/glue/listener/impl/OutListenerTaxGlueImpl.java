@@ -180,7 +180,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -545,7 +545,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -595,7 +595,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -637,7 +637,7 @@ public class OutListenerTaxGlueImpl implements OutListener
     
         financeBean.setItemList(itemList);
     
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }    
     
     /**
@@ -680,7 +680,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -723,7 +723,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -769,7 +769,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }    
     
     /**
@@ -816,7 +816,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -864,7 +864,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     /**
@@ -943,7 +943,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
 
     }
 
@@ -991,7 +991,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -1046,7 +1046,7 @@ public class OutListenerTaxGlueImpl implements OutListener
         
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     private void createDuiChongItem11(User user, OutBean outBean, FinanceBean financeBean,
@@ -1235,7 +1235,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -1292,7 +1292,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -1339,7 +1339,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -1381,7 +1381,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     /**
@@ -1521,7 +1521,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -1570,7 +1570,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -1614,7 +1614,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     /**
@@ -1771,7 +1771,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -1816,7 +1816,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -5770,7 +5770,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /*
@@ -5861,7 +5861,7 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     private void createAddItem5(User user, OutBean outBean, FinanceBean financeBean,

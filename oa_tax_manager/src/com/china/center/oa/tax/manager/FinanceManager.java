@@ -75,19 +75,33 @@ public interface FinanceManager
     boolean updateTempFinanceBean(User user, FinanceBean bean)
         throws MYException;
 
-    /**
+    /** 2014/12/30 add checkNull parameter for 自动审批job
      * addFinanceBeanWithoutTransactional(无事务的)
      * 
+     *
      * @param user
      * @param bean
+     * @param checkNull
      * @return
      * @throws MYException
      */
-    boolean addFinanceBeanWithoutTransactional(User user, FinanceBean bean)
+    boolean addFinanceBeanWithoutTransactional(User user, FinanceBean bean, boolean checkNull)
         throws MYException;
 
     boolean addFinanceBeanWithoutTransactional(User user, FinanceBean bean, int type)
     throws MYException;
+
+    /**
+     * 2014/12/30 后台job自动审批坏账为0收款申请
+     * @param user
+     * @param bean
+     * @param type
+     * @param autoPayFlag
+     * @return
+     * @throws MYException
+     */
+    boolean addFinanceBeanWithoutTransactional(User user, FinanceBean bean, int type, boolean autoPayFlag)
+            throws MYException;
     
     boolean deleteFinanceBean(User user, String id)
         throws MYException;

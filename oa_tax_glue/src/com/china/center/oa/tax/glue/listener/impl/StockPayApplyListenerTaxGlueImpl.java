@@ -154,7 +154,7 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
 
             financeBean.setItemList(itemList);
 
-            financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
 
         }
         
@@ -380,7 +380,7 @@ public class StockPayApplyListenerTaxGlueImpl implements StockPayApplyListener
 
             financeBean.setItemList(itemList);
 
-            financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
         }
     }
     

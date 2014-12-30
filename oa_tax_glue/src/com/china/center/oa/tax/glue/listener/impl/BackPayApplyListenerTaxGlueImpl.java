@@ -191,7 +191,7 @@ public class BackPayApplyListenerTaxGlueImpl implements BackPayApplyListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -238,7 +238,7 @@ public class BackPayApplyListenerTaxGlueImpl implements BackPayApplyListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -283,7 +283,7 @@ public class BackPayApplyListenerTaxGlueImpl implements BackPayApplyListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**

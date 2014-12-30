@@ -1030,7 +1030,7 @@ public class FinanceFacadeImpl extends AbstarctFacade implements FinanceFacade
 
         if (containAuth(user, AuthConstant.INBILL_OPR))
         {
-            return billManager.updateInBillBeanChecks(user, id, checks);
+            return billManager.updateInBillBeanChecks(user, id, checks, true);
         }
         else
         {
@@ -1049,7 +1049,7 @@ public class FinanceFacadeImpl extends AbstarctFacade implements FinanceFacade
 
         if (containAuth(user, AuthConstant.OUTBILL_OPR))
         {
-            return billManager.updateOutBillBeanChecks(user, id, checks);
+            return billManager.updateOutBillBeanChecks(user, id, checks, true);
         }
         else
         {

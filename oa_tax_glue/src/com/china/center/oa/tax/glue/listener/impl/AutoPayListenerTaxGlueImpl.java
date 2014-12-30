@@ -141,7 +141,7 @@ public class AutoPayListenerTaxGlueImpl implements AutoPayListener
         
         user.setStafferId(StafferConstant.SUPER_STAFFER);
         
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     /**
@@ -356,7 +356,7 @@ public class AutoPayListenerTaxGlueImpl implements AutoPayListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     /**

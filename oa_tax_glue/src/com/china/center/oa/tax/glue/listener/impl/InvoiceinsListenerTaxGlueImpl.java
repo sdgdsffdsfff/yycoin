@@ -94,7 +94,7 @@ public class InvoiceinsListenerTaxGlueImpl implements InvoiceinsListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     
 	}
 

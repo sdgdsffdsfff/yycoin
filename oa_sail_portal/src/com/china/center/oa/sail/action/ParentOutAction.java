@@ -6539,9 +6539,12 @@ public class ParentOutAction extends DispatchAction
         synchronized (S_LOCK)
         {
             String fullId = request.getParameter("outId");
+            String[] products = request.getParameterValues("productName");
+            String[] amounts = request.getParameterValues("amount");
+            String[] locations = request.getParameterValues("location");
             String productList = request.getParameter("productList");
             String accessoryList = request.getParameter("accessoryList");
-            System.out.println("******************submitOut2*****************"+fullId+"***productList***"+productList+"****accessoryList****"+accessoryList);
+            System.out.println("******************submitOut2*****************"+fullId+"****accessoryList****"+accessoryList);
             User user = (User) request.getSession().getAttribute("user");
 
             OutVO out = outDAO.findVO(fullId);

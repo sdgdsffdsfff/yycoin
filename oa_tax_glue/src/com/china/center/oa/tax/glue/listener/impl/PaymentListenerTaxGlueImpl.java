@@ -135,7 +135,7 @@ public class PaymentListenerTaxGlueImpl implements PaymentListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**

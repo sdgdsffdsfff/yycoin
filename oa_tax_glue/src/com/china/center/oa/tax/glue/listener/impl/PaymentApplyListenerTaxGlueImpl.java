@@ -276,7 +276,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
         
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     /**
@@ -406,7 +406,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
                 AnoConstant.FK_FIRST);
 
         if (ListTools.isEmptyOrNull(inList)) {
-            throw new MYException("缺少对应的收款单,请确认操作");
+            throw new MYException("缺少对应的收款单,请确认操作:"+payment.getId());
         }
 
         for (InBillBean inBillBean : inList) {
@@ -613,7 +613,13 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
             PaymentBean payment, BankBean bank, InBillBean inBillBean) throws MYException {
         FinanceBean financeBean = new FinanceBean();
 
-        String name = user.getStafferName() + "通过回款认领(转预收):" + apply.getPaymentId() + '.';
+        String name = "";
+        if (user == null){
+            name = "自动审批Job通过回款认领(转预收):" + apply.getPaymentId() + '.';
+        } else {
+            name = user.getStafferName() + "通过回款认领(转预收):" + apply.getPaymentId() + '.';
+        }
+
 
         financeBean.setName(name);
 
@@ -628,7 +634,9 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setDutyId(bank.getDutyId());
 
-        financeBean.setCreaterId(user.getStafferId());
+        if (user!= null){
+            financeBean.setCreaterId(user.getStafferId());
+        }
 
         financeBean.setDescription(financeBean.getName());
 
@@ -643,7 +651,12 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        if (apply.isAutoPayFlag()){
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, false);
+        } else{
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+        }
+
     }
 
     /**
@@ -693,7 +706,12 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, type);
+        boolean autoPayFlag = false;
+
+        if (apply.isAutoPayFlag()){
+            autoPayFlag = true;
+        }
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, type, autoPayFlag);
     }
 
     /**
@@ -750,7 +768,12 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        if (apply.isAutoPayFlag()){
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, false);
+        } else{
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+        }
+
     }
 
     /**
@@ -797,7 +820,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -844,7 +867,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -892,7 +915,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -909,7 +932,13 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
     private void createAddItem1(User user, PaymentBean bean, BankBean bank, PaymentApplyBean apply,
             InBillBean inBillBean, PaymentVSOutBean item, FinanceBean financeBean,
             List<FinanceItemBean> itemList) throws MYException {
-        String name = user.getStafferName() + "通过回款认领:" + apply.getPaymentId() + '.';
+        String name = "";
+        if (user == null){
+            name = "自动审批Job通过回款认领:" + apply.getPaymentId() + '.';
+        } else {
+            name = user.getStafferName() + "通过回款认领:" + apply.getPaymentId() + '.';
+        }
+
 
         // 银行对应的暂记户科目（没有手续费）/(1)应收账款(2)预收账款
         FinanceItemBean itemIn = new FinanceItemBean();
@@ -1698,7 +1727,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     private void createAddItem11(User user, PaymentBean bean, BankBean bank,
@@ -1864,7 +1893,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
     /**

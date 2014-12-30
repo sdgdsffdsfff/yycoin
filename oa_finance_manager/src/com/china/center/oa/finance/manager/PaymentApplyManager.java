@@ -57,6 +57,17 @@ public interface PaymentApplyManager extends ListenerManager<PaymentApplyListene
     boolean passPaymentApply(User user, String id, String reason,String description)
         throws MYException;
 
+    /** 2014/12/30
+     * 通过(后台Job
+     *
+     * @param stafferId
+     * @param id
+     * @return
+     * @throws MYException
+     */
+    boolean passPaymentApplyForJob(User user, String id, String reason,String description)
+            throws MYException;
+
     /**
      * 通过待稽核
      * 

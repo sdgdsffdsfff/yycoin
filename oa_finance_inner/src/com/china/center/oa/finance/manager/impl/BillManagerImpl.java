@@ -192,6 +192,7 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
     public boolean saveInBillInner(InBillBean bean)
         throws MYException
     {
+        System.out.println("*************saveInBillInner***********************"+bean);
         if (bean.getSrcMoneys() == 0.0)
         {
             bean.setSrcMoneys(bean.getMoneys());
@@ -207,6 +208,7 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
             bean.setCheckStatus(PublicConstant.CHECK_STATUS_INIT);
         
         boolean ret = inBillDAO.saveEntityBean(bean);
+        System.out.println("*************saveInBillInner11111111111111111111111***********************"+ret);
         
         // 财务标记
         Collection<BillListener> listenerMapValues = this.listenerMapValues();
@@ -756,10 +758,12 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
     }
 
     @Transactional(rollbackFor = MYException.class)
-    public boolean updateInBillBeanChecks(User user, String id, String checks)
+    public boolean updateInBillBeanChecks(User user, String id, String checks, boolean checkNull)
         throws MYException
     {
-        JudgeTools.judgeParameterIsNull(user, id);
+        if (checkNull){
+            JudgeTools.judgeParameterIsNull(user, id);
+        }
 
         InBillBean inBill = inBillDAO.find(id);
 
@@ -768,7 +772,12 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
             throw new MYException("数据错误,请确认操作");
         }
 
-        inBill.setChecks("[" + user.getStafferName() + "]" + checks);
+        if (user == null){
+            inBill.setChecks("[自动审批Job]" + checks);
+        } else {
+            inBill.setChecks("[" + user.getStafferName() + "]" + checks);
+        }
+
 
         inBill.setCheckStatus(PublicConstant.CHECK_STATUS_END);
 
@@ -777,33 +786,37 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
         return true;
     }
 
-    public boolean updateBillBeanChecksWithoutTransactional(User user, String id, String checks)
+    public boolean updateBillBeanChecksWithoutTransactional(User user, String id, String checks, boolean checkNull)
         throws MYException
     {
-        JudgeTools.judgeParameterIsNull(user, id);
+        if (checkNull){
+            JudgeTools.judgeParameterIsNull(user, id);
+        }
 
         InBillBean inBill = inBillDAO.find(id);
 
         if (inBill != null && inBill.getCheckStatus() == PublicConstant.CHECK_STATUS_INIT)
         {
-            return updateInBillBeanChecks(user, id, checks);
+            return updateInBillBeanChecks(user, id, checks, true);
         }
 
         OutBillBean bill = outBillDAO.find(id);
 
         if (bill != null && bill.getCheckStatus() == PublicConstant.CHECK_STATUS_INIT)
         {
-            return updateOutBillBeanChecks(user, id, checks);
+            return updateOutBillBeanChecks(user, id, checks, true);
         }
 
         return true;
     }
 
     @Transactional(rollbackFor = MYException.class)
-    public boolean updateOutBillBeanChecks(User user, String id, String checks)
+    public boolean updateOutBillBeanChecks(User user, String id, String checks, boolean checkNull)
         throws MYException
     {
-        JudgeTools.judgeParameterIsNull(user, id);
+        if (checkNull){
+            JudgeTools.judgeParameterIsNull(user, id);
+        }
 
         OutBillBean bill = outBillDAO.find(id);
 
@@ -812,7 +825,11 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
             throw new MYException("数据错误,请确认操作");
         }
 
-        bill.setChecks("[" + user.getStafferName() + "]" + checks);
+        if (user == null){
+            bill.setChecks("[自动审批Job]"  + checks);
+        } else {
+            bill.setChecks("[" + user.getStafferName() + "]" + checks);
+        }
 
         bill.setCheckStatus(PublicConstant.CHECK_STATUS_END);
 

@@ -160,7 +160,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
             financeBean.setItemList(itemList);
 
-            financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
         }
 
     }
@@ -275,7 +275,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
                 financeBean.setItemList(itemList);
 
-                financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+                financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
             }
         }
 
@@ -328,7 +328,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
                 financeBean.setItemList(itemList);
 
-                financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+                financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
             }
         }
 
@@ -369,7 +369,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
 
     /**
@@ -929,7 +929,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
         
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
     }
     
 	private void createAddRebateItem(User user, RebateApplyBean bean, FinanceBean financeBean, List<FinanceItemBean> itemList)
@@ -1088,7 +1088,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
             financeBean.setItemList(itemList);
 
-            financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
             
             bean.setDutyId(bank.getDutyId());
         }
@@ -1236,7 +1236,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean);
+        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
 	}
     
 	/**

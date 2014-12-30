@@ -59,22 +59,24 @@ public interface BillManager extends ListenerManager<BillListener>
     boolean updateInBillBean(User user, InBillBean bean)
         throws MYException;
 
-    boolean updateInBillBeanChecks(User user, String id, String checks)
+    boolean updateInBillBeanChecks(User user, String id, String checks, boolean checkNull)
         throws MYException;
 
-    boolean updateOutBillBeanChecks(User user, String id, String checks)
+    boolean updateOutBillBeanChecks(User user, String id, String checks, boolean checkNull)
         throws MYException;
 
-    /**
+    /** 2014/12/30 add checkNull parameter
      * 更新核对状态(包括收付款)
      * 
+     *
      * @param user
      * @param id
      * @param checks
+     * @param checkNull
      * @return
      * @throws MYException
      */
-    boolean updateBillBeanChecksWithoutTransactional(User user, String id, String checks)
+    boolean updateBillBeanChecksWithoutTransactional(User user, String id, String checks, boolean checkNull)
         throws MYException;
 
     boolean deleteInBillBean(User user, String id)

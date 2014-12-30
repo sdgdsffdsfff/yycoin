@@ -126,6 +126,10 @@ public class PaymentApplyBean implements Serializable
     @Ignore
     private List<PaymentVSOutBean> vsList = null;
 
+    //2014/12/30自动审批坏账为0的申请
+    @Ignore
+    private boolean autoPayFlag = false;
+
     /**
      * default constructor
      */
@@ -472,7 +476,15 @@ public class PaymentApplyBean implements Serializable
 		this.operatorName = operatorName;
 	}
 
-	/**
+    public boolean isAutoPayFlag() {
+        return autoPayFlag;
+    }
+
+    public void setAutoPayFlag(boolean autoPayFlag) {
+        this.autoPayFlag = autoPayFlag;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.
