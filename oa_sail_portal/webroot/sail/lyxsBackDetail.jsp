@@ -215,9 +215,9 @@
 	<tr>
 		<td width="100%">
 		<div align="right">
-			<input type="button" class="button_class"
-			value="确认退库" onClick="confirmBack()" />&nbsp;&nbsp;
-			</div>
+			<input type="button" class="button_class" value="确认退库" onClick="confirmBack()" />&nbsp;&nbsp;
+            <input type="button" class="button_class" onclick="javascript:history.go(-${goback})" value="&nbsp;&nbsp;返 回&nbsp;&nbsp;">
+        </div>
 		</td>
 		<td width="0%"></td>
 	</tr>

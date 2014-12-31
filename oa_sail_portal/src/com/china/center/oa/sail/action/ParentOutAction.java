@@ -6545,6 +6545,15 @@ public class ParentOutAction extends DispatchAction
             String productList = request.getParameter("productList");
             String accessoryList = request.getParameter("accessoryList");
             System.out.println("******************submitOut2*****************"+fullId+"****accessoryList****"+accessoryList);
+            for (String product : products){
+                System.out.println("product************"+product);
+            }
+            for (String amount : amounts){
+                System.out.println("amount************"+amount);
+            }
+            for (String location : locations){
+                System.out.println("location************"+location);
+            }
             User user = (User) request.getSession().getAttribute("user");
 
             OutVO out = outDAO.findVO(fullId);
@@ -6600,14 +6609,16 @@ public class ParentOutAction extends DispatchAction
 
                 //成品行退货
                 List<BaseBean> baseBeans = this.convertParameterToBaseBens(productList);
-                outManager.submit2(fullId, user, type, baseBeans);
+//                outManager.submit2(fullId, user, type, baseBeans);
             }
-            catch (MYException e)
+            catch (Exception e)
             {
                 _logger.warn(e, e);
 
+//                request.setAttribute(KeyConstant.ERROR_MESSAGE,
+//                        "处理错误:" + e.getErrorContent());
                 request.setAttribute(KeyConstant.ERROR_MESSAGE,
-                        "处理错误:" + e.getErrorContent());
+                        "处理错误:" + e.getMessage());
 
                 return mapping.findForward("error");
             }
