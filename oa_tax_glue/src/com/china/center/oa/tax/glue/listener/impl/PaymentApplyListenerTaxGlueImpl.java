@@ -261,7 +261,9 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setDutyId(bank.getDutyId());
 
-        financeBean.setCreaterId(user.getStafferId());
+        if (user!= null){
+            financeBean.setCreaterId(user.getStafferId());
+        }
 
         financeBean.setDescription(financeBean.getName());
 
@@ -275,8 +277,13 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         createAddItem2(user, bank, target, srcStaffer, financeBean, itemList, apply);
 
         financeBean.setItemList(itemList);
-        
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+
+        if (apply.isAutoPayFlag()){
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, false);
+        } else{
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+        }
+
     }
     
     /**
@@ -673,8 +680,13 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
     private void mainFinanceInOut(User user, PaymentApplyBean apply, PaymentVSOutBean item,
             PaymentBean payment, BankBean bank, InBillBean inBillBean, int type) throws MYException {
         FinanceBean financeBean = new FinanceBean();
+        String name = "";
+        if (user == null){
+            name = "自动审批Job通过回款认领(销售单关联):" + apply.getPaymentId() + '.';
+        } else{
+            name = user.getStafferName() + "通过回款认领(销售单关联):" + apply.getPaymentId() + '.';
+        }
 
-        String name = user.getStafferName() + "通过回款认领(销售单关联):" + apply.getPaymentId() + '.';
 
         financeBean.setName(name);
 
@@ -691,7 +703,9 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setDutyId(bank.getDutyId());
 
-        financeBean.setCreaterId(user.getStafferId());
+        if (user!= null){
+            financeBean.setCreaterId(user.getStafferId());
+        }
 
         financeBean.setDescription(financeBean.getName());
 
@@ -706,12 +720,12 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        boolean autoPayFlag = false;
-
         if (apply.isAutoPayFlag()){
-            autoPayFlag = true;
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, type, false);
+        } else{
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, type, true);
         }
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, type, autoPayFlag);
+
     }
 
     /**
@@ -729,7 +743,7 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
         FinanceBean financeBean = new FinanceBean();
 
         if (user == null){
-            String name = "后台Job" + "通过预收转应收(销售单关联):" + item.getPaymentId() + '.';
+            String name = "自动审批Job" + "通过预收转应收(销售单关联):" + item.getPaymentId() + '.';
 
             financeBean.setName(name);
         }  else{
@@ -790,7 +804,13 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
             PaymentVSOutBean item, InBillBean bill, BankBean bank) throws MYException {
         FinanceBean financeBean = new FinanceBean();
 
-        String name = user.getStafferName() + "通过预收转费用:" + item.getPaymentId() + '.';
+        String name = "";
+        if (user == null){
+            name = "自动审批Job通过预收转费用:" + item.getPaymentId() + '.';
+        } else {
+            name = user.getStafferName() + "通过预收转费用:" + item.getPaymentId() + '.';
+        }
+
 
         financeBean.setName(name);
 
@@ -805,7 +825,9 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setDutyId(bank.getDutyId());
 
-        financeBean.setCreaterId(user.getStafferId());
+        if (user!= null){
+            financeBean.setCreaterId(user.getStafferId());
+        }
 
         financeBean.setDescription(financeBean.getName());
 
@@ -820,7 +842,11 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+        if (apply.isAutoPayFlag()){
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, false);
+        } else {
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+        }
     }
 
     /**
@@ -837,7 +863,13 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
             throws MYException {
         FinanceBean financeBean = new FinanceBean();
 
-        String name = user.getStafferName() + "通过预收转应收中确认坏账(销售单关联):" + outBean.getFullId() + '.';
+        String name = "";
+        if (user == null){
+            name = "自动审批Job通过预收转应收中确认坏账(销售单关联):" + outBean.getFullId() + '.';
+        } else{
+            name = user.getStafferName() + "通过预收转应收中确认坏账(销售单关联):" + outBean.getFullId() + '.';
+        }
+
 
         financeBean.setName(name);
 
@@ -852,7 +884,9 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setDutyId(outBean.getDutyId());
 
-        financeBean.setCreaterId(user.getStafferId());
+        if (user!= null){
+            financeBean.setCreaterId(user.getStafferId());
+        }
 
         financeBean.setDescription(financeBean.getName());
 
@@ -867,7 +901,11 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+        if (apply.isAutoPayFlag()) {
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, false);
+        } else{
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+        }
     }
 
     /**
@@ -884,8 +922,12 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
     private void secondFinance(User user, PaymentApplyBean apply, BankBean bank,
             PaymentBean payment, OutBillBean outBillBean) throws MYException {
         FinanceBean financeBean = new FinanceBean();
-
-        String name = user.getStafferName() + "通过回款认领(手续费):" + apply.getPaymentId() + '.';
+        String name = "";
+        if (user == null){
+            name = "自动审批Job通过回款认领(手续费):" + apply.getPaymentId() + '.';
+        }  else {
+            name = user.getStafferName() + "通过回款认领(手续费):" + apply.getPaymentId() + '.';
+        }
 
         financeBean.setName(name);
 
@@ -901,7 +943,9 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setDutyId(bank.getDutyId());
 
-        financeBean.setCreaterId(user.getStafferId());
+        if (user!= null){
+            financeBean.setCreaterId(user.getStafferId());
+        }
 
         financeBean.setDescription(financeBean.getName());
 
@@ -915,7 +959,12 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
 
         financeBean.setItemList(itemList);
 
-        financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+        if (apply.isAutoPayFlag()){
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, false);
+        } else {
+            financeManager.addFinanceBeanWithoutTransactional(user, financeBean, true);
+        }
+
     }
 
     /**
@@ -1037,7 +1086,13 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
     private void createAddItem3(User user, PaymentBean bean, BankBean bank, PaymentApplyBean apply,
             InBillBean inBillBean, PaymentVSOutBean item, FinanceBean financeBean,
             List<FinanceItemBean> itemList) throws MYException {
-        String name = user.getStafferName() + "通过回款认领(销售单关联):" + apply.getPaymentId() + '.';
+        String name = "";
+        if (user == null){
+            name =  "自动审批Job通过回款认领(销售单关联):" + apply.getPaymentId() + '.';
+        } else {
+            name = user.getStafferName() + "通过回款认领(销售单关联):" + apply.getPaymentId() + '.';
+        }
+
 
         // 银行对应的暂记户科目（没有手续费）/应收账款
         FinanceItemBean itemIn = new FinanceItemBean();
@@ -1309,7 +1364,13 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
             createAddItem6(user, apply, outBean, financeBean, itemList, bad);
         }
 
-        String name = user.getStafferName() + "通过预收转应收中确认坏账(销售单关联):" + outBean.getFullId() + '.';
+        String name = "";
+        if (user == null){
+            name = "自动审批Job通过预收转应收中确认坏账(销售单关联):" + outBean.getFullId() + '.';
+        } else{
+            name = user.getStafferName() + "通过预收转应收中确认坏账(销售单关联):" + outBean.getFullId() + '.';
+        }
+
 
         // 借方
         FinanceItemBean itemIn = new FinanceItemBean();
@@ -1503,7 +1564,13 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
             throw new MYException("数据错误,请确认操作");
         }
 
-        String name = user.getStafferName() + "通过预收转费用:" + bean.getId() + '.';
+        String name = "";
+        if (user == null){
+            name = "自动审批Job通过预收转费用:" + bean.getId() + '.';
+        } else {
+            name = user.getStafferName() + "通过预收转费用:" + bean.getId() + '.';
+        }
+
 
         // 银行对应的暂记户科目（没有手续费）/应收账款
         FinanceItemBean itemIn = new FinanceItemBean();
@@ -1600,7 +1667,13 @@ public class PaymentApplyListenerTaxGlueImpl implements PaymentApplyListener {
             throw new MYException("数据错误,请确认操作");
         }
 
-        String name = user.getStafferName() + "通过回款认领(手续费):" + apply.getPaymentId() + '.';
+        String name = "";
+        if (user == null){
+            name = "自动审批Job通过回款认领(手续费):" + apply.getPaymentId() + '.';
+        }  else {
+            name = user.getStafferName() + "通过回款认领(手续费):" + apply.getPaymentId() + '.';
+        }
+
 
         // 临界值
         int maxFee = parameterDAO.getInt(SysConfigConstant.MAX_RECVIVE_FEE);

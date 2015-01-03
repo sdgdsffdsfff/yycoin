@@ -182,7 +182,7 @@ public class FinanceManagerImpl implements FinanceManager {
     @Override
     public boolean addFinanceBeanWithoutTransactional(User user, FinanceBean bean, int type, boolean autoPayFlag) throws MYException {
         if (type == 0)
-            return addFinanceBeanWithoutTransactional(user, bean, true);
+            return addFinanceBeanWithoutTransactional(user, bean, autoPayFlag);
         synchronized (FINANCE_ADD_LOCK) {
             return addMidInner(user, bean, true, autoPayFlag);
         }

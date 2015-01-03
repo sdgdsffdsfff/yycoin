@@ -53,7 +53,7 @@
             // database.
             console.log([key, value]);
             result[key] = value;
-            temp = key+":"+value+"|";
+            temp = key+":"+value+";";
             console.log(temp);
             accessoryList = accessoryList+temp
         }, function() {
@@ -114,18 +114,8 @@
 
                         <c:forEach items="${bean.baseList}" var="item" varStatus="vs">
                             <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
-                                <td align="center">
-                                    <input type="text" name="productName"
-                                           readonly="readonly"
-                                           style="width: 100%"
-                                           value="${item.productName}" />
-                                </td>
-
-                                <td align="center">
-                                    <input type="text" readonly="readonly" style="width: 100%"  value="${item.amount}"
-                                           maxlength="6" name="amount">
-                                </td>
-
+                                <td align="center">${item.productName}</td>
+                                <td align="center">${item.amount}</td>
                             </tr>
                         </c:forEach>
 
@@ -188,10 +178,6 @@
 						<td align="center"></td>
 					</tr>
 
-					<%--<tr class="content2">--%>
-                        <%--<td><input type=button value="按配件入库"  class="button_class" onclick="accessoryInStorage()"></td>--%>
-						<%--<td><input type=button value="清空"  class="button_class" onclick="clears()"></td>--%>
-					<%--</tr>--%>
 				</table>
 				</td>
 			</tr>
@@ -216,7 +202,7 @@
 		<td width="100%">
 		<div align="right">
 			<input type="button" class="button_class" value="确认退库" onClick="confirmBack()" />&nbsp;&nbsp;
-            <input type="button" class="button_class" onclick="javascript:history.go(-${goback})" value="&nbsp;&nbsp;返 回&nbsp;&nbsp;">
+            <input type="button" class="button_class" value="返回" onclick="javascript:history.go(-1)" >
         </div>
 		</td>
 		<td width="0%"></td>

@@ -26,7 +26,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.dao.*;
+import com.china.center.oa.product.facade.ProductFacade;
 import com.china.center.oa.product.manager.PriceConfigManager;
 import com.china.center.oa.sail.manager.SailConfigManager;
 import jxl.Workbook;
@@ -75,10 +77,6 @@ import com.china.center.oa.finance.dao.PaymentDAO;
 import com.china.center.oa.finance.dao.PreInvoiceVSOutDAO;
 import com.china.center.oa.finance.facade.FinanceFacade;
 import com.china.center.oa.finance.vs.InsVSOutBean;
-import com.china.center.oa.product.bean.DepotBean;
-import com.china.center.oa.product.bean.DepotpartBean;
-import com.china.center.oa.product.bean.ProductBean;
-import com.china.center.oa.product.bean.ProviderBean;
 import com.china.center.oa.product.constant.DepotConstant;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.constant.StorageConstant;
@@ -329,6 +327,8 @@ public class ParentOutAction extends DispatchAction
     protected PriceConfigManager priceConfigManager = null;
 
     protected SailConfigManager sailConfigManager = null;
+
+    protected ProductFacade productFacade = null;
 
 	protected static String QUERYSELFOUT = "querySelfOut";
 
@@ -6539,21 +6539,9 @@ public class ParentOutAction extends DispatchAction
         synchronized (S_LOCK)
         {
             String fullId = request.getParameter("outId");
-            String[] products = request.getParameterValues("productName");
-            String[] amounts = request.getParameterValues("amount");
-            String[] locations = request.getParameterValues("location");
-            String productList = request.getParameter("productList");
             String accessoryList = request.getParameter("accessoryList");
             System.out.println("******************submitOut2*****************"+fullId+"****accessoryList****"+accessoryList);
-            for (String product : products){
-                System.out.println("product************"+product);
-            }
-            for (String amount : amounts){
-                System.out.println("amount************"+amount);
-            }
-            for (String location : locations){
-                System.out.println("location************"+location);
-            }
+
             User user = (User) request.getSession().getAttribute("user");
 
             OutVO out = outDAO.findVO(fullId);
@@ -6608,17 +6596,29 @@ public class ParentOutAction extends DispatchAction
 //                }
 
                 //成品行退货
-                List<BaseBean> baseBeans = this.convertParameterToBaseBens(productList);
-//                outManager.submit2(fullId, user, type, baseBeans);
+                List<BaseBean> baseBeans = this.getBaseBeansFromRequest(request);
+
+                //配件退货
+                List<ComposeProductBean> beans = this.getComposeBeanFromRequest(accessoryList);
+
+                this.checkProductNumber(fullId,baseBeans,beans);
+                System.out.println("**********************1111111111111111111111111111111111111*****************");
+                outManager.submit2(fullId, user, type, baseBeans);
+
+                for (ComposeProductBean bean:beans){
+                    System.out.println("**********************bean*****************"+bean);
+                    productFacade.addComposeProduct(user.getId(), bean);
+                }
             }
-            catch (Exception e)
+            catch (MYException e)
             {
+                e.printStackTrace();
                 _logger.warn(e, e);
 
-//                request.setAttribute(KeyConstant.ERROR_MESSAGE,
-//                        "处理错误:" + e.getErrorContent());
                 request.setAttribute(KeyConstant.ERROR_MESSAGE,
-                        "处理错误:" + e.getMessage());
+                        "处理错误:" + e.getErrorContent());
+//                request.setAttribute(KeyConstant.ERROR_MESSAGE,
+//                        "处理错误:" + e.getMessage());
 
                 return mapping.findForward("error");
             }
@@ -6652,9 +6652,103 @@ public class ParentOutAction extends DispatchAction
         }
     }
 
-    //TODO
-    private List<BaseBean> convertParameterToBaseBens(String productList){
-        return new ArrayList<BaseBean>();
+    private void checkProductNumber(String fullId, List<BaseBean> finishedProductList, List<ComposeProductBean> accessoryList) throws MYException{
+        List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
+        Map<String, Integer> productNumber = new HashMap<String,Integer>();
+        //成品数量对应关系
+        for (BaseBean base : finishedProductList){
+             productNumber.put(base.getProductId(), base.getAmount());
+        }
+        //配件行数量对应关系
+        for (ComposeProductBean cpb: accessoryList){
+            String productId = cpb.getProductId();
+             if (productNumber.containsKey(productId)){
+                 productNumber.put(productId, productNumber.get(productId)+cpb.getAmount());
+             } else {
+                 productNumber.put(productId, cpb.getAmount());
+             }
+        }
+        for (BaseBean base: baseBeans){
+            String productId = base.getProductId();
+            System.out.println(productId+"***********amount***********"+base.getAmount());
+            if (!productNumber.containsKey(base.getProductId())) {
+                System.out.println("*****************************提交商品信息有误******************************");
+                throw new MYException("退库商品数量不对");
+            } else if (base.getAmount() != productNumber.get(productId)){
+                System.out.println("*****************************退库商品数量不对******************************");
+                throw new MYException("退库商品数量不对");
+            }
+        }
+    }
+
+    //获取成品行信息
+    private List<BaseBean> getBaseBeansFromRequest(HttpServletRequest request){
+        List<BaseBean> baseBeans = new ArrayList<BaseBean>();
+        String[] products = request.getParameterValues("productName");
+        String[] amounts = request.getParameterValues("amount");
+        String[] locations = request.getParameterValues("location");
+
+        if (products!= null && products.length>0){
+           for (int i=0;i<products.length;i++){
+               String productId = products[i];
+               String amount = amounts[i];
+               String location = locations[i];
+               System.out.println("productId:"+productId+" amout:"+amount+" location:"+location);
+               if (!StringTools.isNullOrNone(productId)){
+                   BaseBean bean = new BaseBean();
+                   bean.setProductId(productId);
+                   bean.setAmount(Integer.valueOf(amount));
+                   bean.setLocationId(location);
+                   baseBeans.add(bean);
+               }
+           }
+        }
+
+        return baseBeans;
+    }
+
+    //获取配件行信息
+    private List<ComposeProductBean> getComposeBeanFromRequest(String str){
+        List<ComposeProductBean> beans = new ArrayList<ComposeProductBean>();
+        if (StringTools.isNullOrNone(str)){
+            return beans;
+        }
+        String[] arr1 = str.split(";");
+        System.out.println(arr1.length);
+
+        for (String s : arr1){
+            System.out.println(s);
+            String[] arr2 = s.split(":");
+            String productId = arr2[0];
+            String[] arr3 = arr2[1].split("&");
+            System.out.println("productId:"+productId+":"+arr3.length);
+            ComposeProductBean bean = new ComposeProductBean();
+            bean.setProductId(productId);
+
+            if (arr3.length>=3){
+                List<ComposeItemBean> itemList = new ArrayList<ComposeItemBean>();
+                for (int i=3;i<arr3.length;i+=3){
+                    System.out.println(arr3[i]);
+                    ComposeItemBean each = new ComposeItemBean();
+                    for (int j=0;j<3;j++){
+                        System.out.println(arr3[i+j]);
+                        String value = arr3[i+j].split("=")[1];
+                        if (j==0){
+                            each.setProductId(value);
+                        } else if (j==1){
+                            each.setAmount(Integer.valueOf(value));
+                            bean.setAmount(Integer.valueOf(value));
+                        } else if (j==2){
+                            each.setDeportId(value);
+                        }
+                        itemList.add(each);
+                    }
+                }
+                bean.setItemList(itemList);
+            }
+            beans.add(bean);
+        }
+        return beans;
     }
 
 	/**
@@ -10315,5 +10409,13 @@ public class ParentOutAction extends DispatchAction
 
     public void setSailConfigManager(SailConfigManager sailConfigManager) {
         this.sailConfigManager = sailConfigManager;
+    }
+
+    public ProductFacade getProductFacade() {
+        return productFacade;
+    }
+
+    public void setProductFacade(ProductFacade productFacade) {
+        this.productFacade = productFacade;
     }
 }

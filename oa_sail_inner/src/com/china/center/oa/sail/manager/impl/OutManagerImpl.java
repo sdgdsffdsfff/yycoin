@@ -1639,6 +1639,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         // 检查日志核对
         int outStatusInLog = this.findOutStatusInLog(outBean.getFullId());
+        System.out.println("**********************outStatusInLog*********************"+outStatusInLog);
 
         if (outStatusInLog != -1 && outStatusInLog != OutConstant.STATUS_REJECT
             && outStatusInLog != outBean.getStatus())
@@ -1763,7 +1764,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         // 检查日志核对
         int outStatusInLog = this.findOutStatusInLog(outBean.getFullId());
-
+        System.out.println("*****************11111111111111111111111******************");
         if (outStatusInLog != -1 && outStatusInLog != OutConstant.STATUS_REJECT
                 && outStatusInLog != outBean.getStatus())
         {
@@ -1777,16 +1778,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         //TODO
 //        final List<BaseBean> baseList = checkSubmit(fullId, outBean);
-
+        System.out.println("*****************222222222222222222222222******************");
         // 这里是入库单的直接库存变动(部分)
         processBuyBaseList(user, outBean, baseList, type);
-
+        System.out.println("*****************3333333333333333333333******************");
         //add 针对促销订单绑定历史订单，更新被绑定订单的相关信息
         processPromBindOutId(user, outBean);
-
+        System.out.println("*****************44444444444444444444444444******************");
         // CORE 修改库单(销售/入库)的状态(信用额度处理)
         int status = processOutStutus(fullId, user, outBean);
-
+        System.out.println("*****************55555555555555555555555******************");
         try
         {
             if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
@@ -5851,6 +5852,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public int findOutStatusInLog(String fullId)
     {
+        System.out.println("******************findOutStatusInLog*****************"+fullId);
         // 获取日志，正排序
         List<FlowLogBean> logList = flowLogDAO.queryEntityBeansByFK(fullId);
 

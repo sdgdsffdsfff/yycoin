@@ -102,7 +102,7 @@
 
 					<tr class="content1" id="trCopy" style="display: none;">
                         <td>
-                            <select name="bomProductName" class="select_class"  style="width: 100%">
+                            <select name="bomProductId" class="select_class"  style="width: 100%">
                                 <option value="">--</option>
                                 <c:forEach items='${bomList}' var="item">
                                     <option value="${item.id}">${item.name}</option>
