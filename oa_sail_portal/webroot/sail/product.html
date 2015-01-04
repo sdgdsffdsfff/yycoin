@@ -7,6 +7,8 @@
     <script>
         function save2(){
             console.log("*************");
+            console.log(document.querySelector("#productList").value);
+
             var result = {};
             localforage.getItem('100', function(err, value) {
                 // Run this code once the value has been
@@ -60,7 +62,7 @@
 </head>
 <body>
 <form method="post" action="./submitOut" id="backForm">
-    <input hidden type="text" name="productList" id="productList">
+    <input hidden type="text" name="productList" id="productList" value="hello">
 <table>
     <thead>
         <th>商品名</th>

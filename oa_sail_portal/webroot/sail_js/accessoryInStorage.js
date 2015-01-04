@@ -274,6 +274,9 @@ function accessoryInStorage(obj){
     amountNode.setAttribute("disabled", "disabled");
     locationNode.setAttribute("disabled", "disabled");
 
+    outId = document.querySelector("#outId").value;
+    console.log(outId);
+
 //    trNode = obj.parentNode.parentNode
 //    console.log(trNode);
 //    productNode = trNode.childNodes[0].childNodes[0];
@@ -287,7 +290,8 @@ function accessoryInStorage(obj){
 //        .find(".product")     // Gets a descendent with class="nr"
 //        .text();
 //    console.log($item);
-    window.open('../sail/out.do?method=accessoryInStorage&productId='+productId+'&amount='+amount+'&outId=' + getRadioValue("fullId"));
+//    window.open('../sail/out.do?method=accessoryInStorage&productId='+productId+'&amount='+amount+'&outId=' + getRadioValue("fullId"));
+    window.open('../sail/out.do?method=accessoryInStorage&productId='+productId+'&amount='+amount+'&outId=' + outId);
 }
 
 function removeTr(obj)

@@ -6599,15 +6599,15 @@ public class ParentOutAction extends DispatchAction
                 List<BaseBean> baseBeans = this.getBaseBeansFromRequest(request);
 
                 //配件退货
-                List<ComposeProductBean> beans = this.getComposeBeanFromRequest(accessoryList);
+                List<DecomposeProductBean> beans = this.getDecomposeBeanFromRequest(accessoryList);
 
                 this.checkProductNumber(fullId,baseBeans,beans);
                 System.out.println("**********************1111111111111111111111111111111111111*****************");
-                outManager.submit2(fullId, user, type, baseBeans);
+//                outManager.submit2(fullId, user, type, baseBeans);
 
-                for (ComposeProductBean bean:beans){
+                for (DecomposeProductBean bean:beans){
                     System.out.println("**********************bean*****************"+bean);
-                    productFacade.addComposeProduct(user.getId(), bean);
+                    productFacade.addDecomposeProduct(user.getId(), bean);
                 }
             }
             catch (MYException e)
@@ -6652,7 +6652,7 @@ public class ParentOutAction extends DispatchAction
         }
     }
 
-    private void checkProductNumber(String fullId, List<BaseBean> finishedProductList, List<ComposeProductBean> accessoryList) throws MYException{
+    private void checkProductNumber(String fullId, List<BaseBean> finishedProductList, List<DecomposeProductBean> accessoryList) throws MYException{
         List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
         Map<String, Integer> productNumber = new HashMap<String,Integer>();
         //成品数量对应关系
@@ -6660,7 +6660,7 @@ public class ParentOutAction extends DispatchAction
              productNumber.put(base.getProductId(), base.getAmount());
         }
         //配件行数量对应关系
-        for (ComposeProductBean cpb: accessoryList){
+        for (DecomposeProductBean cpb: accessoryList){
             String productId = cpb.getProductId();
              if (productNumber.containsKey(productId)){
                  productNumber.put(productId, productNumber.get(productId)+cpb.getAmount());
@@ -6708,8 +6708,8 @@ public class ParentOutAction extends DispatchAction
     }
 
     //获取配件行信息
-    private List<ComposeProductBean> getComposeBeanFromRequest(String str){
-        List<ComposeProductBean> beans = new ArrayList<ComposeProductBean>();
+    private List<DecomposeProductBean> getDecomposeBeanFromRequest(String str){
+        List<DecomposeProductBean> beans = new ArrayList<DecomposeProductBean>();
         if (StringTools.isNullOrNone(str)){
             return beans;
         }
@@ -6722,7 +6722,7 @@ public class ParentOutAction extends DispatchAction
             String productId = arr2[0];
             String[] arr3 = arr2[1].split("&");
             System.out.println("productId:"+productId+":"+arr3.length);
-            ComposeProductBean bean = new ComposeProductBean();
+            DecomposeProductBean bean = new DecomposeProductBean();
             bean.setProductId(productId);
 
             if (arr3.length>=3){

@@ -82,7 +82,7 @@
 <form name="backForm" id="backForm" method="post" action="../sail/out.do?method=submitOut2">
 <input type=hidden name="productList" />
 <input type=hidden name="accessoryList" />
-<input type=hidden name="outId" value="${bean.fullId}"/>
+<input type=hidden id="outId" name="outId" value="${bean.fullId}"/>
 
 <p:navigation
 	height="22">

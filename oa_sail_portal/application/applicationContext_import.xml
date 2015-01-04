@@ -222,4 +222,6 @@
 	<osgi:reference id="estimateProfitDAO" interface="com.china.center.oa.sail.dao.EstimateProfitDAO" />
 
     <osgi:reference id="branchRelationDAO" interface="com.china.center.oa.sail.dao.BranchRelationDAO" />
+
+    <osgi:reference id="productFacade" interface="com.china.center.oa.product.facade.ProductFacade" />
 </beans>
