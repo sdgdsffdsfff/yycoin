@@ -317,7 +317,12 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
             throw new MYException("库存被锁定,请确认解锁库存操作");
         }
 
-        JudgeTools.judgeParameterIsNull(user, bean, bean.getStafferId());
+        System.out.println("***********user****"+user);
+        System.out.println("***********bean****"+bean);
+        System.out.println("***********bean.getStafferId()****"+bean.getStafferId());
+        //TODO
+//        JudgeTools.judgeParameterIsNull(user, bean, bean.getStafferId());
+//        JudgeTools.judgeParameterIsNull(user, bean);
 
         StorageRelationBean relation = null;
 
@@ -349,7 +354,8 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         {
             priceKey = StorageRelationHelper.getPriceKey(bean.getPrice());
 
-            JudgeTools.judgeParameterIsNull(bean.getDepotpartId(), bean.getProductId());
+            //TODO
+//            JudgeTools.judgeParameterIsNull(bean.getDepotpartId(), bean.getProductId());
         }
 
         // 防止直接插入的(先给默认储位)

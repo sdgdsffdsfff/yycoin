@@ -2362,6 +2362,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                     final List<BaseBean> baseList, int type)
         throws MYException
     {
+        System.out.println("*************processBuyBaseList*************1111111111111111");
         // 入库单提交后就直接移动库存了,销售需要在库管通过后生成发货单前才会变动库存
         if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
         {
@@ -2400,7 +2401,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                 storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
             }
-
+            System.out.println("*************processBuyBaseList*************22222222222222222222");
             saveUnique(user, outBean);
 
             outBean.setBaseList(baseList);
@@ -2410,7 +2411,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             {
                 // 检查是否溢出
                 boolean ret = checkIfAllSwithToSail(outBean.getRefOutFullId());
-
+                System.out.println("*************processBuyBaseList*************33333333333333333333");
                 if (ret)
                 {
                  // add 原领样单自动变为已付款
@@ -2428,7 +2429,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 listener.onConfirmOutOrBuy(user, outBean);
                 
             }
-            
+            System.out.println("*************processBuyBaseList*************444444444444444444");
         }
     }
 
@@ -5684,6 +5685,12 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      */
     private void notifyOut(OutBean out, User user, int type)
     {
+        String stafferName = "";
+        if (user == null){
+            stafferName = "系统后台自动审批Job";
+        } else{
+            stafferName = user.getStafferName();
+        }
         if (out.getType() == 1)
         {
             return;
@@ -5693,23 +5700,23 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         if (type == 0)
         {
-            notify.setMessage(out.getFullId() + "已经被[" + user.getStafferName() + "]审批通过");
+            notify.setMessage(out.getFullId() + "已经被[" + stafferName + "]审批通过");
         }
         else if (type == 1)
         {
-            notify.setMessage(out.getFullId() + "已经被[" + user.getStafferName() + "]驳回");
+            notify.setMessage(out.getFullId() + "已经被[" + stafferName + "]驳回");
         }
         else if (type == 2)
         {
-            notify.setMessage(out.getFullId() + "已经被[" + user.getStafferName() + "]确认付款");
+            notify.setMessage(out.getFullId() + "已经被[" + stafferName + "]确认付款");
         }
         else if (type == 3)
         {
-            notify.setMessage(out.getFullId() + "已经被[" + user.getStafferName() + "]总部核对,单据流程结束");
+            notify.setMessage(out.getFullId() + "已经被[" + stafferName + "]总部核对,单据流程结束");
         }
         else
         {
-            notify.setMessage(out.getFullId() + "已经被[" + user.getStafferName() + "]处理");
+            notify.setMessage(out.getFullId() + "已经被[" + stafferName + "]处理");
         }
 
         notify.setUrl("../sail/out.do?method=findOut&fow=99&outId=" + out.getFullId());
@@ -5876,7 +5883,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     {
         FlowLogBean log = new FlowLogBean();
 
-        log.setActor(user.getStafferName());
+        if (user == null){
+            log.setActor("系统自动审批Job");
+        }else{
+            log.setActor(user.getStafferName());
+        }
 
         log.setDescription(des);
         log.setFullId(fullId);

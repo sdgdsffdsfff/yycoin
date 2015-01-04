@@ -1506,7 +1506,11 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
             		outDAO.updatePayInvoiceStatus(outId, OutConstant.OUT_PAYINS_STATUS_FINISH);
             }
 
-            tryUpdateOutPayStatus(user, out);
+            if (user ==  null){
+                this.tryUpdateOutPayStatus2(out);
+            } else{
+                tryUpdateOutPayStatus(user, out);
+            }
         }
     }
 
@@ -1520,10 +1524,6 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
     private void tryUpdateOutPayStatus(User user, OutBean out)
         throws MYException
     {
-        if (user == null){
-            _logger.warn(out+"***tryUpdateOutPayStatus without user****");
-            return;
-        }
         // 看看销售单是否可以结帐
         ResultBean result = outManager.checkOutPayStatus(user, out);
 
@@ -1532,6 +1532,38 @@ public class PaymentApplyManagerImpl extends AbstractListenerManager<PaymentAppl
         {
         	// 尝试全部付款
             outManager.payOutWithoutTransactional(user, out.getFullId(), "付款申请通过");        	
+        }
+
+        // 回款超出了限制(非法)
+        if (result.getResult() == -1)
+        {
+            throw new MYException(result.getMessage());
+        }
+
+        // 付款未完全,逻辑是正常的
+        if (result.getResult() == 1)
+        {
+            _logger.info(result.getMessage());
+        }
+    }
+
+    /** 2015/1/4
+     * 尝试更新销售单的付款状态 *
+     *
+     * @param out
+     * @throws MYException
+     */
+    private void tryUpdateOutPayStatus2(OutBean out)
+            throws MYException
+    {
+        // 看看销售单是否可以结帐
+        ResultBean result = outManager.checkOutPayStatus(null, out);
+
+        // 如果全部支付就自动表示收款
+        if (result.getResult() == 0)
+        {
+            // 尝试全部付款
+            outManager.payOutWithoutTransactional(null, out.getFullId(), "付款申请通过");
         }
 
         // 回款超出了限制(非法)
