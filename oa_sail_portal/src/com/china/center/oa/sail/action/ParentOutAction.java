@@ -6552,48 +6552,48 @@ public class ParentOutAction extends DispatchAction
                 return mapping.findForward("error");
             }
 
-//            // 退库-事业部经理审批
-//            if (out.getType() == OutConstant.OUT_TYPE_INBILL
-//                    && (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
-//                    || out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
-//                    || out.getOutType() == OutConstant.OUTTYPE_IN_PRESENT))
-//            {
-//                if (out.getStatus() != OutConstant.BUY_STATUS_SUBMIT)
-//                {
-//                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "状态错误");
-//
-//                    return mapping.findForward("error");
-//                }
-//            }
-//            else
-//            {
-//                if (out.getStatus() != OutConstant.STATUS_SAVE)
-//                {
-//                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "状态错误");
-//
-//                    return mapping.findForward("error");
-//                }
-//            }
-//
+            // 退库-事业部经理审批
+            if (out.getType() == OutConstant.OUT_TYPE_INBILL
+                    && (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
+                    || out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
+                    || out.getOutType() == OutConstant.OUTTYPE_IN_PRESENT))
+            {
+                if (out.getStatus() != OutConstant.BUY_STATUS_SUBMIT)
+                {
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "状态错误");
+
+                    return mapping.findForward("error");
+                }
+            }
+            else
+            {
+                if (out.getStatus() != OutConstant.STATUS_SAVE)
+                {
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "状态错误");
+
+                    return mapping.findForward("error");
+                }
+            }
+
             try
             {
                 int type = OutConstant.OUTTYPE_IN_SWATCH;
 
-//                if (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH)
-//                {
-//                    type = StorageConstant.OPR_STORAGE_SWATH;
-//
-//                    // add check 溢出
-//                    outManager.checkSwithToSail(out.getRefOutFullId());
-//                }
-//
-//                if (out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)
-//                {
-//                    type = StorageConstant.OPR_STORAGE_OUTBACK;
-//
-//                    // add check 溢出
-//                    outManager.checkOutBack(out.getRefOutFullId());
-//                }
+                if (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH)
+                {
+                    type = StorageConstant.OPR_STORAGE_SWATH;
+
+                    // add check 溢出
+                    outManager.checkSwithToSail(out.getRefOutFullId());
+                }
+
+                if (out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK)
+                {
+                    type = StorageConstant.OPR_STORAGE_OUTBACK;
+
+                    // add check 溢出
+                    outManager.checkOutBack(out.getRefOutFullId());
+                }
 
                 //成品行退货
                 List<BaseBean> baseBeans = this.getBaseBeansFromRequest(request);
@@ -6603,7 +6603,7 @@ public class ParentOutAction extends DispatchAction
 
                 this.checkProductNumber(fullId,baseBeans,beans);
                 System.out.println("**********************1111111111111111111111111111111111111*****************");
-//                outManager.submit2(fullId, user, type, baseBeans);
+                outManager.submit2(fullId, user, type, baseBeans);
 
                 for (DecomposeProductBean bean:beans){
                     System.out.println("**********************bean*****************"+bean);
