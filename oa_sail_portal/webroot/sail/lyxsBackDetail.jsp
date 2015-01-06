@@ -151,6 +151,7 @@
                         </td>
 					</tr>
 
+                    <!--用来作为新增行时copy只用 -->
 					<tr class="content1" id="trCopy" style="display: none;">
                         <td>
                             <select name="productName" class="select_class product" style="width: 100%">
@@ -177,6 +178,51 @@
 
 						<td align="center"></td>
 					</tr>
+                    <!-- end of trCopy -->
+
+                    <c:forEach items="${bean.baseList}" var="item" varStatus="vs">
+                        <tr class="content1">
+                            <td>
+                                <select name="productName" class="select_class product" style="width: 100%">
+                                    <option value="">--</option>
+
+                                    <%--<c:forEach items='${bean.baseList}' var="item2">--%>
+                                        <%--<c:if test="${item2.name == item.name}">--%>
+                                            <%--<option value="${item.productId}" selected>${item.productName}</option>--%>
+                                        <%--</c:if>--%>
+                                        <%--<c:if test="${item2.name != item.name}">--%>
+                                            <%--<option value="${item.productId}">${item.productName}</option>--%>
+                                        <%--</c:if>--%>
+                                    <%--</c:forEach>--%>
+                                </select>
+                            </td>
+
+                            <td align="center">
+                                <input type="text" style="width: 100%" maxlength="6" name="amount" required="required">
+                            </td>
+
+                            <td>
+                                <select name="location" class="select_class location" style="width: 100%">
+                                    <option value="">--</option>
+                                    <c:forEach items='${locationList}' var="item">
+                                        <c:if test="${item.name == '公共库--南京物流中心'}">
+                                            <option value="${item.id}" selected>${item.name}</option>
+                                        </c:if>
+                                        <c:if test="${item.name != '公共库--南京物流中心'}">
+                                            <option value="${item.id}">${item.name}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </td>
+
+                            <td>
+                                <input type="button" value="删除" name="eachDel" class="button_class" onclick="removeTr(this)"> <input type=button value="按配件入库" name=eachInStorage class=button_class onclick="accessoryInStorage(this)">
+                            </td>
+
+
+                            <td align="center"></td>
+                        </tr>
+                    </c:forEach>
 
 				</table>
 				</td>
