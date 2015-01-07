@@ -185,31 +185,30 @@
                             <td>
                                 <select name="productName" class="select_class product" style="width: 100%">
                                     <option value="">--</option>
-
-                                    <%--<c:forEach items='${bean.baseList}' var="item2">--%>
-                                        <%--<c:if test="${item2.name == item.name}">--%>
-                                            <%--<option value="${item.productId}" selected>${item.productName}</option>--%>
-                                        <%--</c:if>--%>
-                                        <%--<c:if test="${item2.name != item.name}">--%>
-                                            <%--<option value="${item.productId}">${item.productName}</option>--%>
-                                        <%--</c:if>--%>
-                                    <%--</c:forEach>--%>
+                                    <c:forEach items='${baseBeans}' var="base">
+                                        <c:if test="${base.productName == item.productName}">
+                                            <option value="${base.productId}" selected>${base.productName}</option>
+                                        </c:if>
+                                        <c:if test="${base.productName != item.productName}">
+                                            <option value="${base.productId}">${base.productName}</option>
+                                        </c:if>
+                                    </c:forEach>
                                 </select>
                             </td>
 
                             <td align="center">
-                                <input type="text" style="width: 100%" maxlength="6" name="amount" required="required">
+                                <input type="text" style="width: 100%" maxlength="6" name="amount" value="${item.amount}" required="required">
                             </td>
 
                             <td>
                                 <select name="location" class="select_class location" style="width: 100%">
                                     <option value="">--</option>
-                                    <c:forEach items='${locationList}' var="item">
-                                        <c:if test="${item.name == '公共库--南京物流中心'}">
-                                            <option value="${item.id}" selected>${item.name}</option>
+                                    <c:forEach items='${locationList}' var="location">
+                                        <c:if test="${location.name == '公共库--南京物流中心'}">
+                                            <option value="${location.id}" selected>${location.name}</option>
                                         </c:if>
-                                        <c:if test="${item.name != '公共库--南京物流中心'}">
-                                            <option value="${item.id}">${item.name}</option>
+                                        <c:if test="${location.name != '公共库--南京物流中心'}">
+                                            <option value="${location.id}">${location.name}</option>
                                         </c:if>
                                     </c:forEach>
                                 </select>

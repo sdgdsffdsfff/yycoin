@@ -5951,6 +5951,7 @@ public class OutAction extends ParentOutAction
         List<DepotBean> locationList = depotDAO.queryCommonDepotBean();
         //TODO 入库仓库列表
         request.setAttribute("bean", out);
+        request.setAttribute("baseBeans", out.getBaseList());
         request.setAttribute("locationList", locationList);
         return mapping.findForward("lyxsBackDetail");
     }

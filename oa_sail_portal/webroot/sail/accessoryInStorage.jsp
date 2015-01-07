@@ -100,6 +100,7 @@
                         </td>
 					</tr>
 
+                    <!-- -->
 					<tr class="content1" id="trCopy" style="display: none;">
                         <td>
                             <select name="bomProductId" class="select_class"  style="width: 100%">
