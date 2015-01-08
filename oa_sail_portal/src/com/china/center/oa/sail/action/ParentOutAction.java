@@ -6595,8 +6595,29 @@ public class ParentOutAction extends DispatchAction
                     outManager.checkOutBack(out.getRefOutFullId());
                 }
 
+                //未入库前对应的BaseBean
+                final List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(fullId);
+
                 //成品行退货
                 List<BaseBean> baseBeans = this.getBaseBeansFromRequest(request);
+
+                //根据数据库中BaseBean进行相应设置
+                if (!ListTools.isEmptyOrNull(baseBeans)){
+                     for (BaseBean base :baseBeans){
+                         String productId = base.getProductId();
+                         for(BaseBean b : baseList){
+                             if (productId.equals(b.getProductId())){
+                                 //TODO setDepotpartId 如何设置?
+                                 base.setDepotpartId(b.getDepotpartId());
+                                 base.setCostPrice(b.getCostPrice());
+                                 base.setOwner(b.getOwner());
+                                 base.setInputRate(b.getInputRate());
+                             }
+                         }
+                     }
+                }
+
+
 
                 //配件退货
                 List<DecomposeProductBean> beans = this.getDecomposeBeanFromRequest(accessoryList);
@@ -6607,7 +6628,7 @@ public class ParentOutAction extends DispatchAction
 
                 for (DecomposeProductBean bean:beans){
                     System.out.println("**********************bean*****************"+bean);
-                    productFacade.addDecomposeProduct(user.getId(), bean);
+//                    productFacade.addDecomposeProduct(user.getId(), bean);
                 }
             }
             catch (MYException e)
@@ -6653,11 +6674,18 @@ public class ParentOutAction extends DispatchAction
     }
 
     private void checkProductNumber(String fullId, List<BaseBean> finishedProductList, List<DecomposeProductBean> accessoryList) throws MYException{
+        System.out.println("****成品行数量:"+finishedProductList.size()+"*****配件行数量:"+accessoryList.size());
         List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
         Map<String, Integer> productNumber = new HashMap<String,Integer>();
         //成品数量对应关系
         for (BaseBean base : finishedProductList){
-             productNumber.put(base.getProductId(), base.getAmount());
+            String productId = base.getProductId();
+            System.out.println("put**************"+base.getProductId()+"****"+base.getAmount());
+            if (productNumber.containsKey(productId)){
+                productNumber.put(productId, productNumber.get(productId)+base.getAmount());
+            } else {
+                productNumber.put(productId, base.getAmount());
+            }
         }
         //配件行数量对应关系
         for (DecomposeProductBean cpb: accessoryList){
@@ -6675,7 +6703,7 @@ public class ParentOutAction extends DispatchAction
                 System.out.println("*****************************提交商品信息有误******************************");
                 throw new MYException("退库商品数量不对");
             } else if (base.getAmount() != productNumber.get(productId)){
-                System.out.println("*****************************退库商品数量不对******************************");
+                System.out.println("*****************************退库商品数量不对******************************"+productNumber.get(productId));
                 throw new MYException("退库商品数量不对");
             }
         }
@@ -6693,13 +6721,15 @@ public class ParentOutAction extends DispatchAction
                String productId = products[i];
                String amount = amounts[i];
                String location = locations[i];
-               System.out.println("productId:"+productId+" amout:"+amount+" location:"+location);
                if (!StringTools.isNullOrNone(productId)){
                    BaseBean bean = new BaseBean();
                    bean.setProductId(productId);
                    bean.setAmount(Integer.valueOf(amount));
                    bean.setLocationId(location);
+
+                   //TODO deportpartid
                    baseBeans.add(bean);
+                   System.out.println("****成品行productId:"+productId+" amount:"+amount+" location:"+location);
                }
            }
         }
@@ -6746,6 +6776,7 @@ public class ParentOutAction extends DispatchAction
                 }
                 bean.setItemList(itemList);
             }
+            System.out.println("****配件行:"+bean.getProductId()+" amount:"+bean.getAmount());
             beans.add(bean);
         }
         return beans;

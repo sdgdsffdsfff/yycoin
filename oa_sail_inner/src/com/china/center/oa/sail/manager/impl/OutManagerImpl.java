@@ -2381,6 +2381,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             {
                 ProductChangeWrap wrap = new ProductChangeWrap();
 
+                //TODO
                 wrap.setDepotpartId(element.getDepotpartId());
                 wrap.setPrice(element.getCostPrice());
                 wrap.setProductId(element.getProductId());

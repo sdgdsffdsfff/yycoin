@@ -16,12 +16,11 @@
 <script language="JavaScript" src="../sail_js/accessoryInStorage.js"></script>
 <script language="JavaScript" src="../sail_js/localforage.min.js"></script>
 <script language="javascript">
-<%--<%@include file="../sail_js/out501.jsp"%>--%>
 
     var productId = "${productId}";
-    console.log(productId);
+//    console.log(productId);
     var amount = "${amount}";
-    console.log(amount);
+//    console.log(amount);
 
     function load()
     {
@@ -36,18 +35,6 @@
             // Do other things once the value has been saved.
             console.log(value);
         });
-
-//        var formData = JSON.parse(JSON.stringify($('#accessoryForm').serializeArray()))
-//        console.info(formData);
-//        if (formData.length >3){
-//            accessoryArray = formData.slice(3);
-//            accessoryStr = JSON.stringify(accessoryArray);
-//            console.log(accessoryStr);
-//            localforage.setItem(productId, accessoryStr, function(err, value) {
-//                // Do other things once the value has been saved.
-//                console.log(value);
-//            });
-//        }
 
     }
 
