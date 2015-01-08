@@ -26,6 +26,7 @@
     function load()
     {
         loadForm();
+        $("input:text").val(amount);
     }
 
     function saveAccessory(){
@@ -111,7 +112,7 @@
                             </select>
                         </td>
 						<td>
-                            <input type="text" name="amount" value="${amount}">
+                            <input type="text" name="amount">
 						</td>
 
 						<td align="center">
@@ -135,17 +136,17 @@
                                     <option value="">--</option>
                                     <c:forEach items='${bomList}' var="bom">
                                         <c:if test="${bom.name == item.name}">
-                                            <option value="${bom.productId}" selected>${bom.name}</option>
+                                            <option value="${bom.id}" selected>${bom.name}</option>
                                         </c:if>
                                         <c:if test="${bom.name != item.name}">
-                                            <option value="${bom.productId}">${bom.name}</option>
+                                            <option value="${bom.id}">${bom.name}</option>
                                         </c:if>
                                     </c:forEach>
                                 </select>
                             </td>
 
                             <td align="center">
-                                <input type="text" style="width: 100%" maxlength="6" name="amount" value="${item.amount}" required="required">
+                                <input type="text" style="width: 100%" maxlength="6" name="amount" required="required">
                             </td>
 
                             <td>
