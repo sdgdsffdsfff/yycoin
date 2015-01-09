@@ -146,6 +146,7 @@
 						<td width="27%" align="center">商品名</td>
 						<td width="5%" align="center">数量</td>
                         <td width="13%" align="center">入库仓库</td>
+                        <td width="13%" align="center">仓区</td>
                         <td width="5%" align="center">
                             <input type="button" accesskey="A" value="增加" class="button_class" onclick="addTr()">
                         </td>
@@ -213,6 +214,20 @@
                                     </c:forEach>
                                 </select>
                             </td>
+
+                            <%--<td>--%>
+                                <%--<select name="location" class="select_class" style="width: 100%">--%>
+                                    <%--<option value="">--</option>--%>
+                                    <%--<c:forEach items='${locationList}' var="location">--%>
+                                        <%--<c:if test="${location.name == '公共库--南京物流中心'}">--%>
+                                            <%--<option value="${location.id}" selected>${location.name}</option>--%>
+                                        <%--</c:if>--%>
+                                        <%--<c:if test="${location.name != '公共库--南京物流中心'}">--%>
+                                            <%--<option value="${location.id}">${location.name}</option>--%>
+                                        <%--</c:if>--%>
+                                    <%--</c:forEach>--%>
+                                <%--</select>--%>
+                            <%--</td>--%>
 
                             <td>
                                 <input type="button" value="删除" name="eachDel" class="button_class" onclick="removeTr(this)"> <input type=button value="按配件入库" name=eachInStorage class=button_class onclick="accessoryInStorage(this)">

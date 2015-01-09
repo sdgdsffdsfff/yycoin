@@ -151,7 +151,7 @@
                             </td>
 
                             <td>
-                                <input type="button" value="删除" name="eachDel" class="button_class" onclick="removeTr(this)"> <input type=button value="按配件入库" name=eachInStorage class=button_class onclick="accessoryInStorage(this)">
+                                <input type="button" value="删除" name="eachDel" class="button_class" onclick="removeTr(this)">
                             </td>
 
 

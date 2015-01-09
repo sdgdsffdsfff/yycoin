@@ -6608,7 +6608,7 @@ public class ParentOutAction extends DispatchAction
                          for(BaseBean b : baseList){
                              if (productId.equals(b.getProductId())){
                                  //TODO setDepotpartId 如何设置?
-                                 base.setDepotpartId(b.getDepotpartId());
+//                                 base.setDepotpartId(b.getDepotpartId());
                                  base.setCostPrice(b.getCostPrice());
                                  base.setOwner(b.getOwner());
                                  base.setInputRate(b.getInputRate());
@@ -6728,6 +6728,10 @@ public class ParentOutAction extends DispatchAction
                    bean.setLocationId(location);
 
                    //TODO deportpartid
+                   // 默认仓区
+                   DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(location);
+                   bean.setDepotpartId(defaultOKDepotpart.getId());
+
                    baseBeans.add(bean);
                    System.out.println("****成品行productId:"+productId+" amount:"+amount+" location:"+location);
                }
