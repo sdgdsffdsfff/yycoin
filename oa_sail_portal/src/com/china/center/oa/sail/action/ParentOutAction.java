@@ -6607,8 +6607,6 @@ public class ParentOutAction extends DispatchAction
                          String productId = base.getProductId();
                          for(BaseBean b : baseList){
                              if (productId.equals(b.getProductId())){
-                                 //TODO setDepotpartId 如何设置?
-//                                 base.setDepotpartId(b.getDepotpartId());
                                  base.setCostPrice(b.getCostPrice());
                                  base.setOwner(b.getOwner());
                                  base.setInputRate(b.getInputRate());
@@ -6620,7 +6618,7 @@ public class ParentOutAction extends DispatchAction
 
 
                 //配件退货
-                List<DecomposeProductBean> beans = this.getDecomposeBeanFromRequest(accessoryList);
+                List<DecomposeProductBean> beans = this.getDecomposeBeanFromRequest(accessoryList, user);
 
                 this.checkProductNumber(fullId,baseBeans,beans);
                 System.out.println("**********************1111111111111111111111111111111111111*****************");
@@ -6628,7 +6626,7 @@ public class ParentOutAction extends DispatchAction
 
                 for (DecomposeProductBean bean:beans){
                     System.out.println("**********************bean*****************"+bean);
-//                    productFacade.addDecomposeProduct(user.getId(), bean);
+                    productFacade.addDecomposeProduct(user.getId(), bean);
                 }
             }
             catch (MYException e)
@@ -6742,7 +6740,7 @@ public class ParentOutAction extends DispatchAction
     }
 
     //获取配件行信息
-    private List<DecomposeProductBean> getDecomposeBeanFromRequest(String str){
+    private List<DecomposeProductBean> getDecomposeBeanFromRequest(String str, User user){
         List<DecomposeProductBean> beans = new ArrayList<DecomposeProductBean>();
         if (StringTools.isNullOrNone(str)){
             return beans;
@@ -6758,6 +6756,12 @@ public class ParentOutAction extends DispatchAction
             System.out.println("productId:"+productId+":"+arr3.length);
             DecomposeProductBean bean = new DecomposeProductBean();
             bean.setProductId(productId);
+            //TODO
+            bean.setStafferId(user.getStafferId());
+
+            bean.setLogTime(TimeTools.now());
+            bean.setType(StorageConstant.OPR_STORAGE_DECOMPOSE);
+
 
             if (arr3.length>=3){
                 List<ComposeItemBean> itemList = new ArrayList<ComposeItemBean>();
@@ -6774,6 +6778,10 @@ public class ParentOutAction extends DispatchAction
                             bean.setAmount(Integer.valueOf(value));
                         } else if (j==2){
                             each.setDeportId(value);
+                            bean.setDeportId(value);
+                            // 默认仓区
+                            DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(value);
+                            bean.setDepotpartId(defaultOKDepotpart.getId());
                         }
                         itemList.add(each);
                     }

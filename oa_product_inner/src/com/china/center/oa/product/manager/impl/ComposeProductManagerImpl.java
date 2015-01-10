@@ -194,14 +194,13 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         }
         
         // 全部管理 或 普通 ， 合成产品的管理属性须与源产品的管理属性一致
-        //2015/1/4 临时去掉限制
-//        if (counter == 0 || counter == itemList.size())
-//        {
-//        	if (bean.getMtype() != itemList.get(0).getMtype())
-//        	{
-//        		throw new MYException("合成的源产品的管理属性全为普通或管理时，合成产品管理属性须与源产品一致");
-//        	}
-//        }
+        if (counter == 0 || counter == itemList.size())
+        {
+        	if (bean.getMtype() != itemList.get(0).getMtype())
+        	{
+        		throw new MYException("合成的源产品的管理属性全为普通或管理时，合成产品管理属性须与源产品一致");
+        	}
+        }
     }
 
     @Transactional(rollbackFor = MYException.class)
@@ -956,6 +955,8 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
         bean.setId(commonDAO.getSquenceString20());
 
         bean.setStatus(ComposeConstant.STATUS_INDUSTRY_PASS);
+
+        System.out.println("****************decomposeProductDAO***********"+bean.getId());
 
         decomposeProductDAO.saveEntityBean(bean);
 

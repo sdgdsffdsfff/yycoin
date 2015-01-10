@@ -146,7 +146,7 @@
 						<td width="27%" align="center">商品名</td>
 						<td width="5%" align="center">数量</td>
                         <td width="13%" align="center">入库仓库</td>
-                        <td width="13%" align="center">仓区</td>
+                        <%--<td width="13%" align="center">仓区</td>--%>
                         <td width="5%" align="center">
                             <input type="button" accesskey="A" value="增加" class="button_class" onclick="addTr()">
                         </td>
