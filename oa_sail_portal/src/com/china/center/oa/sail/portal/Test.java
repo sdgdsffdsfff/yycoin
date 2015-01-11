@@ -52,99 +52,14 @@ public class Test {
                         } else if (j==2){
                             each.setDeportId(value);
                         }
-                        itemList.add(each);
                     }
+                    itemList.add(each);
                 }
+                System.out.println("itemList size****"+itemList.size());
                 bean.setItemList(itemList);
             }
 
         }
     }
 
-    private static ComposeProductBean getComposeBeanFromRequest(HttpServletRequest request)
-            throws MYException
-    {
-        ComposeProductBean bean = new ComposeProductBean();
-        String dirDepotpart = request.getParameter("dirDepotpart");
-        String dirProductId = request.getParameter("dirProductId");
-        String dirAmount = request.getParameter("dirAmount");
-        String srcDepot = request.getParameter("srcDepot");
-
-        bean.setDepotpartId(dirDepotpart);
-        bean.setDeportId(srcDepot);
-        bean.setProductId(dirProductId);
-        bean.setAmount(CommonTools.parseInt(dirAmount));
-        bean.setLogTime(TimeTools.now());
-        bean.setType(StorageConstant.OPR_STORAGE_COMPOSE);
-
-        // 获取费用
-        String[] feeItemIds = request.getParameterValues("feeItemId");
-        String[] feeItems = request.getParameterValues("feeItem");
-        String[] idescriptions = request.getParameterValues("idescription");
-
-        List<ComposeFeeBean> feeList = new ArrayList<ComposeFeeBean>();
-
-        double total = 0.0d;
-
-        for (int i = 0; i < feeItems.length; i++ )
-        {
-            if ( !MathTools.equal(0.0, CommonTools.parseFloat(feeItems[i])))
-            {
-                ComposeFeeBean each = new ComposeFeeBean();
-                each.setFeeItemId(feeItemIds[i]);
-                each.setPrice(CommonTools.parseFloat(feeItems[i]));
-                each.setLogTime(bean.getLogTime());
-                each.setDescription(idescriptions[i]);
-                feeList.add(each);
-
-                total += each.getPrice();
-            }
-        }
-
-        bean.setFeeList(feeList);
-
-        String[] srcDepotparts = request.getParameterValues("srcDepotpart");
-        String[] srcProductIds = request.getParameterValues("srcProductId");
-        String[] srcAmounts = request.getParameterValues("useAmount");
-        String[] srcPrices = request.getParameterValues("srcPrice");
-        String[] srcRelations = request.getParameterValues("srcRelation");
-        String[] srcInputRates = request.getParameterValues("srcInputRate");
-
-        List<ComposeItemBean> itemList = new ArrayList<ComposeItemBean>();
-
-        for (int i = 0; i < srcRelations.length; i++ )
-        {
-            if (StringTools.isNullOrNone(srcDepotparts[i]))
-            {
-                continue;
-            }
-
-            if (bean.getProductId().equals(srcProductIds[i]))
-            {
-                throw new MYException("产品不能自己合成自己");
-            }
-
-            ComposeItemBean each = new ComposeItemBean();
-            each.setAmount(CommonTools.parseInt(srcAmounts[i]));
-            each.setDeportId(srcDepot);
-            each.setDepotpartId(srcDepotparts[i]);
-            each.setLogTime(bean.getLogTime());
-            each.setPrice(CommonTools.parseFloat(srcPrices[i]));
-            each.setProductId(srcProductIds[i]);
-            each.setRelationId(srcRelations[i]);
-            each.setInputRate(CommonTools.parseFloat(srcInputRates[i]));
-
-            itemList.add(each);
-
-            total += each.getPrice() * each.getAmount();
-        }
-
-        bean.setItemList(itemList);
-
-        // 计算新产品的成本价
-        double price = total / bean.getAmount();
-
-        bean.setPrice(price);
-        return bean;
-    }
 }

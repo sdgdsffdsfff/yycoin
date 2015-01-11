@@ -6783,8 +6783,8 @@ public class ParentOutAction extends DispatchAction
                             DepotpartBean defaultOKDepotpart = depotpartDAO.findDefaultOKDepotpart(value);
                             bean.setDepotpartId(defaultOKDepotpart.getId());
                         }
-                        itemList.add(each);
                     }
+                    itemList.add(each);
                 }
                 bean.setItemList(itemList);
             }

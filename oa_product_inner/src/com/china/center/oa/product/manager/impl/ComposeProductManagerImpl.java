@@ -956,7 +956,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
 
         bean.setStatus(ComposeConstant.STATUS_INDUSTRY_PASS);
 
-        System.out.println("****************decomposeProductDAO***********"+bean.getId());
+        System.out.println(bean.getId()+"****************decomposeProductDAO***********"+bean.getItemList().size());
 
         decomposeProductDAO.saveEntityBean(bean);
 
@@ -971,6 +971,7 @@ public class ComposeProductManagerImpl extends AbstractListenerManager<ComposePr
             }
         }
 
+        System.out.println(bean.getId()+"****************itemList size***********"+itemList.size());
         composeItemDAO.saveAllEntityBeans(itemList);
         
         FlowLogBean log = new FlowLogBean();
