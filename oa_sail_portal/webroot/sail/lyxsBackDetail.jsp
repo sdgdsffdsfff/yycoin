@@ -143,11 +143,11 @@
 				<td>
 				<table width="100%" border="0" cellspacing='1' id="tables">
 					<tr align="center" class="content0">
-						<td width="27%" align="center">商品名</td>
-						<td width="5%" align="center">数量</td>
-                        <td width="13%" align="center">入库仓库</td>
+						<td width="35%" align="center">商品名</td>
+						<td width="15%" align="center">数量</td>
+                        <td width="35%" align="center">入库仓库</td>
                         <%--<td width="13%" align="center">仓区</td>--%>
-                        <td width="5%" align="center">
+                        <td width="15%" align="center">
                             <input type="button" accesskey="A" value="增加" class="button_class" onclick="addTr()">
                         </td>
 					</tr>
@@ -229,7 +229,7 @@
                                 <%--</select>--%>
                             <%--</td>--%>
 
-                            <td>
+                            <td align="center">
                                 <input type="button" value="删除" name="eachDel" class="button_class" onclick="removeTr(this)"> <input type=button value="按配件入库" name=eachInStorage class=button_class onclick="accessoryInStorage(this)">
                             </td>
 

@@ -6756,9 +6756,9 @@ public class ParentOutAction extends DispatchAction
             System.out.println("productId:"+productId+":"+arr3.length);
             DecomposeProductBean bean = new DecomposeProductBean();
             bean.setProductId(productId);
-            //TODO
-            bean.setStafferId(user.getStafferId());
+            //TODO  price
 
+            bean.setStafferId(user.getStafferId());
             bean.setLogTime(TimeTools.now());
             bean.setType(StorageConstant.OPR_STORAGE_DECOMPOSE);
 

@@ -5984,6 +5984,9 @@ public class OutAction extends ParentOutAction
         }else{
             System.out.println("********************product BOM bomList***********"+productBeans.size());
             request.setAttribute("bomList", productBeans);
+//            for (ProductBean bean: productBeans){
+//                System.out.println("price*************"+bean.getSailPrice());
+//            }
         }
         OutBean out = outDAO.find(fullId);
 

@@ -100,6 +100,7 @@
                         </td>
 						<td>
                             <input type="text" name="amount">
+                            <%--<input type="hidden" name="price" value="${item.sailPrice}">--%>
 						</td>
 
 						<td align="center">
