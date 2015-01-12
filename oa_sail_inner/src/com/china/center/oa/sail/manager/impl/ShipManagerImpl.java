@@ -362,7 +362,27 @@ public class ShipManagerImpl implements ShipManager
 			String pickupId = commonDAO.getSquenceString20("PC");
 			
 			int i = 1;
-			
+
+            PackageBean template = packageDAO.find(packages[0]);
+
+            if (packages.length >=2){
+                for (int j=1;j<packages.length;j++){
+                    PackageBean bean = packageDAO.find(packages[j]);
+                    if (bean.getShipping()!= template.getShipping()){
+                        throw new MYException("发货方式不一致不能合并");
+                    } else if (template.getShipping() == 0 &&
+                            ((bean.getReceiver()!= null && !bean.getReceiver().equals(template.getReceiver()))
+                            || (bean.getMobile()!= null && !bean.getMobile().equals(template.getMobile())))){
+                        throw new MYException("自提：收货人及电话必须一致才能合并");
+                    }  else if (template.getShipping() == 2 &&
+                            ((bean.getReceiver()!= null && !bean.getReceiver().equals(template.getReceiver()))
+                            || (bean.getMobile()!= null && !bean.getMobile().equals(template.getMobile()))
+                            || (bean.getAddress()!= null && !bean.getAddress().equals(template.getAddress())))){
+                        throw new MYException("第三方快递：地址、收货人及电话必须一致才能合并");
+                    }
+                }
+            }
+
 			for (String id : packages)
 			{
 				// 只能拣配初始态的
@@ -371,13 +391,11 @@ public class ShipManagerImpl implements ShipManager
 				if (null == bean)
 				{
 					throw new MYException("出库单[%s]不存在", id);
-				}
-				
-				if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
+				}else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
 				{
 					throw new MYException("[%s]已被拣配", id);
 				}
-				
+
 				bean.setIndex_pos(i++);
 
 				bean.setPickupId(pickupId);
