@@ -6831,6 +6831,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 				
 				if (dist.getShipping() == OutConstant.OUT_SHIPPING_SELFSERVICE)
 				{
+                    System.out.println("**************OUT_SHIPPING_SELFSERVICE**********************");
 					 PreConsignBean preConsign = new PreConsignBean();
 		             
 		             preConsign.setOutId(outBean.getFullId());

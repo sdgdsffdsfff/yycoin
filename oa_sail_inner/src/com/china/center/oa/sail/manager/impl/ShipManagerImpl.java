@@ -77,6 +77,7 @@ public class ShipManagerImpl implements ShipManager
 	private void createNewPackage(OutVO outBean,
 			List<BaseBean> baseList, DistributionVO distVO, String fullAddress, String location)
 	{
+        System.out.println("***********ShipManager createNewPackage*************");
 		String id = commonDAO.getSquenceString20("CK");
 		
 		int allAmount = 0;
@@ -173,26 +174,53 @@ public class ShipManagerImpl implements ShipManager
 	
 	private void setInnerCondition(DistributionVO distVO, String location, ConditionParse con)
 	{
-		//con.addCondition("PackageBean.customerId", "=", outBean.getCustomerId());
-		con.addCondition("PackageBean.cityId", "=", distVO.getCityId());  // 借用outId 用于存储城市。生成出库单增加 城市 维度
-		
-		con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
-		
-		con.addIntCondition("PackageBean.transport1", "=", distVO.getTransport1());
-		
-		con.addIntCondition("PackageBean.expressPay", "=", distVO.getExpressPay());
-		
-		con.addIntCondition("PackageBean.transport2", "=", distVO.getTransport2());
-		
-		con.addIntCondition("PackageBean.transportPay", "=", distVO.getTransportPay());
-		
-		con.addCondition("PackageBean.locationId", "=", location);
-		
-		con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
-		
-		con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
-		
-		con.addIntCondition("PackageBean.status", "=", 0);
+        int shipping = distVO.getShipping();
+        if (shipping == 0){
+            //自提：收货人，电话一致，才合并
+            con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
+
+            con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
+
+            con.addIntCondition("PackageBean.status", "=", 0);
+        } else if (shipping == 2){
+            //第三方快递：地址、收货人、电话完全一致，才合并.能不能判断地址后6个字符一致，电话，收货人一致，就合并
+            String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
+            String temp = fullAddress.trim();
+
+            if (temp.length()>=6){
+                con.addCondition("PackageBean.address", "like", "%"+temp.substring(temp.length()-6));
+            }else{
+                con.addCondition("PackageBean.address", "like", "%"+temp);
+            }
+
+            con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
+
+            con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
+
+            con.addIntCondition("PackageBean.status", "=", 0);
+        } else{
+            //con.addCondition("PackageBean.customerId", "=", outBean.getCustomerId());
+            con.addCondition("PackageBean.cityId", "=", distVO.getCityId());  // 借用outId 用于存储城市。生成出库单增加 城市 维度
+
+            con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
+
+            con.addIntCondition("PackageBean.transport1", "=", distVO.getTransport1());
+
+            con.addIntCondition("PackageBean.expressPay", "=", distVO.getExpressPay());
+
+            con.addIntCondition("PackageBean.transport2", "=", distVO.getTransport2());
+
+            con.addIntCondition("PackageBean.transportPay", "=", distVO.getTransportPay());
+
+            con.addCondition("PackageBean.locationId", "=", location);
+
+            con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
+
+            con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
+
+            con.addIntCondition("PackageBean.status", "=", 0);
+        }
+
 	}
 
 	/**
@@ -200,6 +228,7 @@ public class ShipManagerImpl implements ShipManager
 	 */
 	public void createPackage(PreConsignBean pre, OutVO out) throws MYException
 	{
+        System.out.println("**************ShipManager createPackage************");
 		String location = "";
 		
 		// 通过仓库获取 仓库地点
@@ -255,6 +284,7 @@ public class ShipManagerImpl implements ShipManager
 			createNewPackage(out, baseList, distVO, fullAddress, location);
 			
 		}else{
+            System.out.println("**********ShipManager package already exist*******************");
 			String id = packageList.get(0).getId();
 			
 			PackageBean packBean = packageDAO.find(id);
@@ -363,25 +393,6 @@ public class ShipManagerImpl implements ShipManager
 			
 			int i = 1;
 
-            PackageBean template = packageDAO.find(packages[0]);
-
-            if (packages.length >=2){
-                for (int j=1;j<packages.length;j++){
-                    PackageBean bean = packageDAO.find(packages[j]);
-                    if (bean.getShipping()!= template.getShipping()){
-                        throw new MYException("发货方式不一致不能合并");
-                    } else if (template.getShipping() == 0 &&
-                            ((bean.getReceiver()!= null && !bean.getReceiver().equals(template.getReceiver()))
-                            || (bean.getMobile()!= null && !bean.getMobile().equals(template.getMobile())))){
-                        throw new MYException("自提：收货人及电话必须一致才能合并");
-                    }  else if (template.getShipping() == 2 &&
-                            ((bean.getReceiver()!= null && !bean.getReceiver().equals(template.getReceiver()))
-                            || (bean.getMobile()!= null && !bean.getMobile().equals(template.getMobile()))
-                            || (bean.getAddress()!= null && !bean.getAddress().equals(template.getAddress())))){
-                        throw new MYException("第三方快递：地址、收货人及电话必须一致才能合并");
-                    }
-                }
-            }
 
 			for (String id : packages)
 			{

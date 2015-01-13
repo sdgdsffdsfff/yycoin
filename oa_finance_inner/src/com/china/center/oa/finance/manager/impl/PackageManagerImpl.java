@@ -104,7 +104,9 @@ public class PackageManagerImpl implements PackageManager {
 	 */
 	public void createPackage()
 	{
-        triggerLog.info("createPackage 开始统计...");
+        String msg = "*******************createPackage 开始统计***********************";
+        System.out.println(msg);
+        triggerLog.info(msg);
         
         long statsStar = System.currentTimeMillis();
         
@@ -170,7 +172,9 @@ public class PackageManagerImpl implements PackageManager {
 	private void createNewPackage(OutVO outBean,
 			List<BaseBean> baseList, DistributionVO distVO, String fullAddress, String location)
 	{
-		String id = commonDAO.getSquenceString20("CK");
+        System.out.println("**************create PackageBean*******************************");
+
+        String id = commonDAO.getSquenceString20("CK");
 		
 		int allAmount = 0;
 		
@@ -256,8 +260,8 @@ public class PackageManagerImpl implements PackageManager {
 		vsBean.setCustomerId(outBean.getCustomerId());
 		vsBean.setCustomerName(outBean.getCustomerName());
 		vsBean.setIndexPos(1);
-		
-		packageDAO.saveEntityBean(packBean);
+
+        packageDAO.saveEntityBean(packBean);
 		
 		packageItemDAO.saveAllEntityBeans(itemList);
 		
@@ -397,29 +401,81 @@ public class PackageManagerImpl implements PackageManager {
 		return sb;
 	}
 
-	private void setInnerCondition(DistributionVO distVO, String location, ConditionParse con)
-	{
-		//con.addCondition("PackageBean.customerId", "=", outBean.getCustomerId());
-		con.addCondition("PackageBean.cityId", "=", distVO.getCityId());  // 借用outId 用于存储城市。生成出库单增加 城市 维度
-		
-		con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
-		
-		con.addIntCondition("PackageBean.transport1", "=", distVO.getTransport1());
-		
-		con.addIntCondition("PackageBean.expressPay", "=", distVO.getExpressPay());
-		
-		con.addIntCondition("PackageBean.transport2", "=", distVO.getTransport2());
-		
-		con.addIntCondition("PackageBean.transportPay", "=", distVO.getTransportPay());
-		
-		con.addCondition("PackageBean.locationId", "=", location);
-		
-		con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
-		
-		con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
-		
-		con.addIntCondition("PackageBean.status", "=", 0);
-	}
+    //2015/1/13 update
+    private void setInnerCondition(DistributionVO distVO, String location, ConditionParse con)
+    {
+       int shipping = distVO.getShipping();
+       if (shipping == 0){
+            //自提：收货人，电话一致，才合并
+            con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
+
+            con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
+
+            con.addIntCondition("PackageBean.status", "=", 0);
+        } else if (shipping == 2){
+            //第三方快递：地址、收货人、电话完全一致，才合并.能不能判断地址后6个字符一致，电话，收货人一致，就合并
+           String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
+           String temp = fullAddress.trim();
+
+           if (temp.length()>=6){
+               con.addCondition("PackageBean.address", "like", "%"+temp.substring(temp.length()-6));
+           }else{
+               con.addCondition("PackageBean.address", "like", "%"+temp);
+           }
+
+           con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
+
+           con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
+
+           con.addIntCondition("PackageBean.status", "=", 0);
+        } else{
+           //Keep default behavior
+           //con.addCondition("PackageBean.customerId", "=", outBean.getCustomerId());
+           con.addCondition("PackageBean.cityId", "=", distVO.getCityId());  // 借用outId 用于存储城市。生成出库单增加 城市 维度
+
+           con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
+
+           con.addIntCondition("PackageBean.transport1", "=", distVO.getTransport1());
+
+           con.addIntCondition("PackageBean.expressPay", "=", distVO.getExpressPay());
+
+           con.addIntCondition("PackageBean.transport2", "=", distVO.getTransport2());
+
+           con.addIntCondition("PackageBean.transportPay", "=", distVO.getTransportPay());
+
+           con.addCondition("PackageBean.locationId", "=", location);
+
+           con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
+
+           con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
+
+           con.addIntCondition("PackageBean.status", "=", 0);
+       }
+    }
+
+//	private void setInnerCondition(DistributionVO distVO, String location, ConditionParse con)
+//	{
+//		//con.addCondition("PackageBean.customerId", "=", outBean.getCustomerId());
+//		con.addCondition("PackageBean.cityId", "=", distVO.getCityId());  // 借用outId 用于存储城市。生成出库单增加 城市 维度
+//
+//		con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
+//
+//		con.addIntCondition("PackageBean.transport1", "=", distVO.getTransport1());
+//
+//		con.addIntCondition("PackageBean.expressPay", "=", distVO.getExpressPay());
+//
+//		con.addIntCondition("PackageBean.transport2", "=", distVO.getTransport2());
+//
+//		con.addIntCondition("PackageBean.transportPay", "=", distVO.getTransportPay());
+//
+//		con.addCondition("PackageBean.locationId", "=", location);
+//
+//		con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
+//
+//		con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
+//
+//		con.addIntCondition("PackageBean.status", "=", 0);
+//	}
 
 	/**
 	 * 
@@ -460,10 +516,13 @@ public class PackageManagerImpl implements PackageManager {
 		// 地址不全,不发
 		if (distVO.getAddress().trim().equals("0") && distVO.getReceiver().trim().equals("0") && distVO.getMobile().trim().equals("0"))
 		{
+            triggerLog.info("======address not complete==" + out.getFullId());
 			return;
 		}
 		
 		String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
+
+        System.out.println("***********fullAddress****************"+fullAddress);
 		
 		// 此客户是否存在同一个发货包裹,且未拣配
 		ConditionParse con = new ConditionParse();
