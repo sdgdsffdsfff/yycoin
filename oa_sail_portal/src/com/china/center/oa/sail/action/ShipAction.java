@@ -120,6 +120,10 @@ public class ShipAction extends DispatchAction
                                                 HttpServletResponse response)
         throws ServletException
     {
+        String customer = request.getParameter("customer");
+
+        String stafferName = request.getParameter("stafferName");
+        System.out.println("***************customer:"+customer+"*****stafferName****"+stafferName);
     	User user = Helper.getUser(request);
     	
         ConditionParse condtion = new ConditionParse();
@@ -696,6 +700,15 @@ public class ShipAction extends DispatchAction
     		lastList.add(entry.getValue());
     	}
 
+        //2015/1/14 按照名称排序
+        Collections.sort(lastList, new Comparator(){
+            @Override
+            public int compare(Object o1, Object o2) {
+                PackageItemBean i1 = (PackageItemBean)o1;
+                PackageItemBean i2 = (PackageItemBean)o2;
+                return i1.getProductName().compareTo(i2.getProductName());
+            }
+        });
     	batchVO.setItemList(lastList);
     	
     	// key:以批次号做为key ?

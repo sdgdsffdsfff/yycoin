@@ -222,7 +222,7 @@ function getAddress(oos)
 		  	<td colspan="2">
 			  	<select name="provinceId" quick=true onchange="changes(this)" values="${distributionBean.provinceId}" class="select_class" oncheck="notNone;"></select>&nbsp;&nbsp;
 	         	<select name="cityId" quick=true onchange="changeArea()" values="${distributionBean.cityId}" class="select_class" oncheck="notNone;"></select>&nbsp;&nbsp;
-	         	<select name="areaId" quick=true values="${distributionBean.areaId}" class="select_class" oncheck="notNone;"></select>&nbsp;&nbsp;
+	         	<%--<select name="areaId" quick=true values="${distributionBean.areaId}" class="select_class" oncheck="notNone;"></select>&nbsp;&nbsp;--%>
 	         	<input type="button" class="button_class"
 						value="&nbsp;选择地址&nbsp;" onClick="selectAddr();" />&nbsp;&nbsp;
 		  	</td>

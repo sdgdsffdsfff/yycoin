@@ -522,7 +522,7 @@ function checkCurrentUser()
 		  	<td>选择地址：
 			  	<select name="provinceId" quick=true onchange="changes(this)" values="${pmap['provinceId']}" class="select_class" ></select>&nbsp;&nbsp;
 	         	<select name="cityId" quick=true onchange="changeArea()" values="${pmap['cityId']}" class="select_class" ></select>&nbsp;&nbsp;
-	         	<select name="areaId" quick=true values="${pmap['areaId']}" class="select_class" ></select>&nbsp;&nbsp;
+	         	<%--<select name="areaId" quick=true values="${pmap['areaId']}" class="select_class" ></select>&nbsp;&nbsp;--%>
 	         	<input type="button" class="button_class"
 						value="&nbsp;选择地址&nbsp;" onClick="selectAddr();" />&nbsp;&nbsp;
 			</td>
