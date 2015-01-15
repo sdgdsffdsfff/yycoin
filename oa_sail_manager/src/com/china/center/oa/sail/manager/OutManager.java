@@ -269,6 +269,16 @@ public interface OutManager extends ListenerManager<OutListener>
     boolean payOut(final User user, String fullId, String reason)
         throws MYException;
 
+
+    /**
+     * 更新紧急状态
+     *
+     * @param user
+     * @param fullId
+     * @return
+     */
+    boolean updateEmergency(final User user,String fullId) throws MYException;
+
     /**
      * fourcePayOut
      * 

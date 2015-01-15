@@ -11107,6 +11107,18 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     @Transactional(rollbackFor = {MYException.class})
     @Override
+    public boolean updateEmergency(User user, String fullId) throws MYException {
+        OutBean out = outDAO.find(fullId);
+        if (out!= null){
+            out.setEmergency(1);
+            this.outDAO.updateEntityBean(out);
+            return true;
+        }
+        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Transactional(rollbackFor = {MYException.class})
+    @Override
     public boolean updateBase(BaseBean baseBean) throws MYException {
         this.baseDAO.updateEntityBean(baseBean);
         return true;

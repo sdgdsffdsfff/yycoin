@@ -626,6 +626,26 @@ function reject()
     }
 }
 
+function updateEmergency()
+{
+    if (getRadio('fullId').statuss == 1)
+    {
+        if (window.confirm("确定此销售单设置为紧急?"))
+        {
+            getObj('method').value = 'updateEmergency';
+
+            getObj('outId').value = getRadioValue("fullId");
+
+            adminForm.submit();
+        }
+    }
+    else
+    {
+        alert('不能操作');
+    }
+
+}
+
 function outBack()
 {
 
@@ -1255,6 +1275,8 @@ function clears()
 			<c:if test="${queryType == '2'}">
 				<input type="button" class="button_class" style="display: none;"
 		                value="&nbsp;&nbsp;确认回款&nbsp;&nbsp;" onClick="payOut()">&nbsp;&nbsp;
+                <input type="button" class="button_class"
+                       value="&nbsp;&nbsp;紧急处理&nbsp;&nbsp;" onClick="updateEmergency()">&nbsp;&nbsp;
 	        </c:if>
 	        
 	        <input name="bu1"

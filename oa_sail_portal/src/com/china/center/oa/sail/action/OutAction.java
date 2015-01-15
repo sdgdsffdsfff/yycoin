@@ -908,6 +908,79 @@ public class OutAction extends ParentOutAction
     }
 
     /**
+     * 更新紧急状态
+     *
+     * @param mapping
+     * @param form
+     * @param request
+     * @param reponse
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward updateEmergency(ActionMapping mapping, ActionForm form, HttpServletRequest request,
+                                HttpServletResponse reponse)
+            throws ServletException
+    {
+        System.out.println("********************updateEmergency********************");
+        String fullId = request.getParameter("outId");
+
+//        OutBean out = outDAO.find(fullId);
+//        out.setEmergency(1);
+//        this.outDAO.updateEntityBean(out);
+
+        User user = (User)request.getSession().getAttribute("user");
+//
+//        if (out == null)
+//        {
+//            request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据错误");
+//
+//            return mapping.findForward("error");
+//        }
+//
+//        if (out.getReserve3() != OutConstant.OUT_SAIL_TYPE_MONEY)
+//        {
+//            request.setAttribute(KeyConstant.ERROR_MESSAGE, "只能是款到发货的单据可以操作");
+//
+//            return mapping.findForward("error");
+//        }
+//
+//        if (out.getStatus() != OutConstant.STATUS_SUBMIT)
+//        {
+//            request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据错误");
+//
+//            return mapping.findForward("error");
+//        }
+//
+//        if (out.getPay() == OutConstant.PAY_YES)
+//        {
+//            request.setAttribute(KeyConstant.ERROR_MESSAGE, "已经付款");
+//
+//            return mapping.findForward("error");
+//        }
+
+        try
+        {
+            outManager.updateEmergency(user,fullId);
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "处理错误:" + e.getErrorContent());
+
+            return mapping.findForward("error");
+        }
+
+//        CommonTools.saveParamers(request);
+//
+//        RequestTools.actionInitQuery(request);
+
+        request.setAttribute(KeyConstant.MESSAGE, "成功更新紧急状态:" + fullId);
+
+        return queryOut(mapping, form, request, reponse);
+    }
+
+    /**
      * TEMPIMPL 强制通过付款
      * 
      * @param mapping
