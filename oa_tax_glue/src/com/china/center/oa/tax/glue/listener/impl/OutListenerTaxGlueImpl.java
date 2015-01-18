@@ -3227,7 +3227,9 @@ public class OutListenerTaxGlueImpl implements OutListener
 
         itemList.add(itemIn);
 
-        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
+//        List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outBean.getFullId());
+        //2015/1/18 不从数据库重新去读baseList
+        List<BaseBean> baseList = outBean.getBaseList();
 
         long outTotal = 0L;
 
@@ -3273,7 +3275,11 @@ public class OutListenerTaxGlueImpl implements OutListener
             copyDepartment(outBean, itemOut1);
             itemOut1.setStafferId(outBean.getStafferId());
             itemOut1.setProductId(baseBean.getProductId());
+
+            //TODO 不能从数据库重新读取baseBean中获取LocationId，应该从页面传入
             itemOut1.setDepotId(baseBean.getLocationId());
+            System.out.println("******************depotId****"+itemOut1.getDepotId());
+
             itemOut1.setProductAmountOut( -baseBean.getAmount());
 
             itemList.add(itemOut1);
@@ -4946,7 +4952,9 @@ public class OutListenerTaxGlueImpl implements OutListener
             copyDepartment(outBean, itemInEach);
             itemInEach.setStafferId(outBean.getStafferId());
             itemInEach.setProductId(baseBean.getProductId());
+
             itemInEach.setDepotId(baseBean.getLocationId());
+            System.out.println("***************depotId2222***************"+itemInEach.getDepotId());
             itemInEach.setProductAmountIn( -baseBean.getAmount());
 
             itemList.add(itemInEach);
@@ -4990,7 +4998,10 @@ public class OutListenerTaxGlueImpl implements OutListener
             // 辅助核算 产品/仓库
             itemOut1.setProductId(baseBean.getProductId());
             itemOut1.setProductAmountOut( -baseBean.getAmount());
-            itemOut1.setDepotId(outBean.getLocation());
+            //2015/1/18 根据页面传入的locationID，而不是查询数据库中的仓库ID
+//            itemOut1.setDepotId(outBean.getLocation());
+            itemOut1.setDepotId(baseBean.getLocationId());
+            System.out.println("***************depotId3***************"+itemOut1.getDepotId());
 
             itemList.add(itemOut1);
         }

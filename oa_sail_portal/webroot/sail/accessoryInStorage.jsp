@@ -80,6 +80,7 @@
 				<td>
 				<table width="100%" border="0" cellspacing='1' id="tables">
 					<tr align="center" class="content0">
+                        <td width="27%" align="center">成品</td>
 						<td width="27%" align="center">配件名</td>
 						<td width="5%" align="center">数量</td>
                         <td width="13%" align="center">入库仓库</td>
@@ -90,6 +91,9 @@
 
                     <!-- 用来新增时拷贝用-->
 					<tr class="content1" id="trCopy" style="display: none;">
+                        <td align="center">
+                            ${productName}
+                        </td>
                         <td>
                             <select name="bomProductId" class="select_class"  style="width: 100%">
                                 <option value="">--</option>
@@ -119,6 +123,9 @@
 
                     <c:forEach items="${bomList}" var="item" varStatus="vs">
                         <tr class="content1">
+                            <td align="center">
+                                ${productName}
+                            </td>
                             <td>
                                 <select name="bomProductId" class="select_class" style="width: 100%">
                                     <option value="">--</option>

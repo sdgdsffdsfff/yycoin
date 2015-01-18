@@ -6076,6 +6076,11 @@ public class OutAction extends ParentOutAction
         request.setAttribute("locationList", locationList);
         request.setAttribute("bean", out);
         request.setAttribute("productId", productId);
+
+        ProductBean product = this.productDAO.find(productId);
+        if (product!= null){
+            request.setAttribute("productName", product.getName());
+        }
         request.setAttribute("amount", amount);
         return mapping.findForward("accessoryInStorage");
     }
