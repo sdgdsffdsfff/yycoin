@@ -63,8 +63,14 @@ function pagePrint()
 				<td align="center">
 				<table width="100%" border="0" cellspacing="2">
 					<tr>
-						<td style="height: 27px" align="center"><font size=5><b>
-						客&nbsp;&nbsp;&nbsp;户&nbsp;&nbsp;&nbsp;出&nbsp;&nbsp;&nbsp;库&nbsp;&nbsp;&nbsp;单</b></font></td>
+						<td style="height: 27px" align="center">
+                            <font size=5>
+                                <b>
+						            客&nbsp;&nbsp;&nbsp;户&nbsp;&nbsp;&nbsp;出&nbsp;&nbsp;&nbsp;库&nbsp;&nbsp;&nbsp;单&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <c:if test="${bean.emergency == 1}">紧急订单</c:if>
+                                </b>
+                            </font>
+                        </td>
 					</tr>
 				</table>
 				</td>
