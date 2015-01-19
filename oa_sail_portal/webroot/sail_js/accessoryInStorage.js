@@ -211,9 +211,10 @@ function addTr()
 	
 	tcell = document.createElement("td");
 		
-	tcell.innerHTML = '<input type=button value="删除" name=eachDel class=button_class onclick="removeTr(this)"> <input type=button value="按配件入库" name=eachInStorage class=button_class onclick="accessoryInStorage(this)">';
-	
-	trow.appendChild(tcell);
+//	tcell.innerHTML = '<input type=button value="删除" name=eachDel class=button_class onclick="removeTr(this)"> <input type=button value="按配件入库" name=eachInStorage class=button_class onclick="accessoryInStorage(this)">';
+    tcell.innerHTML = '<input type=button value="删除" name=eachDel class=button_class onclick="removeTr(this)">';
+
+    trow.appendChild(tcell);
 	
 //	total();
 	
