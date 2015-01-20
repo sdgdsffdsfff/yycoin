@@ -628,8 +628,9 @@ public class ZJRCManagerImpl implements ZJRCManager
 	        newOutBean.setId(getOutId(id));
 	    	
 	    	newOutBean.setFullId(newOutId);
-	    	
-	    	newOutBean.setRefOutFullId(zjrcOut.getFullId());
+
+            //2015/1/20 紫金的订单转为OA订单时，不要把ZJ开头的单号写在refOutFullId字段里
+//	    	newOutBean.setRefOutFullId(zjrcOut.getFullId());
 	    	
 	    	newOutBean.setOutTime(TimeTools.changeFormat(zjrcOut.getLogTime(), TimeTools.LONG_FORMAT, TimeTools.SHORT_FORMAT));
 	    	

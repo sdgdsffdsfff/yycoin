@@ -6821,10 +6821,11 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
 	private void createPackage(final OutBean outBean)
 	{
+        System.out.println(outBean.getFullId()+"****outBean.getRefOutFullId()****"+outBean.getRefOutFullId());
 		if (StringTools.isNullOrNone(outBean.getRefOutFullId()))
 		{
 			List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
-			
+            System.out.println("****distList****"+distList);
 			if (!ListTools.isEmptyOrNull(distList))
 			{
 				DistributionBean dist = distList.get(0);
@@ -6853,7 +6854,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 		            
 		            preConsignDAO.saveEntityBean(preConsign);
 				}
-			}
+			} else {
+                System.out.println("****distList not found 2222222222222222222222222222****");
+            }
 		}
 	}
 
