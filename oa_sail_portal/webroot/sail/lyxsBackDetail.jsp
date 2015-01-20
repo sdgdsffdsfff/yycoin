@@ -21,7 +21,7 @@
     <c:forEach items="${bean.baseList}" var="item">
     productList.push("${item.productId}")
     </c:forEach>
-    console.log(productList);
+//    console.log(productList);
 
     function load()
     {
@@ -51,13 +51,13 @@
             // Resulting key/value pair -- this callback
             // will be executed for every item in the
             // database.
-            console.log([key, value]);
+//            console.log([key, value]);
             result[key] = value;
             temp = key+":"+value+";";
-            console.log(temp);
+//            console.log(temp);
             accessoryList = accessoryList+temp
         }, function() {
-            console.log('Iteration has completed:'+accessoryList);
+//            console.log('Iteration has completed:'+accessoryList);
 //            $O('accessoryList').value = JSON.stringify(result);
             $O('accessoryList').value = accessoryList;
 //            console.log('productList:'+JSON.stringify($('#backForm').serializeArray()));
@@ -69,7 +69,7 @@
             //Clear local DB
             localforage.clear(function(err) {
                 // Run this code once the database has been entirely deleted.
-                console.log('Database is now empty.');
+//                console.log('Database is now empty.');
             });
         });
 
@@ -108,8 +108,8 @@
                 <td>
                     <table width="100%" border="0" cellspacing='1'>
                         <tr class="content2">
-                            <td width="15%" align="right">商品名：</td>
-                            <td width="35%">数量：</td>
+                            <td width="60%" align="center">商品名：</td>
+                            <td width="40%" align="center">数量：</td>
                         </tr>
 
                         <c:forEach items="${bean.baseList}" var="item" varStatus="vs">

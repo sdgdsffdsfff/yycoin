@@ -230,7 +230,7 @@ function processInvoke()
 
 function sureBack()
 {
-    console.log(getRadio('fullId').outtype);
+//    console.log(getRadio('fullId').outtype);
     if (getRadio('fullId').statuss == 1 && (getRadio('fullId').outtype == 4 || getRadio('fullId').outtype == 7))
     {
         if (window.confirm('确认退库?')) {
