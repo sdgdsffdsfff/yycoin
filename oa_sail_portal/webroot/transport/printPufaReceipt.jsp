@@ -53,8 +53,12 @@ function callBackPrintFun()
 				<td align="center">
 				<table width="100%" border="0" cellspacing="2">
 					<tr>
-						<td style="height: 27px" align="center"><font size=5><b>
-						${title}</b></font></td>
+						<td style="height: 27px" align="center">
+                            <font size=5>
+                                <b>
+						${title}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c:if test="${bean.emergency == 1}">紧急订单</c:if></b>
+                            </font>
+                        </td>
 					</tr>
 				</table>
 				</td>
@@ -121,7 +125,7 @@ function callBackPrintFun()
 						<td><table class="border1"><tr><td align="center">${item.amount}</td></tr></table></td>
 						<td><table class="border1"><tr><td>${item.outTime}</td></tr></table></td>
 						<td><table class="border1"><tr><td align="center">${item.refId}</td></tr></table></td>
-						<td><table class="border1"><tr><td align="center">${item.printText}</td></tr></table></td>
+						<td><table class="border1"><tr><td align="center">${item.description}${item.printText}</td></tr></table></td>
 					</tr>
 					</c:forEach>
 					
