@@ -37,6 +37,17 @@ public class PriceConfigBean implements Serializable
 	 * 辅料费用
 	 */
 	private double gsPriceUp = 0.0d;
+
+
+    /**
+     * 金价系数
+     */
+    private double goldPriceFactor = 1.0d;
+
+    /**
+     * 银价系数
+     */
+    private double silverPriceFactor = 1.0d;
 	
 	/**
 	 * 金银价下限(停用）
@@ -259,7 +270,23 @@ public class PriceConfigBean implements Serializable
 		this.sailPrice = sailPrice;
 	}
 
-	/**
+    public double getGoldPriceFactor() {
+        return goldPriceFactor;
+    }
+
+    public void setGoldPriceFactor(double goldPriceFactor) {
+        this.goldPriceFactor = goldPriceFactor;
+    }
+
+    public double getSilverPriceFactor() {
+        return silverPriceFactor;
+    }
+
+    public void setSilverPriceFactor(double silverPriceFactor) {
+        this.silverPriceFactor = silverPriceFactor;
+    }
+
+    /**
 	 * @return the ftype
 	 */
 	public int getFtype()

@@ -103,7 +103,9 @@ public class PriceConfigManagerImpl implements PriceConfigManager
 			silver = gspBean.getSilver();
 		}
 		
-		double sailPrice = product.getCost() * gold + product.getPlanCost() * silver + bean.getPrice() + bean.getGsPriceUp();
+//		double sailPrice = product.getCost() * gold + product.getPlanCost() * silver + bean.getPrice() + bean.getGsPriceUp();
+        //2015/1/21 金价*金价系数*金克数+银价*银价系数*银克数+邮票费用+辅料费用
+        double sailPrice = product.getCost() * gold*bean.getGoldPriceFactor() + product.getPlanCost() * silver*bean.getSilverPriceFactor() + bean.getPrice() + bean.getGsPriceUp();
 		
 		// 不受金银价波动影响
 		if (bean.getFtype() == 1)

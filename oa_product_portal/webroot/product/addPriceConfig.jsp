@@ -132,6 +132,14 @@ function check()
 				<p:cell title="辅料费用" end="true">
 					<input type=text name='gsPriceUp' id ='minPrice' value='0.00' oncheck="notNone;isFloat;"  maxlength="12" />
 				</p:cell>
+
+                <p:cell title="金价系数" end="true">
+                    <input type=text name='goldPriceFactor' id ='goldPriceFactor' value='1.00' oncheck="notNone;isFloat;"  maxlength="12" />
+                </p:cell>
+
+                <p:cell title="银价系数" end="true">
+                    <input type=text name='silverPriceFactor' id ='silverPriceFactor' value='1.00' oncheck="notNone;isFloat;"  maxlength="12" />
+                </p:cell>
 			</c:if>
 			
 			<c:if test="${type=='0'}">
