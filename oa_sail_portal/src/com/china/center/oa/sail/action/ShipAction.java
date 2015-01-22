@@ -1415,14 +1415,14 @@ public class ShipAction extends DispatchAction
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
 
-            return mapping.findForward("importConsign");
+            return mapping.findForward("importBranchRelation");
         }
 
         if ( !rds.haveStream())
         {
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
 
-            return mapping.findForward("importConsign");
+            return mapping.findForward("importBranchRelation");
         }
 
         ReaderFile reader = ReadeFileFactory.getXLSReader();
