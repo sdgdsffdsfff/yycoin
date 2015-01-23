@@ -4088,6 +4088,182 @@ public class OutImportAction extends DispatchAction
         
         return mapping.findForward("importOutId");
 	}
+
+
+    /**
+     * 批量导入紧急订单， 目的 根据fullId, 更新emergency
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward importEmergencyOut(ActionMapping mapping, ActionForm form,
+                                     HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<ConsignBean> importItemList = new ArrayList<ConsignBean>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importEmergencyOut");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importEmergencyOut");
+        }
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    ConsignBean bean = new ConsignBean();
+
+                    // 销售单号
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        String outId = obj[0].trim();
+
+                        // 须为销售领样单
+                        OutBean out = outDAO.find(outId);
+
+                        if (null == out)
+                        {
+                            builder
+                                    .append("第[" + currentNumber + "]错误:")
+                                    .append("销售单"+ outId +"不存在")
+                                    .append("<br>");
+
+                            importError = true;
+                        } else {
+                            if (out.getType() == OutConstant.OUT_TYPE_OUTBILL) {
+                                if (out.getStatus() == OutConstant.STATUS_SEC_PASS || out.getStatus() == OutConstant.STATUS_PASS)
+                                {
+                                    builder
+                                            .append("第[" + currentNumber + "]错误:")
+                                            .append("销售单号已是发货态，不能操作.")
+                                            .append("<br>");
+
+                                    importError = true;
+                                }else{
+                                    bean.setFullId(outId);
+                                }
+                            } else {
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("销售单号须是销售单，不能为入库单.")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("销售单号不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
+                    importItemList.add(bean);
+
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足26格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+        }catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("importEmergencyOut");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("importEmergencyOut");
+        }
+
+        try
+        {
+            outImportManager.batchUpdateEmergency(importItemList);
+
+            request.setAttribute(KeyConstant.MESSAGE, "批量更新成功");
+        }
+        catch(MYException e)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ e.getErrorContent());
+
+            return mapping.findForward("importOutId");
+        }
+
+        return mapping.findForward("importOutId");
+    }
     
     /**
      * importOutDepot 
