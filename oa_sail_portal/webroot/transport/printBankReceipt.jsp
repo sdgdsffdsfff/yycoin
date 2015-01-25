@@ -96,11 +96,11 @@ function callBackPrintFun()
 					</tr>
 					<tr class="content2">
 						<td colspan="3"><table><tr><td>收货时间：</td></tr></table></td>
-						<td><table><tr><td>商务联系人：永银商务部 </td></tr></table></td>
+						<td><table><tr><td>商务联系人：${stafferName} </td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="3"><table><tr><td></td></tr></table></td>
-						<td><table><tr><td>电话：4006518859</td></tr></table></td>
+						<td><table><tr><td>电话：${phone}</td></tr></table></td>
 					</tr>
 					<tr class="content2">
 						<td colspan="4"><table><tr><td>今收到永银文化以下产品:</td></tr></table></td>

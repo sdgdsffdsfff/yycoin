@@ -18,6 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.oa.finance.dao.InvoiceinsDAO;
+import com.china.center.oa.finance.bean.InvoiceinsBean;
+import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
 import com.china.center.tools.*;
@@ -93,6 +97,10 @@ public class ShipAction extends DispatchAction
 	private DepotDAO depotDAO = null;
 
     private BranchRelationDAO branchRelationDAO = null;
+
+    private StafferDAO stafferDAO = null;
+
+    private InvoiceinsDAO invoiceinsDAO = null;
 	
 	private final static String QUERYPACKAGE = "queryPackage";
 	
@@ -1085,8 +1093,8 @@ public class ShipAction extends DispatchAction
     	
     	int totalAmount = 0;
     	double total = 0.0d;
-    	
-    	if (vo.getIndustryName().indexOf("邮政") != -1)
+
+        if (vo.getIndustryName().indexOf("邮政") != -1)
     	{
     		request.setAttribute("packageId", vo.getId());
     		
@@ -1216,6 +1224,24 @@ public class ShipAction extends DispatchAction
     	}
 	}
 
+    private String[] getStafferNameAndPhone(String outId){
+        String stafferName = "永银商务部";
+        String phone = "4006518859";
+        OutBean out = outDAO.find(outId);
+        String stafferId = out.getStafferId();
+        StafferBean staffer = this.stafferDAO.find(stafferId);
+        if (staffer!= null){
+            if (!StringTools.isNullOrNone(staffer.getName())){
+                stafferName = staffer.getName();
+            }
+            if (!StringTools.isNullOrNone(staffer.getHandphone())){
+                phone = staffer.getHandphone();
+            }
+        }
+        return new String[]{stafferName,phone};
+    }
+
+
     /**
      * prepareForBankPrint
      * 
@@ -1231,6 +1257,39 @@ public class ShipAction extends DispatchAction
 		List<PackageItemBean> itemList1 = new ArrayList<PackageItemBean>();
 		
 		Map<String, PackageItemBean> map1 = new HashMap<String, PackageItemBean>();
+
+        //2015/1/25 取商务联系人及电话
+        if (!ListTools.isEmptyOrNull(itemList)){
+            PackageItemBean first = itemList.get(0);
+            String outId = first.getOutId();
+            String stafferName = "";
+            String phone = "";
+            if (outId.startsWith("SO")){
+                String[] result = this.getStafferNameAndPhone(first.getOutId());
+                stafferName = result[0];
+                phone = result[1];
+            } else if(outId.startsWith("A")){
+                 InvoiceinsBean bean = this.invoiceinsDAO.find(outId);
+                if (bean!= null){
+                   String refIds = bean.getRefIds();
+                   if (!StringTools.isNullOrNone(refIds)){
+                       String[] temp = refIds.split(";");
+                       String refOutId = null;
+                       for (String out: temp){
+                           if (out.startsWith("SO")){
+                               refOutId = out;
+                               break;
+                           }
+                       }
+                       String[] result2 = this.getStafferNameAndPhone(refOutId);
+                       stafferName = result2[0];
+                       phone = result2[1];
+                   }
+                }
+            }
+            request.setAttribute("stafferName", stafferName);
+            request.setAttribute("phone",phone);
+        }
 		
 		for (PackageItemBean each : itemList)
 		{
@@ -1279,8 +1338,9 @@ public class ShipAction extends DispatchAction
 				{
 					each.setRefId(outiList.get(0).getCiticNo());
 				}
-				
-				each.setDescription("");
+
+                //2015/1/25 注释掉
+//				each.setDescription("");
 				
 				map1.put(each.getProductId(), each);
 			}else{
@@ -1784,5 +1844,21 @@ public class ShipAction extends DispatchAction
 
     public void setBranchRelationDAO(BranchRelationDAO branchRelationDAO) {
         this.branchRelationDAO = branchRelationDAO;
+    }
+
+    public StafferDAO getStafferDAO() {
+        return stafferDAO;
+    }
+
+    public void setStafferDAO(StafferDAO stafferDAO) {
+        this.stafferDAO = stafferDAO;
+    }
+
+    public InvoiceinsDAO getInvoiceinsDAO() {
+        return invoiceinsDAO;
+    }
+
+    public void setInvoiceinsDAO(InvoiceinsDAO invoiceinsDAO) {
+        this.invoiceinsDAO = invoiceinsDAO;
     }
 }
