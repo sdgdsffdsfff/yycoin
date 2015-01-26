@@ -26,6 +26,19 @@ import java.util.List;
  */
 public class Test {
     public static void main(String[] args){
+        String str1 = "test1 AND test2 AND PackageItemBean.productName like '%啊%'";
+        int index2 = str1.lastIndexOf("AND");
+        String prefix = str1.substring(0,index2);
+        System.out.println("index***"+index2);
+        System.out.println("data***"+prefix);
+//        String[] temp2 = str1.split("AND");
+//        String  str2 = temp1[1];
+        String str3 = prefix+"and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.productName like '%金马%')";
+        System.out.println("**********str3**************"+str3);
+        String bank ="浦发银行上海静安支行办公室";
+        int index = bank.indexOf("银行");
+        System.out.println(bank.split("银行")[0]+"银行");
+
         List<PackageItemBean> lastList = new ArrayList<PackageItemBean>();
         PackageItemBean p1 = new PackageItemBean();
         p1.setProductName("a");
@@ -54,7 +67,7 @@ public class Test {
         }
 
 
-                String str2 = "能不能判断地址后6个字符一致";
+        String str2 = "能不能判断地址后6个字符一致";
         String temp = str2.substring(str2.length()-6);
         System.out.println(temp);
         System.out.println(2==Integer.valueOf("2"));

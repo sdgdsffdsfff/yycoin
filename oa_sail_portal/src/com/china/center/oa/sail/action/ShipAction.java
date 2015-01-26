@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.center.china.osgi.publics.file.read.ReadeFileFactory;
 import com.center.china.osgi.publics.file.read.ReaderFile;
+import com.china.center.oa.client.bean.CustomerBean;
+import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
 import com.china.center.oa.publics.bean.StafferBean;
@@ -101,6 +103,8 @@ public class ShipAction extends DispatchAction
     private StafferDAO stafferDAO = null;
 
     private InvoiceinsDAO invoiceinsDAO = null;
+
+    private CustomerMainDAO customerMainDAO = null;
 	
 	private final static String QUERYPACKAGE = "queryPackage";
 	
@@ -128,26 +132,64 @@ public class ShipAction extends DispatchAction
                                                 HttpServletResponse response)
         throws ServletException
     {
-        String customer = request.getParameter("customer");
-
+        String customerName = request.getParameter("customerName");
+        String productName = request.getParameter("productName");
         String stafferName = request.getParameter("stafferName");
-        System.out.println("***************customer:"+customer+"*****stafferName****"+stafferName);
+        System.out.println("***************customer:"+customerName+"*****stafferName****"+stafferName+"****productName****"+productName);
     	User user = Helper.getUser(request);
-    	
-        ConditionParse condtion = new ConditionParse();
 
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("select PackageBean.id from t_center_package PackageBean ")
+                .append("left join t_center_package_item PackageItemBean on (PackageItemBean.packageId=PackageBean.id)");
+        ConditionParse newConditionParse = new ConditionParse();
+        newConditionParse.removeWhereStr();
+        newConditionParse.addCondition("left outer join t_center_package_item PackageItemBean on (PackageItemBean.packageId=PackageBean.id)");
+        newConditionParse.addWhereStr();
+        newConditionParse.addCondition("PackageItemBean.productName","like",productName);
+        System.out.println("***************1111111111111111*****************"+newConditionParse.toString());
+//        newConditionParse.setCondition(sb.toString());
+//        this.packageDAO.queryVOsByCondition(newConditionParse);
+
+//        condtion.addCondition(" LEFT OUTER JOIN T_CENTER_PACKAGE_ITEM PackageItemBean on (PackageBean.id=PackageItemBean.packageId)");
+
+        ConditionParse condtion = new ConditionParse();
+//        condtion.addCondition(" LEFT OUTER JOIN T_CENTER_PACKAGE_ITEM PackageItemBean on (PackageBean.id=PackageItemBean.packageId)");
         condtion.addWhereStr();
         
         // 要根据仓库的权限,计算出地点,根据地点查询
         setDepotCondotionInOut(user, condtion);
+
+//        if (!StringTools.isNullOrNone(customerName)){
+//            condtion.addCondition("CustomerBean.name","=",customerName);
+//        }
+//
+//        if (!StringTools.isNullOrNone(productName)){
+//            condtion.addCondition("PackageItemBean.productName","=", productName);
+//        }
         
         // TEMPLATE 在action里面默认查询条件
 		Map<String, String> initMap = initLogTime(request, condtion, true);
 
+        System.out.println("**************condition1111"+condtion);
+
 		ActionTools.processJSONDataQueryCondition(QUERYPACKAGE, request, condtion, initMap);
-		
+        System.out.println("**************condition222222222222222222"+condtion);
+
+        String temp = condtion.toString();
+        if (!StringTools.isNullOrNone(productName) && temp.indexOf("PackageItemBean") !=-1){
+            System.out.println("**************condition3333333333333333"+temp);
+            int index2 = temp.lastIndexOf("AND");
+            String prefix = temp.substring(0,index2);
+//            String[] temp1 = temp.split("AND");
+            String sql = prefix+"and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%"+productName+"%')";
+            condtion.setCondition(sql);
+            System.out.println("**************condition44444444444444444"+condtion.toString());
+        }
+
+//        this.packageDAO.queryVOsByCondition(condtion);
+
         condtion.addCondition("order by CustomerBean.name");
-        
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPACKAGE, request, condtion, this.packageDAO,
         		new HandleResult<PackageVO>()
                 {
@@ -157,6 +199,8 @@ public class ShipAction extends DispatchAction
 					}
         	
                 });
+
+        System.out.println("**************jsonstr****************"+jsonstr);
 
         return JSONTools.writeResponse(response, jsonstr);
     }
@@ -630,6 +674,16 @@ public class ShipAction extends DispatchAction
     	
     	return mapping.findForward("detailPackage");
     }
+
+    private boolean checkBankPackages(List<PackageVO> packages){
+        for (PackageVO vo : packages){
+            System.out.println("getIndustryName***************"+vo.getIndustryName());
+            if (vo.getIndustryName().indexOf("银行业务部") ==-1){
+                return false;
+            }
+        }
+        return true;
+    }
     
     /**
      * findPickup
@@ -659,80 +713,152 @@ public class ShipAction extends DispatchAction
     	List<PackageVO> packageList = packageDAO.queryEntityVOsByFK(pickupId);
     	
     	StringBuilder sb = new StringBuilder();
-    	
-    	Map<String, PackageItemBean> map = new HashMap<String, PackageItemBean>();
-    	
-    	int pickupCount = 0;
-    	
-    	pickupCount = packageList.size();
-    	
-    	for (PackageVO each : packageList)
-    	{
-    		sb.append(each.getId()).append("<br>");
-    		
-    		List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
-    		
-    		// 根据产品分组: 1.判断是否为合成,如是,则要找出子产品;2.数量合并
-    		for (PackageItemBean eachItem : itemList)
-    		{
-    			if (map.containsKey(eachItem.getProductId()))
-    			{
-    				PackageItemBean itemBean = map.get(eachItem.getProductId());
-    				
-    				itemBean.setAmount(itemBean.getAmount() + eachItem.getAmount());
-    			}else{
-    				PackageItemBean itemBean = new PackageItemBean();
-    				
-    				itemBean.setProductId(eachItem.getProductId());
-    				itemBean.setProductName(eachItem.getProductName());
-    				itemBean.setAmount(eachItem.getAmount());
-    				//itemBean.setShowSubProductName(showSubProductName);
-    				
-    				checkCompose(eachItem, itemBean, compose);
-    				
-    				map.put(eachItem.getProductId(), itemBean);
-    			}
-    		}
-    	}
-    	
-    	PackageVO batchVO = new PackageVO();
-    	
-    	batchVO.setId(sb.toString());
-    	batchVO.setPickupId(pickupId);
-    	batchVO.setRepTime(TimeTools.now_short());
-    	
-    	List<PackageItemBean> lastList = new ArrayList<PackageItemBean>();
-    	
-    	for (Entry<String, PackageItemBean> entry : map.entrySet())
-    	{
-    		lastList.add(entry.getValue());
-    	}
 
-        //2015/1/14 按照名称排序
-        Collections.sort(lastList, new Comparator(){
-            @Override
-            public int compare(Object o1, Object o2) {
-                PackageItemBean i1 = (PackageItemBean)o1;
-                PackageItemBean i2 = (PackageItemBean)o2;
-                return i1.getProductName().compareTo(i2.getProductName());
+    	
+    	int pickupCount = packageList.size();
+
+        //2015/1/25 检查是否银行业务部订单
+        boolean isBankOrder = this.checkBankPackages(packageList);
+        if (isBankOrder){
+            //<key,value> as <银行名称，List<PackageItemBean>>
+            Map<String, List<PackageItemBean>> map = new HashMap<String, List<PackageItemBean>>();
+            for (PackageVO each : packageList)
+            {
+                sb.append(each.getId()).append("<br>");
+
+                List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
+
+                // 根据产品分组: 1.判断是否为合成,如是,则要找出子产品;2.按照银行合并
+                for (PackageItemBean eachItem : itemList)
+                {
+                    String customerId = eachItem.getCustomerId();
+                    CustomerBean customer = customerMainDAO.find(customerId);
+                    String name = customer.getName();
+                    String bank = name.split("银行")[0]+"银行";
+
+                    PackageItemBean itemBean = new PackageItemBean();
+
+                    itemBean.setProductId(eachItem.getProductId());
+                    itemBean.setProductName(eachItem.getProductName());
+                    itemBean.setAmount(eachItem.getAmount());
+                    //itemBean.setShowSubProductName(showSubProductName);
+
+                    checkCompose(eachItem, itemBean, compose);
+
+                    if (map.containsKey(bank))
+                    {
+                        List<PackageItemBean> items = map.get(bank);
+                        items.add(itemBean);
+                    }else{
+                        List<PackageItemBean> items = new ArrayList<PackageItemBean>();
+                        items.add(itemBean);
+                        map.put(bank,items);
+                    }
+                }
             }
-        });
-    	batchVO.setItemList(lastList);
-    	
-    	// key:以批次号做为key ?
-    	request.setAttribute("bean", batchVO);
-    	
-    	request.setAttribute("year", TimeTools.now("yyyy"));
-        request.setAttribute("month", TimeTools.now("MM"));
-        request.setAttribute("day", TimeTools.now("dd"));
-    	
-    	request.setAttribute("index_pos", 0);
-    	
-    	request.setAttribute("pickupCount", pickupCount);
-    	
-    	request.setAttribute("compose", compose);
 
-    	return mapping.findForward("printPickup");
+            PackageVO batchVO = new PackageVO();
+
+            batchVO.setId(sb.toString());
+            batchVO.setPickupId(pickupId);
+            batchVO.setRepTime(TimeTools.now_short());
+
+            List<PackageItemBean> lastList = new ArrayList<PackageItemBean>();
+
+/*            for (Entry<String, PackageItemBean> entry : map.entrySet())
+            {
+                lastList.add(entry.getValue());
+            }*/
+
+            batchVO.setItemList(lastList);
+
+            // key:以批次号做为key ?
+            request.setAttribute("bean", batchVO);
+            request.setAttribute("map", map);
+
+            request.setAttribute("year", TimeTools.now("yyyy"));
+            request.setAttribute("month", TimeTools.now("MM"));
+            request.setAttribute("day", TimeTools.now("dd"));
+
+            request.setAttribute("index_pos", 0);
+
+            request.setAttribute("pickupCount", pickupCount);
+
+            request.setAttribute("compose", compose);
+
+            return mapping.findForward("printBankPickup");
+        } else{
+            //<key,value> as <productId,PackageItemBean>
+            Map<String, PackageItemBean> map = new HashMap<String, PackageItemBean>();
+            for (PackageVO each : packageList)
+            {
+                sb.append(each.getId()).append("<br>");
+
+                List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
+
+                // 根据产品分组: 1.判断是否为合成,如是,则要找出子产品;2.数量合并
+                for (PackageItemBean eachItem : itemList)
+                {
+                    if (map.containsKey(eachItem.getProductId()))
+                    {
+                        PackageItemBean itemBean = map.get(eachItem.getProductId());
+
+                        itemBean.setAmount(itemBean.getAmount() + eachItem.getAmount());
+                    }else{
+                        PackageItemBean itemBean = new PackageItemBean();
+
+                        itemBean.setProductId(eachItem.getProductId());
+                        itemBean.setProductName(eachItem.getProductName());
+                        itemBean.setAmount(eachItem.getAmount());
+                        //itemBean.setShowSubProductName(showSubProductName);
+
+                        checkCompose(eachItem, itemBean, compose);
+
+                        map.put(eachItem.getProductId(), itemBean);
+                    }
+                }
+            }
+
+            PackageVO batchVO = new PackageVO();
+
+            batchVO.setId(sb.toString());
+            batchVO.setPickupId(pickupId);
+            batchVO.setRepTime(TimeTools.now_short());
+
+            List<PackageItemBean> lastList = new ArrayList<PackageItemBean>();
+
+            for (Entry<String, PackageItemBean> entry : map.entrySet())
+            {
+                lastList.add(entry.getValue());
+            }
+
+            //2015/1/14 按照名称排序
+            Collections.sort(lastList, new Comparator(){
+                @Override
+                public int compare(Object o1, Object o2) {
+                    PackageItemBean i1 = (PackageItemBean)o1;
+                    PackageItemBean i2 = (PackageItemBean)o2;
+                    return i1.getProductName().compareTo(i2.getProductName());
+                }
+            });
+            batchVO.setItemList(lastList);
+
+            // key:以批次号做为key ?
+            request.setAttribute("bean", batchVO);
+
+            request.setAttribute("year", TimeTools.now("yyyy"));
+            request.setAttribute("month", TimeTools.now("MM"));
+            request.setAttribute("day", TimeTools.now("dd"));
+
+            request.setAttribute("index_pos", 0);
+
+            request.setAttribute("pickupCount", pickupCount);
+
+            request.setAttribute("compose", compose);
+
+            return mapping.findForward("printPickup");
+        }
+
     }
 
 	private void checkCompose(PackageItemBean eachItem, PackageItemBean itemBean, String com)
@@ -1860,5 +1986,13 @@ public class ShipAction extends DispatchAction
 
     public void setInvoiceinsDAO(InvoiceinsDAO invoiceinsDAO) {
         this.invoiceinsDAO = invoiceinsDAO;
+    }
+
+    public CustomerMainDAO getCustomerMainDAO() {
+        return customerMainDAO;
+    }
+
+    public void setCustomerMainDAO(CustomerMainDAO customerMainDAO) {
+        this.customerMainDAO = customerMainDAO;
     }
 }

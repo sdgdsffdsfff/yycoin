@@ -268,10 +268,15 @@
             <opr>=</opr>
             <type>text</type>
         </condtion>
-        <!--<condtion name="customerId" caption="客户ID">-->
-            <!--<opr>=</opr>-->
-            <!--<type>text</type>-->
-        <!--</condtion>-->
+        <condtion name="name" caption="客户名" pfix="CustomerBean">
+            <opr>like</opr>
+            <type>text</type>
+        </condtion>
+        <condtion name="productName" caption="产品" pfix="PackageItemBean">
+            <opr>like</opr>
+            <type>text</type>
+            <inner></inner>
+        </condtion>
         <condtion name="stafferName" caption="业务员">
             <opr>=</opr>
             <type>text</type>
