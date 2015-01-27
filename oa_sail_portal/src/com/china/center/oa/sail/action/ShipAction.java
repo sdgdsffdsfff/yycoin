@@ -139,55 +139,43 @@ public class ShipAction extends DispatchAction
     	User user = Helper.getUser(request);
 
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("select PackageBean.id from t_center_package PackageBean ")
-                .append("left join t_center_package_item PackageItemBean on (PackageItemBean.packageId=PackageBean.id)");
-        ConditionParse newConditionParse = new ConditionParse();
-        newConditionParse.removeWhereStr();
-        newConditionParse.addCondition("left outer join t_center_package_item PackageItemBean on (PackageItemBean.packageId=PackageBean.id)");
-        newConditionParse.addWhereStr();
-        newConditionParse.addCondition("PackageItemBean.productName","like",productName);
-        System.out.println("***************1111111111111111*****************"+newConditionParse.toString());
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("select PackageBean.id from t_center_package PackageBean ")
+//                .append("left join t_center_package_item PackageItemBean on (PackageItemBean.packageId=PackageBean.id)");
+//        ConditionParse newConditionParse = new ConditionParse();
+//        newConditionParse.removeWhereStr();
+//        newConditionParse.addCondition("left outer join t_center_package_item PackageItemBean on (PackageItemBean.packageId=PackageBean.id)");
+//        newConditionParse.addWhereStr();
+//        newConditionParse.addCondition("PackageItemBean.productName","like",productName);
+//        System.out.println("***************1111111111111111*****************"+newConditionParse.toString());
 //        newConditionParse.setCondition(sb.toString());
 //        this.packageDAO.queryVOsByCondition(newConditionParse);
 
 //        condtion.addCondition(" LEFT OUTER JOIN T_CENTER_PACKAGE_ITEM PackageItemBean on (PackageBean.id=PackageItemBean.packageId)");
 
         ConditionParse condtion = new ConditionParse();
-//        condtion.addCondition(" LEFT OUTER JOIN T_CENTER_PACKAGE_ITEM PackageItemBean on (PackageBean.id=PackageItemBean.packageId)");
         condtion.addWhereStr();
         
         // 要根据仓库的权限,计算出地点,根据地点查询
         setDepotCondotionInOut(user, condtion);
 
-//        if (!StringTools.isNullOrNone(customerName)){
-//            condtion.addCondition("CustomerBean.name","=",customerName);
-//        }
-//
-//        if (!StringTools.isNullOrNone(productName)){
-//            condtion.addCondition("PackageItemBean.productName","=", productName);
-//        }
-        
         // TEMPLATE 在action里面默认查询条件
 		Map<String, String> initMap = initLogTime(request, condtion, true);
 
-        System.out.println("**************condition1111"+condtion);
+//        System.out.println("**************condition1111"+condtion);
 
 		ActionTools.processJSONDataQueryCondition(QUERYPACKAGE, request, condtion, initMap);
-        System.out.println("**************condition222222222222222222"+condtion);
+//        System.out.println("**************condition222222222222222222"+condtion);
 
         String temp = condtion.toString();
         if (!StringTools.isNullOrNone(productName) && temp.indexOf("PackageItemBean") !=-1){
-            System.out.println("**************condition3333333333333333"+temp);
+//            System.out.println("**************condition3333333333333333"+temp);
             int index2 = temp.lastIndexOf("AND");
             String prefix = temp.substring(0,index2);
-//            String[] temp1 = temp.split("AND");
             String sql = prefix+"and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%"+productName+"%')";
             condtion.setCondition(sql);
-            System.out.println("**************condition44444444444444444"+condtion.toString());
+//            System.out.println("**************condition44444444444444444"+condtion.toString());
         }
-
-//        this.packageDAO.queryVOsByCondition(condtion);
 
         condtion.addCondition("order by CustomerBean.name");
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPACKAGE, request, condtion, this.packageDAO,
@@ -722,6 +710,8 @@ public class ShipAction extends DispatchAction
         if (isBankOrder){
             //<key,value> as <银行名称，List<PackageItemBean>>
             Map<String, List<PackageItemBean>> map = new HashMap<String, List<PackageItemBean>>();
+            //<key,value> as <银行名称-productId,PackageItemBean>
+            Map<String, PackageItemBean> map2 = new HashMap<String, PackageItemBean>();
             for (PackageVO each : packageList)
             {
                 sb.append(each.getId()).append("<br>");
@@ -745,17 +735,42 @@ public class ShipAction extends DispatchAction
 
                     checkCompose(eachItem, itemBean, compose);
 
+                    String key = bank+"-"+eachItem.getProductName();
+
                     if (map.containsKey(bank))
                     {
                         List<PackageItemBean> items = map.get(bank);
-                        items.add(itemBean);
+
+                        //2015/1/27 同一银行同一产品数量合并
+                        if (map2.containsKey(key))
+                        {
+                            PackageItemBean item = map2.get(key);
+                            item.setAmount(itemBean.getAmount() + item.getAmount());
+                        } else{
+                            items.add(itemBean);
+                            map2.put(key,itemBean);
+                        }
                     }else{
                         List<PackageItemBean> items = new ArrayList<PackageItemBean>();
                         items.add(itemBean);
                         map.put(bank,items);
+                        map2.put(key,itemBean);
                     }
                 }
             }
+
+            //2015/1/27 按照名称排序
+            for (List<PackageItemBean> items: map.values()){
+                Collections.sort(items, new Comparator(){
+                    @Override
+                    public int compare(Object o1, Object o2) {
+                        PackageItemBean i1 = (PackageItemBean)o1;
+                        PackageItemBean i2 = (PackageItemBean)o2;
+                        return i1.getProductName().compareTo(i2.getProductName());
+                    }
+                });
+            }
+
 
             PackageVO batchVO = new PackageVO();
 
@@ -763,14 +778,14 @@ public class ShipAction extends DispatchAction
             batchVO.setPickupId(pickupId);
             batchVO.setRepTime(TimeTools.now_short());
 
-            List<PackageItemBean> lastList = new ArrayList<PackageItemBean>();
+//            List<PackageItemBean> lastList = new ArrayList<PackageItemBean>();
 
 /*            for (Entry<String, PackageItemBean> entry : map.entrySet())
             {
                 lastList.add(entry.getValue());
             }*/
 
-            batchVO.setItemList(lastList);
+//            batchVO.setItemList(lastList);
 
             // key:以批次号做为key ?
             request.setAttribute("bean", batchVO);
@@ -1084,6 +1099,8 @@ public class ShipAction extends DispatchAction
     	}
     	
     	String packageId =  RequestTools.getValueFromRequest(request, "packageId");
+
+        System.out.println("**********pickupId****"+pickupId+"****packageId*****"+packageId);
     	
     	// 第一次打印时，找出第一个出库单，一个出库单对应多个客户 1:n
     	if (index_pos == 0)
@@ -1108,7 +1125,7 @@ public class ShipAction extends DispatchAction
         	
         	index_pos = 1;
     	}
-    	
+        System.out.println("****packageId222222222222222*****"+packageId);
     	String subindex_pos =  request.getParameter("subindex_pos");
     	
     	int subindexpos = 0;
@@ -1270,7 +1287,12 @@ public class ShipAction extends DispatchAction
     		
     		request.setAttribute("title", "永银文化创意产业发展有限责任公司产品发货清单");
 
-    		prepareForBankPrint(request, vo, itemList, compose);
+            try{
+    		    prepareForBankPrint(request, vo, itemList, compose);
+            }catch(Exception e){
+                e.printStackTrace();
+                _logger.error("****printBankReceipt exception***",e);
+            }
     		
     		return mapping.findForward("printBankReceipt");
     		
@@ -1416,11 +1438,14 @@ public class ShipAction extends DispatchAction
             request.setAttribute("stafferName", stafferName);
             request.setAttribute("phone",phone);
         }
-		
+
+        System.out.println("***********item size:"+itemList.size());
 		for (PackageItemBean each : itemList)
 		{
+            System.out.println("*************each.getProductId()***"+each.getProductId());
 			if (!each.getCustomerId().equals(vo.getCustomerId()))
 			{
+                System.out.println("*************each.getCustomerId()***"+each.getCustomerId()+"****"+vo.getCustomerId());
 				continue;
 			}
 			

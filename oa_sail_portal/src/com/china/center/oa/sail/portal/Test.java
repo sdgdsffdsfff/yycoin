@@ -5,6 +5,7 @@ import com.china.center.oa.product.bean.ComposeFeeBean;
 import com.china.center.oa.product.bean.ComposeItemBean;
 import com.china.center.oa.product.bean.ComposeProductBean;
 import com.china.center.oa.product.constant.StorageConstant;
+import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.bean.PackageItemBean;
 import com.china.center.tools.CommonTools;
 import com.china.center.tools.MathTools;
@@ -26,6 +27,21 @@ import java.util.List;
  */
 public class Test {
     public static void main(String[] args){
+        List<OutBean>  beans = new ArrayList<OutBean>();
+        OutBean bean1 = new OutBean();
+        bean1.setId("1");
+        OutBean bean2 = new OutBean();
+        bean2.setId("2");
+        beans.add(bean1);
+        beans.add(bean2);
+        for(OutBean bean: beans){
+            System.out.println("1111*********"+bean.getId());
+        }
+        OutBean bean3 = beans.get(0);
+        bean3.setId("3");
+        for(OutBean bean: beans){
+            System.out.println("2222*************"+bean.getId());
+        }
         String str1 = "test1 AND test2 AND PackageItemBean.productName like '%啊%'";
         int index2 = str1.lastIndexOf("AND");
         String prefix = str1.substring(0,index2);
