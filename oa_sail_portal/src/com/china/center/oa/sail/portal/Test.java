@@ -27,6 +27,9 @@ import java.util.List;
  */
 public class Test {
     public static void main(String[] args){
+        String test = "aa";
+        System.out.println(test.split(";"));
+        System.out.println(test.split(";").length);
         List<OutBean>  beans = new ArrayList<OutBean>();
         OutBean bean1 = new OutBean();
         bean1.setId("1");
