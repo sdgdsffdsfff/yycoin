@@ -1228,7 +1228,7 @@ public class ShipAction extends DispatchAction
 
         List<PackageItemBean> itemList = packageItemDAO.
                 queryEntityBeansByCondition(" where PackageItemBean.packageId = ? order by PackageItemBean.productName", vo.getId()); //  .queryEntityBeansByFK(vo.getId());
-        String msg4 = "**********itemList size****"+itemList.size();
+        String msg4 = vo.getId()+"**********itemList size****"+itemList.size();
         _logger.info(msg4);
         request.setAttribute("bean", vo);
 
@@ -1464,6 +1464,7 @@ public class ShipAction extends DispatchAction
 
         for (PackageItemBean each : itemList)
         {
+            _logger.info(each.getId()+"****iterate package item:"+"***"+each.getOutId()+"***"+each.getDescription()+"***"+each.getRefId());
             if (!each.getCustomerId().equals(vo.getCustomerId()))
             {
                 _logger.info("*************each.getCustomerId()***"+each.getCustomerId()+"****"+vo.getCustomerId());
@@ -1481,13 +1482,17 @@ public class ShipAction extends DispatchAction
 
                 if (!ListTools.isEmptyOrNull(outiList))
                 {
-                    each.setRefId(outiList.get(0).getCiticNo());
+                    String refId = outiList.get(0).getCiticNo();
+                    _logger.info("****refId:"+refId);
+                    each.setRefId(refId);
 
                     if (!StringTools.isNullOrNone(outiList.get(0).getDescription()))
                     {
                         checkCompose(each, each, compose);
 
-                        each.setDescription(outiList.get(0).getDescription());
+                        String description = outiList.get(0).getDescription();
+                        _logger.info("****Description****"+description);
+                        each.setDescription(description);
 
                         itemList1.add(each);
 
@@ -1504,11 +1509,9 @@ public class ShipAction extends DispatchAction
             {
                 checkCompose(each, each, compose);
 
-                List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(each.getOutId(), AnoConstant.FK_FIRST);
-
-                if (!ListTools.isEmptyOrNull(outiList))
-                {
-                    each.setRefId(outiList.get(0).getCiticNo());
+                String refId = this.getRefId(each.getOutId());
+                if (!StringTools.isNullOrNone(refId)){
+                    each.setRefId(refId);
                 }
 
                 //2015/1/25 注释掉
@@ -1524,13 +1527,17 @@ public class ShipAction extends DispatchAction
 
                 if (!StringTools.isNullOrNone(itemBean.getRefId()))
                 {
-                    if (!StringTools.isNullOrNone(each.getRefId()))
+                    String refId = this.getRefId(each.getOutId());
+                    if (!StringTools.isNullOrNone(refId))
                     {
-                        itemBean.setRefId(itemBean.getRefId() + "<br>" + each.getRefId());
+                        String refId3 = itemBean.getRefId() + "<br>" + refId;
+                        _logger.info("**********refId3**********"+refId3);
+                        itemBean.setRefId(refId3);
                     }
                 }else{
                     if (!StringTools.isNullOrNone(each.getRefId()))
                     {
+                        _logger.info("**********refId4**********"+each.getRefId());
                         itemBean.setRefId(each.getRefId());
                     }
                 }
@@ -1542,11 +1549,24 @@ public class ShipAction extends DispatchAction
         for(Entry<String, PackageItemBean> each : map1.entrySet())
         {
             itemList1.add(each.getValue());
+            _logger.debug("**********getDescription******"+each.getValue().getDescription());
         }
 
         vo.setItemList(itemList1);
 
         request.setAttribute("total", totalAmount);
+    }
+
+    private String getRefId(String outId){
+        String refId = "";
+        List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(outId, AnoConstant.FK_FIRST);
+
+        if (!ListTools.isEmptyOrNull(outiList))
+        {
+            refId = outiList.get(0).getCiticNo();
+            _logger.info("**************redId2*****"+refId);
+        }
+        return refId;
     }
 
     /**
