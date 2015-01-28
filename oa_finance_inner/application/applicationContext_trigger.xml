@@ -119,6 +119,20 @@
         <property name="jobDetail" ref="passPaymentApply2Job" />
         <property name="cronExpression" value="0 0/10 * * * ?" />
     </bean>
+
+    <!--票随货发的发票拣配 每5分钟运行一次-->
+    <bean id="insFollowOutJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="invoiceinsManager" />
+        <property name="targetMethod" value="insFollowOutJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="insFollowOutJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="insFollowOutJob" />
+        <property name="cronExpression" value="0 0/5 * * * ?" />
+    </bean>
     
     <bean
 		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">

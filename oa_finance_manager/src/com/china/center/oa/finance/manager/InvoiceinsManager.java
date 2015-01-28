@@ -93,4 +93,7 @@ public interface InvoiceinsManager extends ListenerManager<InvoiceinsListener>
     boolean processAsyn(List<InvoiceinsImportBean> list);
     
     void checkImportIns(List<InvoiceinsImportBean> list, StringBuilder sb);
+
+    //2015/1/28 票随货发Job 5分钟运行一次
+    void insFollowOutJob() throws MYException;
 }

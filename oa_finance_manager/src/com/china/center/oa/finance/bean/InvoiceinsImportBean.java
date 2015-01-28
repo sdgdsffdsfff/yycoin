@@ -13,6 +13,8 @@ import com.china.center.jdbc.annotation.Table;
 @Table(name = "T_CENTER_INVOICEINS_IMPORT")
 public class InvoiceinsImportBean implements Serializable
 {
+    public static final String INVOICE_ID_BIND = "票随货发";
+
 	@Id(autoIncrement = true)
 	private String id = "";
 	

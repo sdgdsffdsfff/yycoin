@@ -106,6 +106,8 @@ import com.china.center.tools.TimeTools;
 @Exceptional
 public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsListener> implements InvoiceinsManager
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private final Log operationLog = LogFactory.getLog("opr");
 
     private CommonDAO commonDAO = null;
@@ -1136,11 +1138,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	{
     	if (bean.getOtype() == FinanceConstant.INVOICEINS_TYPE_IN) {
     		return;
-    	}
-    		
-    	if (bean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING) {
+    	} else if (bean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING) {
     		return;
-    	}
+    	} else if (InvoiceinsImportBean.INVOICE_ID_BIND.equals(bean.getInvoiceId())){
+            _logger.info("*****票随货发不捡配******"+bean.getId());
+            return;
+        }
     	
     	if (bean.getShipping() == OutConstant.OUT_SHIPPING_SELFSERVICE)
 		{
@@ -2544,7 +2547,39 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 		
 		return true;
 	}
-    
+
+    @Override
+    public void insFollowOutJob() throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        _logger.info("*****票随货发Job运行中***************");
+        ConditionParse conditionParse = new ConditionParse();
+        conditionParse.addWhereStr();
+        conditionParse.addIntCondition("invoiceId", "=", InvoiceinsImportBean.INVOICE_ID_BIND);
+        List<InvoiceinsBean> beans = this.invoiceinsDAO.queryEntityBeansByCondition(conditionParse);
+        if (!ListTools.isEmptyOrNull(beans)){
+            _logger.info("********票随货发发票数量******"+beans.size());
+            for (InvoiceinsBean bean : beans){
+                ConditionParse condition = new ConditionParse();
+                condition.addWhereStr();
+                condition.addIntCondition("insId", "=", bean.getId());
+                List<InsVSOutBean> insVSOutBeans = insVSOutDAO.queryEntityBeansByCondition(condition);
+                if (!ListTools.isEmptyOrNull(insVSOutBeans)){
+                    for (InsVSOutBean vs : insVSOutBeans){
+                       String outId = vs.getOutId();
+                       OutBean out = this.outDAO.find(outId);
+                       if (out!= null && out.getStatus() == OutConstant.STATUS_FLOW_PASS){
+                           //若销售单状态为“待库管审批”，则将对应的销售单通过库管审批（正常生成凭证及库存扣减）
+                           _logger.info("****自动库管审批通过*****"+outId);
+
+                           //与开票申请一并生成CK单，此类订单不再经过中间表过渡生成CK单
+                       }
+                    }
+                }
+
+            }
+        }
+    }
+
     /**
      * @return the commonDAO
      */

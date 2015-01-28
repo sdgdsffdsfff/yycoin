@@ -2917,7 +2917,10 @@ public class InvoiceinsAction extends DispatchAction
             			// 特殊类型
             			if (name.equals("混合")){
             				bean.setInvoiceId("9999999999");
-            			} else {
+            			} else if (name.equals("票随货发")){
+                            //2015/1/28 新增"票随货发"类型
+                            bean.setInvoiceId(InvoiceinsImportBean.INVOICE_ID_BIND);
+                        }else {
             				InvoiceBean invoice = invoiceDAO.findByUnique(name);
                 			
                 			if (null == invoice)
