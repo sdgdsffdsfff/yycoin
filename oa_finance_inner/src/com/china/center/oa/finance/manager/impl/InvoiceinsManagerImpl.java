@@ -16,6 +16,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.china.center.actionhelper.common.KeyConstant;
+import com.china.center.oa.client.vo.StafferVSCustomerVO;
+import com.china.center.oa.product.bean.PriceConfigBean;
+import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.constant.SysConfigConstant;
+import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.manager.OutManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -69,16 +77,6 @@ import com.china.center.oa.publics.bean.FlowLogBean;
 import com.china.center.oa.publics.constant.InvoiceConstant;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.StafferConstant;
-import com.china.center.oa.publics.dao.AttachmentDAO;
-import com.china.center.oa.publics.dao.CommonDAO;
-import com.china.center.oa.publics.dao.DutyDAO;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.sail.bean.BaseBalanceBean;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.DistributionBean;
-import com.china.center.oa.sail.bean.OutBalanceBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.PreConsignBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.dao.BaseBalanceDAO;
@@ -157,6 +155,10 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     private PackageManager packageManager = null;
     
     private PlatformTransactionManager transactionManager = null;
+
+    private ParameterDAO parameterDAO = null;
+
+    private OutManager outManager = null;
 
     /*
      * (non-Javadoc)
@@ -1140,7 +1142,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		return;
     	} else if (bean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING) {
     		return;
-    	} else if (InvoiceinsImportBean.INVOICE_ID_BIND.equals(bean.getInvoiceId())){
+    	} else if (InvoiceinsImportBean.INVOICE_FOLLOW_OUT.equals(bean.getInvoiceFollowOut())){
             _logger.info("*****票随货发不捡配******"+bean.getId());
             return;
         }
@@ -2551,10 +2553,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     @Override
     public void insFollowOutJob() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
-        _logger.info("*****票随货发Job运行中***************");
+        String msg = "*****票随货发insFollowOutJob running***************";
+        System.out.println(msg);
+        _logger.info(msg);
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
-        conditionParse.addIntCondition("invoiceId", "=", InvoiceinsImportBean.INVOICE_ID_BIND);
+        conditionParse.addCondition("invoiceFollowOut", "=", InvoiceinsImportBean.INVOICE_FOLLOW_OUT);
         List<InvoiceinsBean> beans = this.invoiceinsDAO.queryEntityBeansByCondition(conditionParse);
         if (!ListTools.isEmptyOrNull(beans)){
             _logger.info("********票随货发发票数量******"+beans.size());
@@ -2570,6 +2574,57 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                        if (out!= null && out.getStatus() == OutConstant.STATUS_FLOW_PASS){
                            //若销售单状态为“待库管审批”，则将对应的销售单通过库管审批（正常生成凭证及库存扣减）
                            _logger.info("****自动库管审批通过*****"+outId);
+
+                           final int statuss = 3;
+                           if (statuss == OutConstant.STATUS_MANAGER_PASS
+                                   || statuss == OutConstant.STATUS_FLOW_PASS
+                                   || statuss == OutConstant.STATUS_PASS)
+                           {
+
+                               // 这里需要计算客户的信用金额-是否报送物流中心经理审批
+                               boolean outCredit = parameterDAO.getBoolean(SysConfigConstant.OUT_CREDIT);
+
+                               // 如果是黑名单的客户(且没有付款)
+                               if (outCredit && out.getReserve3() == OutConstant.OUT_SAIL_TYPE_MONEY
+                                       && out.getType() == OutConstant.OUT_TYPE_OUTBILL
+                                       && out.getPay() == OutConstant.PAY_NOT)
+                               {
+                                   try
+                                   {
+                                       //TODO
+                                       outManager.payOut(null, outId, "结算中心确定已经回款");
+                                   }
+                                   catch (MYException e)
+                                   {
+                                       _logger.error(outId+"****自动库管审批出错****",e);
+                                   }
+
+                                   OutBean newOut = outDAO.find(outId);
+
+                                   if (newOut.getPay() == OutConstant.PAY_NOT)
+                                   {
+                                       _logger.error("****只有结算中心确定已经回款后才可以审批此销售单****"+outId);
+                                   }
+                               }
+
+                               int resultStatus = -1;
+                               try
+                               {
+                                   //TODO user depotpartId
+                                   resultStatus = outManager.pass(outId, null, statuss, "票随货发Job自动审批通过", null);
+                                   OutBean newOut = outDAO.find(outId);
+                                   if(resultStatus == OutConstant.STATUS_PASS)
+                                   {
+                                       //TODO user ID
+                                       outManager.updateCusAndBusVal(newOut,"票随货发Job");
+                                   }
+
+                               }
+                               catch (MYException e)
+                               {
+                                   _logger.warn(e, e);
+                               }
+                           }
 
                            //与开票申请一并生成CK单，此类订单不再经过中间表过渡生成CK单
                        }
@@ -2953,4 +3008,20 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 	public void setPackageManager(PackageManager packageManager) {
 		this.packageManager = packageManager;
 	}
+
+    public ParameterDAO getParameterDAO() {
+        return parameterDAO;
+    }
+
+    public void setParameterDAO(ParameterDAO parameterDAO) {
+        this.parameterDAO = parameterDAO;
+    }
+
+    public OutManager getOutManager() {
+        return outManager;
+    }
+
+    public void setOutManager(OutManager outManager) {
+        this.outManager = outManager;
+    }
 }

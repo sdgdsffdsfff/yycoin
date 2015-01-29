@@ -131,7 +131,7 @@
     <bean id="insFollowOutJobTrigger"
           class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="insFollowOutJob" />
-        <property name="cronExpression" value="0 0/5 * * * ?" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
     </bean>
     
     <bean
@@ -146,6 +146,7 @@
 				<ref bean="createPackageTrigger"/>
                 <ref bean="passPaymentApplyJobTrigger"/>
                 <ref bean="passPaymentApply2JobTrigger"/>
+                <ref bean="insFollowOutJobTrigger"/>
 			</list>
 		</property>
 	</bean>

@@ -2917,10 +2917,7 @@ public class InvoiceinsAction extends DispatchAction
             			// 特殊类型
             			if (name.equals("混合")){
             				bean.setInvoiceId("9999999999");
-            			} else if (name.equals("票随货发")){
-                            //2015/1/28 新增"票随货发"类型
-                            bean.setInvoiceId(InvoiceinsImportBean.INVOICE_ID_BIND);
-                        }else {
+            			}else {
             				InvoiceBean invoice = invoiceDAO.findByUnique(name);
                 			
                 			if (null == invoice)
@@ -3338,7 +3335,23 @@ public class InvoiceinsAction extends DispatchAction
                 			}
                 		}
             		}
-            		
+
+
+                    // 票随货发
+                    if ( !StringTools.isNullOrNone(obj[17]))
+                    {
+                        String invoiceFollowOut = obj[17].trim();
+                        _logger.info("*****invoiceFollowOut*****"+invoiceFollowOut);
+                        bean.setInvoiceFollowOut(invoiceFollowOut);
+                    } else {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("票随货发不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
             		bean.setDescription(obj[15].trim());
             		bean.setInvoiceDate(TimeTools.now_short());
             		bean.setStafferName(user.getStafferName());
@@ -3351,7 +3364,7 @@ public class InvoiceinsAction extends DispatchAction
                 {
                     builder
                         .append("第[" + currentNumber + "]错误:")
-                        .append("数据长度不足16格错误")
+                        .append("数据长度不足17格错误")
                         .append("<br>");
                     
                     importError = true;

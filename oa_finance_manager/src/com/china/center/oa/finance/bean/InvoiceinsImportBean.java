@@ -13,7 +13,8 @@ import com.china.center.jdbc.annotation.Table;
 @Table(name = "T_CENTER_INVOICEINS_IMPORT")
 public class InvoiceinsImportBean implements Serializable
 {
-    public static final String INVOICE_ID_BIND = "票随货发";
+    public static final String INVOICE_FOLLOW_OUT = "票随货发";
+    public static final String INVOICE_ALONE = "单独发";
 
 	@Id(autoIncrement = true)
 	private String id = "";
@@ -134,6 +135,11 @@ public class InvoiceinsImportBean implements Serializable
      * 1:同销售单一致 2：新配送地址
      */
     private int addrType = 0;
+
+    /**2015/1/29
+     * 票随货发
+     */
+    private String invoiceFollowOut = "";
 
 	/**
 	 * 
@@ -489,4 +495,20 @@ public class InvoiceinsImportBean implements Serializable
 	public void setAddrType(int addrType) {
 		this.addrType = addrType;
 	}
+
+
+    /**
+     * @return the invoiceFollowOut
+     */
+    public String getInvoiceFollowOut() {
+        return invoiceFollowOut;
+    }
+
+
+    /**
+     * @param invoiceFollowOut the invoiceFollowOut to set
+     */
+    public void setInvoiceFollowOut(String invoiceFollowOut) {
+        this.invoiceFollowOut = invoiceFollowOut;
+    }
 }

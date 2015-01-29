@@ -258,6 +258,11 @@ public class InvoiceinsBean implements Serializable
      * 货运运费支付方式 - deliverPay
      */
     private int transportPay = -1;
+
+    /**
+     * 2015/1/29 票随货发
+     */
+    private String invoiceFollowOut = "";
     
 	//-----------------------------------distribution------------------------------
 	
@@ -1024,7 +1029,15 @@ public class InvoiceinsBean implements Serializable
 		this.numList = numList;
 	}
 
-	/**
+    public String getInvoiceFollowOut() {
+        return invoiceFollowOut;
+    }
+
+    public void setInvoiceFollowOut(String invoiceFollowOut) {
+        this.invoiceFollowOut = invoiceFollowOut;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.
