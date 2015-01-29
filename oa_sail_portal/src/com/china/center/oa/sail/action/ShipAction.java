@@ -1385,11 +1385,14 @@ public class ShipAction extends DispatchAction
     }
 
     private String[] getStafferNameAndPhone(String outId){
+        _logger.info("*****getStafferNameAndPhone*****"+outId);
         String stafferName = "永银商务部";
         String phone = "4006518859";
         OutBean out = outDAO.find(outId);
+        _logger.info("*****getStafferNameAndPhone out*****"+out);
         if (out!= null){
             String stafferId = out.getStafferId();
+            _logger.info("*****getStafferNameAndPhone stafferId*****"+stafferId);
             StafferBean staffer = this.stafferDAO.find(stafferId);
             if (staffer!= null){
                 if (!StringTools.isNullOrNone(staffer.getName())){
@@ -1424,14 +1427,16 @@ public class ShipAction extends DispatchAction
 
         //2015/1/25 取商务联系人及电话
         if (!ListTools.isEmptyOrNull(itemList)){
+            _logger.info("******itemList size****"+itemList.size());
             PackageItemBean first = itemList.get(0);
             String outId = first.getOutId();
             String stafferName = "永银商务部";
             String phone = "4006518859";
+            _logger.info(first+"******first****"+outId);
             if (StringTools.isNullOrNone(outId)){
                 _logger.warn("****Empty OutId***********"+first.getId());
             }else if (outId.startsWith("SO")){
-                String[] result = this.getStafferNameAndPhone(first.getOutId());
+                String[] result = this.getStafferNameAndPhone(outId);
                 if (result.length>=2){
                     stafferName = result[0];
                     phone = result[1];
@@ -1458,6 +1463,8 @@ public class ShipAction extends DispatchAction
                     }
                 }
             }
+            _logger.info("*****stafferName***********"+stafferName);
+            _logger.info("*******phone*************"+phone);
             request.setAttribute("stafferName", stafferName);
             request.setAttribute("phone",phone);
         }
@@ -1478,6 +1485,7 @@ public class ShipAction extends DispatchAction
 
             if (out != null && out.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT)
             {
+                _logger.info("******赠品类型*****"+each.getOutId());
                 List<OutImportBean> outiList = outImportDAO.queryEntityBeansByFK(each.getOutId(), AnoConstant.FK_FIRST);
 
                 if (!ListTools.isEmptyOrNull(outiList))
@@ -1539,6 +1547,22 @@ public class ShipAction extends DispatchAction
                     {
                         _logger.info("**********refId4**********"+each.getRefId());
                         itemBean.setRefId(each.getRefId());
+                    }
+                }
+
+                //2015/1/29 合并Description
+                if (!StringTools.isNullOrNone(itemBean.getDescription()))
+                {
+                    if (!StringTools.isNullOrNone(each.getDescription()))
+                    {
+                        String description = itemBean.getDescription() + "<br>" + each.getDescription();
+                        _logger.info("**********description2**********"+description);
+                        itemBean.setDescription(description);
+                    }
+                }else{
+                    if (!StringTools.isNullOrNone(each.getDescription()))
+                    {
+                        itemBean.setDescription(each.getDescription());
                     }
                 }
             }
