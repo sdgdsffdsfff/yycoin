@@ -224,4 +224,6 @@
     <osgi:reference id="branchRelationDAO" interface="com.china.center.oa.sail.dao.BranchRelationDAO" />
 
     <osgi:reference id="productFacade" interface="com.china.center.oa.product.facade.ProductFacade" />
+
+    <osgi:reference id="invoiceinsDAO" interface="com.china.center.oa.finance.dao.InvoiceinsDAO" />
 </beans>

@@ -7980,8 +7980,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private void saveOutInner(final OutBean outBean)
         throws MYException
     {
+        _logger.info("*****saveOutInner*****"+outBean.getFullId());
         configOutBean(outBean);
-
+        _logger.info("*****saveOutInner1*****"+outBean.getFullId());
         List<BaseBean> baseList = outBean.getBaseList();
 
         // MANAGER 管理类型的库单处理
@@ -7989,40 +7990,59 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         {
             if (OATools.isCommon(outBean.getMtype()))
             {
-                for (BaseBean baseBean : baseList)
-                {
-                    ProductBean product = productDAO.find(baseBean.getProductId());
+                if (ListTools.isEmptyOrNull(baseList)){
+                    _logger.error("*****empty list****");
+                } else {
+                    for (BaseBean baseBean : baseList)
+                        {
+                            ProductBean product = productDAO.find(baseBean.getProductId());
 
-                    if (OATools.isManager(product.getReserve4()) && outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-                    {
-                        throw new MYException("库单当前所属的纳税实体是普通类型,当前产品[%s]不是1", product.getName());
-                    }
+                            if (product == null){
+                                throw new MYException("产品[%s]不存在", baseBean.getProductId());
+                            } else{
+                                if (OATools.isManager(product.getReserve4()) && outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                                {
+                                    throw new MYException("库单当前所属的纳税实体是普通类型,当前产品[%s]不是1", product.getName());
+                                }
+                            }
+                        }
                 }
 
                 outBean.setPmtype(PublicConstant.MANAGER_TYPE_COMMON);
+                _logger.info("*****saveOutInner2*****"+outBean.getFullId());
             }
             else
             {
                 // 管理的开单类型必须一致(要么全部是普通,要么全部是管理)
                 int mtype = -1;
 
-                for (BaseBean baseBean : baseList)
-                {
-                    ProductBean product = productDAO.find(baseBean.getProductId());
+                if (ListTools.isEmptyOrNull(baseList)){
+                    _logger.error("*****empty list****");
+                } else{
+                    for (BaseBean baseBean : baseList)
+                    {
+                        ProductBean product = productDAO.find(baseBean.getProductId());
 
-                    if (mtype == -1)
-                    {
-                        mtype = OATools.getManagerType(product.getReserve4());
-                    }
-                    else
-                    {
-                        if (OATools.getManagerType(product.getReserve4()) != mtype && outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
-                        {
-                            throw new MYException("库单里面的产品管理属性必须完全一致,当前产品[%s]不是", product.getName());
+                        if (product == null){
+                            throw new MYException("产品[%s]不存在", baseBean.getProductId());
+                        } else{
+                            if (mtype == -1)
+                            {
+                                mtype = OATools.getManagerType(product.getReserve4());
+                            }
+                            else
+                            {
+                                if (OATools.getManagerType(product.getReserve4()) != mtype && outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
+                                {
+                                    throw new MYException("库单里面的产品管理属性必须完全一致,当前产品[%s]不是", product.getName());
+                                }
+                            }
                         }
-                    }
 
+
+                    }
                 }
+
 
                 // 产品类型
                 outBean.setPmtype(mtype);
@@ -8032,13 +8052,15 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 {
                     outBean.setVtype(OutConstant.VTYPE_SPECIAL);
                 }
+                _logger.info("*****saveOutInner3*****"+outBean.getFullId());
             }
         }
 
-        if (outBean.getLocation().equals("0"))
+        if ("0".equals(outBean.getLocation()))
         	outBean.setLocation("");
         
         outDAO.saveEntityBean(outBean);
+        _logger.info("*****finish saveOutInner*****"+outBean.getFullId());
     }
     
     /**
