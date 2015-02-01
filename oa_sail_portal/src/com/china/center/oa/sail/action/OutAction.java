@@ -1636,14 +1636,12 @@ public class OutAction extends ParentOutAction
                         || statuss == OutConstant.STATUS_FLOW_PASS
                         || statuss == OutConstant.STATUS_PASS)
                     {
-                        //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
+                         //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
                         if (statuss == OutConstant.STATUS_MANAGER_PASS){
                             _logger.info("***销售商务审批时检查结算价是否为0***");
-                            System.out.println("***销售商务审批时检查结算价是否为0***");
                             List<BaseBean> baseBeans = this.baseDAO.queryEntityBeansByFK(fullId);
                             if (!ListTools.isEmptyOrNull(baseBeans)){
                                 _logger.info("***baseBeans size***"+baseBeans.size());
-                                System.out.println("***baseBeans size***"+baseBeans.size());
                                 for (BaseBean base : baseBeans){
 //                                    if (base.getInputPrice() == 0)
 //                                    {
@@ -1703,7 +1701,7 @@ public class OutAction extends ParentOutAction
 
                                     //2014/12/9 导入时取消检查结算价为0的控制，将此检查移到“商务审批”通过环节
                                     _logger.info(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
-                                    System.out.println(base.getProductName()+"***getInputPrice***"+base.getInputPrice());
+
                                     if (base.getInputPrice() == 0)
                                     {
                                         String msg = base.getProductName() + " 业务员结算价不能为0";
@@ -1712,10 +1710,7 @@ public class OutAction extends ParentOutAction
                                         return mapping.findForward("error");
                                     } else{
                                         String msg2 = base.getProductName()+"更新结算价:"+base.getInputPrice()+":"+base.getPprice();
-                                        System.out.println(msg2);
                                         _logger.info(msg2);
-                                        //TODO 不能在Action中调用DAO的update操作，必须在Transaction中操作才能生效
-//                                        this.baseDAO.updateEntityBean(base);
                                         try{
                                             this.outManager.updateBase(base);
                                         }catch(Exception e){
@@ -1724,13 +1719,12 @@ public class OutAction extends ParentOutAction
                                     }
                                 }
                             } else{
-                                System.out.println("**************check price not found************");
                                 _logger.warn("**************check price not found************");
                             }
 
                         }
 
-
+                        _logger.info("****************库管审批111111111111*************"+statuss);
                         // 这里需要计算客户的信用金额-是否报送物流中心经理审批
                         boolean outCredit = parameterDAO.getBoolean(SysConfigConstant.OUT_CREDIT);
 
@@ -1761,7 +1755,6 @@ public class OutAction extends ParentOutAction
                                 return mapping.findForward("error");
                             }
                         }
-                        
                         // 结算中心通过  对参与促销活动的相关审核：
                         if (statuss == OutConstant.STATUS_FLOW_PASS)
                         {
@@ -1785,7 +1778,7 @@ public class OutAction extends ParentOutAction
                             OutBean newOut = outDAO.find(fullId);
                             if(resultStatus == OutConstant.STATUS_PASS)
                             {
-                            	outManager.updateCusAndBusVal(newOut,user.getId());	
+                                outManager.updateCusAndBusVal(newOut,user.getId());
 //                            outDAO.updateEntityBean(newOut);
                             }
                             
@@ -1825,7 +1818,7 @@ public class OutAction extends ParentOutAction
                         sendOutRejectMail(fullId, user, reason, out,"销售单驳回");
                     }
                 }
-
+                _logger.info("****************库管审批6666666666666666*************"+statuss);
                 // 核对状态方式发生异常
                 OutBean realOut = outDAO.findRealOut(fullId);
 

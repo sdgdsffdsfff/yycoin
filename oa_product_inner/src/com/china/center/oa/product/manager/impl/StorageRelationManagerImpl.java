@@ -160,7 +160,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         StorageRelationBean relation = storageRelationDAO
             .findByDepotpartIdAndProductIdAndPriceKeyAndStafferId(bean.getDepotpartId(), bean
                 .getProductId(), priceKey, bean.getStafferId());
-        
+
         if (relation == null)
         {
             throw new MYException("产品[%s]可发库存不足", productBean.getName());
@@ -317,9 +317,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
             throw new MYException("库存被锁定,请确认解锁库存操作");
         }
 
-        System.out.println("***********user****"+user);
-        System.out.println("***********bean****"+bean);
-        System.out.println("***********bean.getStafferId()****"+bean.getStafferId());
+        _logger.info("changeStorageRelationWithoutTransaction**********"+user+"***bean****"+bean.getStafferId());
         //TODO
 //        JudgeTools.judgeParameterIsNull(user, bean, bean.getStafferId());
 //        JudgeTools.judgeParameterIsNull(user, bean);
@@ -588,7 +586,14 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 
         log.setLogTime(TimeTools.now());
 
-        log.setUser(user.getStafferName());
+        String stafferName = "";
+        if (user == null){
+            stafferName = "票随货发Job";
+            _logger.warn("****null user*****");
+        } else{
+            stafferName = user.getStafferName();
+        }
+        log.setUser(stafferName);
 
         log.setDescription(bean.getDescription());
 

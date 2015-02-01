@@ -190,8 +190,9 @@ public class FinanceManagerImpl implements FinanceManager {
 
     private boolean addInner(User user, FinanceBean bean, boolean mainTable, boolean checkNull) throws MYException {
         System.out.println("*********************user***************"+user+"*******checkNull*************"+checkNull);
+        //TODO 2015/2/1 因票随货发功能暂时禁掉user限制
         if(checkNull){
-            JudgeTools.judgeParameterIsNull(user, bean, bean.getItemList());
+//            JudgeTools.judgeParameterIsNull(user, bean, bean.getItemList());
         }
 
         bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));

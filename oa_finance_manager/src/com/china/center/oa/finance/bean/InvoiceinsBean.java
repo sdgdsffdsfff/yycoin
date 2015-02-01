@@ -1029,10 +1029,16 @@ public class InvoiceinsBean implements Serializable
 		this.numList = numList;
 	}
 
+    /**
+     * @return the invoiceFollowOut
+     */
     public String getInvoiceFollowOut() {
         return invoiceFollowOut;
     }
 
+    /**
+     * @param invoiceFollowOut the invoiceFollowOut to set
+     */
     public void setInvoiceFollowOut(String invoiceFollowOut) {
         this.invoiceFollowOut = invoiceFollowOut;
     }

@@ -251,6 +251,18 @@ function clears()
 				</select>
                 </td>
 			</tr>
+
+            <tr class="content2">
+                <td width="15%" align="center">客户名称</td>
+                <td align="left">
+                    <input type="text" name="customerName" value="${ppmap.customerName}" style="width:50%">
+                </td>
+
+                <td width="15%" align="center">产品名称</td>
+                <td align="left">
+                    <input type="text" name="productName" value="${ppmap.productName}" style="width:50%">
+                </td>
+            </tr>
 			
 			<tr class="content1">
 				<td colspan="4" align="right"><input type="button"

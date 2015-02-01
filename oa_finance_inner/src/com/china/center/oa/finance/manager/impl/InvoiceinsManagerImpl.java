@@ -1138,12 +1138,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     
     private void createPackage(final InvoiceinsBean bean) throws MYException
 	{
+        _logger.info(bean.getId()+"*****createPackage******"+bean.getInvoiceFollowOut());
     	if (bean.getOtype() == FinanceConstant.INVOICEINS_TYPE_IN) {
     		return;
     	} else if (bean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING) {
     		return;
     	} else if (InvoiceinsImportBean.INVOICE_FOLLOW_OUT.equals(bean.getInvoiceFollowOut())){
-            _logger.info("*****票随货发不捡配******"+bean.getId());
+            _logger.info("*****票随货发不生成CK单******"+bean.getId());
             return;
         }
     	
@@ -2273,6 +2274,9 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		bean.setInsAmount(1);
     		bean.setLogTime(TimeTools.now());
     		bean.setLocationId("999");
+            //2015/2/1 票随货发
+            _logger.info("****saveInner***"+first.getInvoiceFollowOut());
+            bean.setInvoiceFollowOut(first.getInvoiceFollowOut());
     		//
     		bean.setMtype(PublicConstant.MANAGER_TYPE_COMMON);
     		bean.setOperator(StafferConstant.SUPER_STAFFER);
@@ -2565,7 +2569,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
             for (InvoiceinsBean bean : beans){
                 ConditionParse condition = new ConditionParse();
                 condition.addWhereStr();
-                condition.addIntCondition("insId", "=", bean.getId());
+                condition.addCondition("insId", "=", bean.getId());
                 List<InsVSOutBean> insVSOutBeans = insVSOutDAO.queryEntityBeansByCondition(condition);
                 if (!ListTools.isEmptyOrNull(insVSOutBeans)){
                     for (InsVSOutBean vs : insVSOutBeans){
@@ -2580,7 +2584,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                    || statuss == OutConstant.STATUS_FLOW_PASS
                                    || statuss == OutConstant.STATUS_PASS)
                            {
-
                                // 这里需要计算客户的信用金额-是否报送物流中心经理审批
                                boolean outCredit = parameterDAO.getBoolean(SysConfigConstant.OUT_CREDIT);
 
@@ -2626,7 +2629,15 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                }
                            }
 
+                           //并检查待库管审批状态的订单地址有无与发票地址一致的订单，如有，则一并自动审批通过
+//                           ConditionParse con = new ConditionParse();
+//                           condition.addWhereStr();
+//                           condition.addIntCondition("insId", "=", bean.getId());
+//                           this.outDAO.queryEntityBeansByCondition(con);
+
+
                            //与开票申请一并生成CK单，此类订单不再经过中间表过渡生成CK单
+
                        }
                     }
                 }
