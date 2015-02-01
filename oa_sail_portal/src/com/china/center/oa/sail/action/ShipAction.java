@@ -343,15 +343,18 @@ public class ShipAction extends DispatchAction
         {
             if (OldPageSeparateTools.isFirstLoad(request))
             {
-                ConditionParse condtion = getQueryPickupCondition(request,user);
+                ConditionParse condtion = getQueryPickupCondition(request,user, true);
+                _logger.info("*******************condtion**********"+condtion);
 
                 int tatol = packageDAO.countByCon(condtion);
 
                 PageSeparate page = new PageSeparate(tatol,	30);
 
-                OldPageSeparateTools.initPageSeparate(condtion, page, request,QUERYPICKUP);
+                ConditionParse condtion2 = getQueryPickupCondition(request,user, false);
+                _logger.info("*******************condtion22222**********"+condtion);
+                OldPageSeparateTools.initPageSeparate(condtion2, page, request,QUERYPICKUP);
 
-                list = packageDAO.queryVOsByCon(condtion, page);
+                list = packageDAO.queryVOsByCon(condtion2, page);
             }
             else
             {
@@ -415,11 +418,13 @@ public class ShipAction extends DispatchAction
     /**
      * getQuerySelfBalanceCondition
      *
+     *
      * @param request
      * @param user
+     * @param count
      * @return
      */
-    private ConditionParse getQueryPickupCondition(HttpServletRequest request, User user)
+    private ConditionParse getQueryPickupCondition(HttpServletRequest request, User user, boolean count)
     {
         Map<String, String> queryOutCondtionMap = CommonTools.saveParamersToMap(request);
 
@@ -545,6 +550,31 @@ public class ShipAction extends DispatchAction
             condtion.addIntCondition("PackageItemBean.emergency", "=", emergency);
 
             queryOutCondtionMap.put("emergency", emergency);
+        }
+
+        //客户名称
+        String customerName = request.getParameter("customerName");
+        _logger.info("****customerName condition****"+customerName);
+        if (!StringTools.isNullOrNone(customerName))
+        {
+            if (count){
+                condtion.addCondition("and exists (select CustomerBean.id from T_CENTER_CUSTOMER_MAIN CustomerBean where PackageBean.customerId = CustomerBean.id and CustomerBean.name like '%"+customerName+ "%')");
+
+            } else{
+                condtion.addCondition("CustomerBean.name", "like", "%"+customerName+"%");
+            }
+
+            queryOutCondtionMap.put("customerName", customerName);
+        }
+
+        //产品名称
+        String productName = request.getParameter("productName");
+        _logger.info("****productName condition****"+productName);
+        if (!StringTools.isNullOrNone(productName))
+        {
+            condtion.addCondition("PackageItemBean.productName", "like", "%" + productName + "%");
+
+            queryOutCondtionMap.put("productName", productName);
         }
 
         setDepotCondotionInOut(user, condtion);
