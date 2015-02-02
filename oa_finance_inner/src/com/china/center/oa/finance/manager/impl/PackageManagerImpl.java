@@ -794,8 +794,88 @@ public class PackageManagerImpl implements PackageManager {
 		
 		preConsignDAO.deleteEntityBean(pre.getId());
 	}
-	
-	/**
+
+    @Override
+    public void createPackage(List<String> outIdList) throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        if (ListTools.isEmptyOrNull(outIdList)){
+            PackageBean packBean = new PackageBean();
+
+            for (int i=0;i<outIdList.size();i++) {
+                String outId = outIdList.get(i);
+                OutVO outBean = outDAO.findVO(outId);
+
+
+                int allAmount = 0;
+
+                if (i == 0){
+                    List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(outId);
+
+                    if (ListTools.isEmptyOrNull(distList))
+                    {
+                        triggerLog.info("======createPackage== (distList is null or empty)====" + outId);
+                        return;
+                    }
+
+                    DistributionVO distVO = distList.get(0);
+
+                    String id = commonDAO.getSquenceString20("CK");
+                    packBean.setId(id);
+                    packBean.setCustomerId(outBean.getCustomerId());
+                    packBean.setShipping(distVO.getShipping());
+                    packBean.setTransport1(distVO.getTransport1());
+                    packBean.setExpressPay(distVO.getExpressPay());
+                    packBean.setTransport2(distVO.getTransport2());
+                    packBean.setTransportPay(distVO.getTransportPay());
+                    //TODO
+//                    packBean.setAddress(fullAddress);
+                    packBean.setReceiver(distVO.getReceiver());
+                    packBean.setMobile(distVO.getMobile());
+//                    packBean.setLocationId(location);
+                    packBean.setCityId(distVO.getCityId());
+
+                    packBean.setStafferName(outBean.getStafferName());
+
+                    StafferVO staff = stafferDAO.findVO(outBean.getStafferId());
+
+                    if (null != staff) {
+                        packBean.setIndustryName(staff.getIndustryName());
+                        packBean.setDepartName(staff.getIndustryName3());
+                    }
+
+                    //TODO
+//                    packBean.setTotal(outBean.getMoneys());
+                    packBean.setStatus(0);
+                    packBean.setLogTime(TimeTools.now());
+                }
+
+
+//                StringBuilder sb = getPrintTextForIns(ins);
+
+                List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
+////
+////                if (null != outBean) {
+////                    triggerLog.info("======is out======" + each.getOutId());
+////                    createPackage(each, outBean);
+////                } else {
+////                    InvoiceinsBean insBean = invoiceinsDAO.find(each.getOutId());
+////
+////                    if (null != insBean) {
+////                        triggerLog.info("======is invoiceins======" + each.getOutId());
+////                        createInsPackage(each, insBean.getId());
+////                    } else {
+////                        triggerLog.info("======is other, direct delete, handle nothing======");
+//////                        preConsignDAO.deleteEntityBean(each.getId());
+////
+////                        continue;
+////                    }
+////                }
+            }
+        }
+
+    }
+
+    /**
 	 * @return the preConsignDAO
 	 */
 	public PreConsignDAO getPreConsignDAO()

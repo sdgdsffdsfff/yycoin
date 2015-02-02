@@ -6640,51 +6640,51 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                 //TODO
                 // 加入审批人的信用(是自己使用的信用+担保的信用)
-//                double noPayBusinessByManager = outDAO.sumAllNoPayAndAvouchBusinessByStafferId(user
-//                    .getStafferId(), outBean.getIndustryId(), YYTools.getStatBeginDate(), YYTools
-//                    .getStatEndDate());
-//
-//
-//                StafferBean staffer = stafferDAO.find(user.getStafferId());
-//
-//                // 这里自己不能给自己担保的
-//                if (outBean.getStafferId().equals(user.getStafferId()))
-//                {
-//                    throw new RuntimeException("事业部经理担保中,自己不能给自己担保");
-//                }
-//
-//                // 事业部经理的信用
-//                double industryIdCredit = getIndustryIdCredit(outBean.getIndustryId(), staffer
-//                    .getId())
-//                                          * staffer.getLever();
-//
-//                // 这里分公司总经理的信用已经使用结束了,此时直接抛出异常
-//                if (noPayBusinessByManager > industryIdCredit)
-//                {
-//                    throw new RuntimeException("您的信用额度已经全部占用[使用了"
-//                                               + MathTools.formatNum(noPayBusinessByManager)
-//                                               + "],不能再担保业务员的销售");
-//                }
-//
-//                // 本次需要担保的信用
-//                double lastCredit = outBean.getTotal() - outBean.getStaffcredit()
-//                                    - outBean.getCurcredit();
-//
-//                if ( (lastCredit + noPayBusinessByManager) > industryIdCredit)
-//                {
-//                    throw new RuntimeException("您杠杆后的信用额度是["
-//                                               + MathTools.formatNum(industryIdCredit) + "],已经使用了["
-//                                               + MathTools.formatNum(noPayBusinessByManager)
-//                                               + "],本单需要您担保的额度是[" + MathTools.formatNum(lastCredit)
-//                                               + "],加上本单已经超出您的最大额度,不能再担保业务员的销售");
-//                }
-//
-//                // 这里使用分公司经理信用担保
-//                outDAO.updateManagercredit(outBean.getFullId(), user.getStafferId(), lastCredit);
-//
-//                // 此时信用不超支了
-//                outDAO.updateOutReserve(fullId, OutConstant.OUT_CREDIT_COMMON, outBean
-//                    .getReserve6());
+                double noPayBusinessByManager = outDAO.sumAllNoPayAndAvouchBusinessByStafferId(user
+                    .getStafferId(), outBean.getIndustryId(), YYTools.getStatBeginDate(), YYTools
+                    .getStatEndDate());
+
+
+                StafferBean staffer = stafferDAO.find(user.getStafferId());
+
+                // 这里自己不能给自己担保的
+                if (outBean.getStafferId().equals(user.getStafferId()))
+                {
+                    throw new RuntimeException("事业部经理担保中,自己不能给自己担保");
+                }
+
+                // 事业部经理的信用
+                double industryIdCredit = getIndustryIdCredit(outBean.getIndustryId(), staffer
+                    .getId())
+                                          * staffer.getLever();
+
+                // 这里分公司总经理的信用已经使用结束了,此时直接抛出异常
+                if (noPayBusinessByManager > industryIdCredit)
+                {
+                    throw new RuntimeException("您的信用额度已经全部占用[使用了"
+                                               + MathTools.formatNum(noPayBusinessByManager)
+                                               + "],不能再担保业务员的销售");
+                }
+
+                // 本次需要担保的信用
+                double lastCredit = outBean.getTotal() - outBean.getStaffcredit()
+                                    - outBean.getCurcredit();
+
+                if ( (lastCredit + noPayBusinessByManager) > industryIdCredit)
+                {
+                    throw new RuntimeException("您杠杆后的信用额度是["
+                                               + MathTools.formatNum(industryIdCredit) + "],已经使用了["
+                                               + MathTools.formatNum(noPayBusinessByManager)
+                                               + "],本单需要您担保的额度是[" + MathTools.formatNum(lastCredit)
+                                               + "],加上本单已经超出您的最大额度,不能再担保业务员的销售");
+                }
+
+                // 这里使用分公司经理信用担保
+                outDAO.updateManagercredit(outBean.getFullId(), user.getStafferId(), lastCredit);
+
+                // 此时信用不超支了
+                outDAO.updateOutReserve(fullId, OutConstant.OUT_CREDIT_COMMON, outBean
+                    .getReserve6());
             }
 
             try

@@ -2567,6 +2567,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         if (!ListTools.isEmptyOrNull(beans)){
             _logger.info("********票随货发发票数量******"+beans.size());
             for (InvoiceinsBean bean : beans){
+                List<String>  outIdList = new ArrayList<String>();
                 ConditionParse condition = new ConditionParse();
                 condition.addWhereStr();
                 condition.addCondition("insId", "=", bean.getId());
@@ -2574,76 +2575,98 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 if (!ListTools.isEmptyOrNull(insVSOutBeans)){
                     for (InsVSOutBean vs : insVSOutBeans){
                        String outId = vs.getOutId();
-                       OutBean out = this.outDAO.find(outId);
-                       if (out!= null && out.getStatus() == OutConstant.STATUS_FLOW_PASS){
-                           //若销售单状态为“待库管审批”，则将对应的销售单通过库管审批（正常生成凭证及库存扣减）
-                           _logger.info("****自动库管审批通过*****"+outId);
-
-                           final int statuss = 3;
-                           if (statuss == OutConstant.STATUS_MANAGER_PASS
-                                   || statuss == OutConstant.STATUS_FLOW_PASS
-                                   || statuss == OutConstant.STATUS_PASS)
-                           {
-                               // 这里需要计算客户的信用金额-是否报送物流中心经理审批
-                               boolean outCredit = parameterDAO.getBoolean(SysConfigConstant.OUT_CREDIT);
-
-                               // 如果是黑名单的客户(且没有付款)
-                               if (outCredit && out.getReserve3() == OutConstant.OUT_SAIL_TYPE_MONEY
-                                       && out.getType() == OutConstant.OUT_TYPE_OUTBILL
-                                       && out.getPay() == OutConstant.PAY_NOT)
-                               {
-                                   try
-                                   {
-                                       //TODO
-                                       outManager.payOut(null, outId, "结算中心确定已经回款");
-                                   }
-                                   catch (MYException e)
-                                   {
-                                       _logger.error(outId+"****自动库管审批出错****",e);
-                                   }
-
-                                   OutBean newOut = outDAO.find(outId);
-
-                                   if (newOut.getPay() == OutConstant.PAY_NOT)
-                                   {
-                                       _logger.error("****只有结算中心确定已经回款后才可以审批此销售单****"+outId);
-                                   }
-                               }
-
-                               int resultStatus = -1;
-                               try
-                               {
-                                   //TODO user depotpartId
-                                   resultStatus = outManager.pass(outId, null, statuss, "票随货发Job自动审批通过", null);
-                                   OutBean newOut = outDAO.find(outId);
-                                   if(resultStatus == OutConstant.STATUS_PASS)
-                                   {
-                                       //TODO user ID
-                                       outManager.updateCusAndBusVal(newOut,"票随货发Job");
-                                   }
-
-                               }
-                               catch (MYException e)
-                               {
-                                   _logger.warn(e, e);
-                               }
-                           }
-
-                           //并检查待库管审批状态的订单地址有无与发票地址一致的订单，如有，则一并自动审批通过
-//                           ConditionParse con = new ConditionParse();
-//                           condition.addWhereStr();
-//                           condition.addIntCondition("insId", "=", bean.getId());
-//                           this.outDAO.queryEntityBeansByCondition(con);
-
-
-                           //与开票申请一并生成CK单，此类订单不再经过中间表过渡生成CK单
-
+                       boolean result = this.passOut(outId);
+                       if (result){
+                           outIdList.add(outId);
                        }
+                        //并检查待库管审批状态的订单地址有无与发票地址一致的订单，如有，则一并自动审批通过
+                        String invoiceAddress = bean.getAddress();
+                        ConditionParse con1 = new ConditionParse();
+                        con1.addWhereStr();
+                        con1.addIntCondition("OutBean.status","=", OutConstant.STATUS_FLOW_PASS);
+                        con1.addCondition(" exists (select dis.* from t_center_distribution dis where dis.outId=OutBean.fullId and dis.address='"+invoiceAddress+"')");
+                        _logger.info("******condition11111111111****"+con1);
+                        List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
+                        if (ListTools.isEmptyOrNull(outBeans)){
+                            _logger.info("****No same address SO exists****");
+                        } else{
+                            for (OutBean o: outBeans){
+                                boolean pass = this.passOut(o.getFullId());
+                                if (pass){
+                                    outIdList.add(o.getFullId());
+                                }
+                            }
+                        }
+
+                        //与开票申请一并生成CK单，此类订单不再经过中间表过渡生成CK单
+                        this.packageManager.createPackage(outIdList);
                     }
                 }
 
             }
         }
+    }
+
+    //若销售单状态为“待库管审批”，则将对应的销售单通过库管审批（正常生成凭证及库存扣减）
+    private boolean passOut(String outId){
+        boolean result = false;
+        OutBean out = this.outDAO.find(outId);
+        if (out!= null && out.getStatus() == OutConstant.STATUS_FLOW_PASS){
+            _logger.info("****自动库管审批通过*****"+outId);
+
+            final int statuss = 3;
+            if (statuss == OutConstant.STATUS_MANAGER_PASS
+                    || statuss == OutConstant.STATUS_FLOW_PASS
+                    || statuss == OutConstant.STATUS_PASS)
+            {
+                // 这里需要计算客户的信用金额-是否报送物流中心经理审批
+                boolean outCredit = parameterDAO.getBoolean(SysConfigConstant.OUT_CREDIT);
+
+                // 如果是黑名单的客户(且没有付款)
+                if (outCredit && out.getReserve3() == OutConstant.OUT_SAIL_TYPE_MONEY
+                        && out.getType() == OutConstant.OUT_TYPE_OUTBILL
+                        && out.getPay() == OutConstant.PAY_NOT)
+                {
+                    try
+                    {
+                        //TODO
+                        outManager.payOut(null, outId, "结算中心确定已经回款");
+                    }
+                    catch (MYException e)
+                    {
+                        _logger.error(outId+"****自动库管审批出错****",e);
+                    }
+
+                    OutBean newOut = outDAO.find(outId);
+
+                    if (newOut.getPay() == OutConstant.PAY_NOT)
+                    {
+                        _logger.error("****只有结算中心确定已经回款后才可以审批此销售单****"+outId);
+                    }
+                }
+
+                int resultStatus = -1;
+                try
+                {
+                    //TODO user depotpartId
+                    resultStatus = outManager.pass(outId, null, statuss, "票随货发Job自动审批通过", null);
+                    OutBean newOut = outDAO.find(outId);
+                    if(resultStatus == OutConstant.STATUS_PASS)
+                    {
+                        //TODO user ID
+                        outManager.updateCusAndBusVal(newOut,"票随货发Job");
+                    }
+                    result = true;
+
+                }
+                catch (MYException e)
+                {
+                    _logger.warn(e, e);
+                }
+            }
+
+        }
+        return result;
     }
 
     /**
