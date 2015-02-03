@@ -177,10 +177,10 @@ public class ShipManagerImpl implements ShipManager
         int shipping = distVO.getShipping();
         if (shipping == 0){
             //自提：收货人，电话一致，才合并
+            //2015/2/3 仓库地址也必须一致
+            con.addCondition("PackageBean.locationId", "=", location);
             con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
-
             con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
-
             con.addIntCondition("PackageBean.status", "=", 0);
         } else if (shipping == 2){
             //第三方快递：地址、收货人、电话完全一致，才合并.能不能判断地址后6个字符一致，电话，收货人一致，就合并
@@ -193,8 +193,8 @@ public class ShipManagerImpl implements ShipManager
                 con.addCondition("PackageBean.address", "like", "%"+temp);
             }
 
+            con.addCondition("PackageBean.locationId", "=", location);
             con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
-
             con.addCondition("PackageBean.mobile", "=", distVO.getMobile());
 
             con.addIntCondition("PackageBean.status", "=", 0);
