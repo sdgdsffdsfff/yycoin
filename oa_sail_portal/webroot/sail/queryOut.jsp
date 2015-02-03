@@ -628,7 +628,7 @@ function reject()
 
 function updateEmergency()
 {
-    if (getRadio('fullId').statuss == 1)
+    if (getRadio('fullId').statuss == 1 || getRadio('fullId').statuss == 7)
     {
         if (window.confirm("确定此销售单设置为紧急?"))
         {
@@ -641,7 +641,7 @@ function updateEmergency()
     }
     else
     {
-        alert('不能操作');
+        alert('只有待商务审批与待库管审批状态的订单才能操作');
     }
 
 }
