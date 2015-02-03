@@ -795,6 +795,11 @@ public class PackageManagerImpl implements PackageManager {
 		preConsignDAO.deleteEntityBean(pre.getId());
 	}
 
+    /**
+     * 2015/2/3 票随货发合并订单及发票
+     * @param outIdList
+     * @throws MYException
+     */
     @Override
     public void createPackage(List<String> outIdList) throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
@@ -803,12 +808,11 @@ public class PackageManagerImpl implements PackageManager {
 
             for (int i=0;i<outIdList.size();i++) {
                 String outId = outIdList.get(i);
-                OutVO outBean = outDAO.findVO(outId);
-
 
                 int allAmount = 0;
 
                 if (i == 0){
+                    OutVO firstOut = outDAO.findVO(outId);
                     List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(outId);
 
                     if (ListTools.isEmptyOrNull(distList))
@@ -819,24 +823,48 @@ public class PackageManagerImpl implements PackageManager {
 
                     DistributionVO distVO = distList.get(0);
 
+                    String location = "";
+
+                    // 通过仓库获取 仓库地点
+                    DepotBean depot = depotDAO.find(firstOut.getLocation());
+
+                    if (depot != null)
+                        location = depot.getIndustryId2();
+
+                    List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
+
+                    // 如果是空发,则不处理
+                    if (distVO.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING)
+                    {
+                        triggerLog.info("======createPackage== (shipping is OUT_SHIPPING_NOTSHIPPING)====" + outId);
+                        return;
+                    }
+
+                    // 地址不全,不发
+                    if (distVO.getAddress().trim().equals("0") && distVO.getReceiver().trim().equals("0") && distVO.getMobile().trim().equals("0"))
+                    {
+                        triggerLog.info("======address not complete==" + outId);
+                        return;
+                    }
+
+                    String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
+
                     String id = commonDAO.getSquenceString20("CK");
                     packBean.setId(id);
-                    packBean.setCustomerId(outBean.getCustomerId());
+                    packBean.setCustomerId(firstOut.getCustomerId());
                     packBean.setShipping(distVO.getShipping());
                     packBean.setTransport1(distVO.getTransport1());
                     packBean.setExpressPay(distVO.getExpressPay());
                     packBean.setTransport2(distVO.getTransport2());
                     packBean.setTransportPay(distVO.getTransportPay());
-                    //TODO
-//                    packBean.setAddress(fullAddress);
+                    packBean.setAddress(fullAddress);
                     packBean.setReceiver(distVO.getReceiver());
                     packBean.setMobile(distVO.getMobile());
-//                    packBean.setLocationId(location);
+                    packBean.setLocationId(location);
                     packBean.setCityId(distVO.getCityId());
+                    packBean.setStafferName(firstOut.getStafferName());
 
-                    packBean.setStafferName(outBean.getStafferName());
-
-                    StafferVO staff = stafferDAO.findVO(outBean.getStafferId());
+                    StafferVO staff = stafferDAO.findVO(firstOut.getStafferId());
 
                     if (null != staff) {
                         packBean.setIndustryName(staff.getIndustryName());
@@ -870,6 +898,10 @@ public class PackageManagerImpl implements PackageManager {
 ////                        continue;
 ////                    }
 ////                }
+            }
+
+            if (!StringTools.isNullOrNone(packBean.getId())){
+                this.packageDAO.saveEntityBean(packBean);
             }
         }
 
