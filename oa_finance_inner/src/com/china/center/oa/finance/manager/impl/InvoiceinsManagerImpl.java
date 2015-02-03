@@ -2584,7 +2584,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                         ConditionParse con1 = new ConditionParse();
                         con1.addWhereStr();
                         con1.addIntCondition("OutBean.status","=", OutConstant.STATUS_FLOW_PASS);
-                        con1.addCondition(" exists (select dis.* from t_center_distribution dis where dis.outId=OutBean.fullId and dis.address='"+invoiceAddress+"')");
+                        con1.addCondition(" and exists (select dis.* from t_center_distribution dis where dis.outId=OutBean.fullId and dis.address='"+invoiceAddress+"')");
                         _logger.info("******condition11111111111****"+con1);
                         List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
                         if (ListTools.isEmptyOrNull(outBeans)){
