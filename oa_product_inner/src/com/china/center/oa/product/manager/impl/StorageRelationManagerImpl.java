@@ -318,7 +318,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         }
 
         _logger.info("changeStorageRelationWithoutTransaction**********"+user+"***bean****"+bean.getStafferId());
-        //TODO
+        //TODO 2015/2/4 因票随货发Job修改暂时不检查
 //        JudgeTools.judgeParameterIsNull(user, bean, bean.getStafferId());
 //        JudgeTools.judgeParameterIsNull(user, bean);
 

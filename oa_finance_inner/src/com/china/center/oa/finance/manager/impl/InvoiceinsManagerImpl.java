@@ -2576,31 +2576,38 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     for (InsVSOutBean vs : insVSOutBeans){
                        String outId = vs.getOutId();
                        boolean result = this.passOut(outId);
+                       _logger.info(outId+"*****passOut result****"+result);
                        if (result){
                            outIdList.add(outId);
+                           //并检查待库管审批状态的订单地址有无与发票地址一致的订单，如有，则一并自动审批通过
+                           String invoiceAddress = bean.getAddress();
+                           ConditionParse con1 = new ConditionParse();
+                           con1.addWhereStr();
+                           con1.addIntCondition("OutBean.status","=", OutConstant.STATUS_FLOW_PASS);
+                           con1.addCondition(" and exists (select dis.* from t_center_distribution dis where dis.outId=OutBean.fullId and dis.address='"+invoiceAddress+"')");
+                           _logger.info("******condition11111111111****"+con1);
+                           List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
+                           if (ListTools.isEmptyOrNull(outBeans)){
+                               _logger.info("****No same address SO exists****");
+                           } else{
+                               for (OutBean o: outBeans){
+                                   boolean pass = this.passOut(o.getFullId());
+                                   if (pass){
+                                       outIdList.add(o.getFullId());
+                                   }
+                               }
+                           }
                        }
-                        //并检查待库管审批状态的订单地址有无与发票地址一致的订单，如有，则一并自动审批通过
-                        String invoiceAddress = bean.getAddress();
-                        ConditionParse con1 = new ConditionParse();
-                        con1.addWhereStr();
-                        con1.addIntCondition("OutBean.status","=", OutConstant.STATUS_FLOW_PASS);
-                        con1.addCondition(" and exists (select dis.* from t_center_distribution dis where dis.outId=OutBean.fullId and dis.address='"+invoiceAddress+"')");
-                        _logger.info("******condition11111111111****"+con1);
-                        List<OutBean> outBeans = this.outDAO.queryEntityBeansByCondition(con1);
-                        if (ListTools.isEmptyOrNull(outBeans)){
-                            _logger.info("****No same address SO exists****");
-                        } else{
-                            for (OutBean o: outBeans){
-                                boolean pass = this.passOut(o.getFullId());
-                                if (pass){
-                                    outIdList.add(o.getFullId());
-                                }
-                            }
-                        }
 
-                        //与开票申请一并生成CK单，此类订单不再经过中间表过渡生成CK单
-                        this.packageManager.createPackage(outIdList);
                     }
+                }
+
+                //与开票申请一并生成CK单，此类订单不再经过中间表过渡生成CK单
+                if (ListTools.isEmptyOrNull(outIdList)){
+                   _logger.info("****No OUT to do******");
+                } else{
+                    _logger.info("****createPackage with OUT size******"+outIdList.size());
+                    this.packageManager.createPackage(outIdList);
                 }
 
             }

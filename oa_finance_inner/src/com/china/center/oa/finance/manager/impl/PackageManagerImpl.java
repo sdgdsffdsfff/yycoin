@@ -999,6 +999,8 @@ public class PackageManagerImpl implements PackageManager {
                 vsBean.setCustomerName(customerName);
                 vsBean.setIndexPos(1);
                 packageVSCustomerDAO.saveEntityBean(vsBean);
+
+
             }
         }
 
