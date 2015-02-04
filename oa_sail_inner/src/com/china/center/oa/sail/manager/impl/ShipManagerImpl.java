@@ -522,6 +522,10 @@ public class ShipManagerImpl implements ShipManager
 		
 		for (PackageBean each : packageList)
 		{
+            if (StringTools.isNullOrNone(each.getPickupId())){
+                _logger.info("****CK单pickupId不能为空****"+each.getId());
+                throw new MYException("CK单[%s]pickupId不能为空", each.getId());
+            }
 			each.setStatus(ShipConstant.SHIP_STATUS_CONSIGN);
 			
 			each.setShipTime(TimeTools.now());
