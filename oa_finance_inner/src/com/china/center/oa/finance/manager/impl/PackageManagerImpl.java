@@ -552,6 +552,21 @@ public class PackageManagerImpl implements PackageManager {
 				createNewPackage(out, baseList, distVO, fullAddress, location);
 			}else
 			{
+                //2015/2/5 同一个CK单中的所有SO单必须location一致才能合并
+                List<PackageItemBean> currentItems = this.packageItemDAO.queryEntityBeansByFK(packBean.getId());
+                if (!ListTools.isEmptyOrNull(currentItems)){
+                   triggerLog.info("****current package items****"+currentItems.size());
+                    PackageItemBean first = currentItems.get(0);
+                    OutVO outBean = outDAO.findVO(first.getOutId());
+                    if (outBean!= null){
+                        String lo = outBean.getLocation();
+                        if (!StringTools.isNullOrNone(lo) && !lo.equals(out.getLocation())){
+                            triggerLog.info(first.getOutId()+"****location is not same****"+out.getFullId());
+                            return;
+                        }
+
+                    }
+                }
 				List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
 				
 				int allAmount = 0;
