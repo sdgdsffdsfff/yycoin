@@ -160,6 +160,7 @@
             <forward name="printPufaReceipt" path="/transport/printPufaReceipt.jsp" />
             <forward name="printShipment" path="/transport/printShipment.jsp" />
             <forward name="importBranchRelation" path="/sailImport/importBranchRelation.jsp" />
+            <forward name="addAutoPickup" path="/transport/addAutoPickup.jsp" />
             
         </action>
         

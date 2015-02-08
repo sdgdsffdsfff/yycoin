@@ -27,8 +27,13 @@ import java.util.List;
  */
 public class Test {
     public static void main(String[] args){
-        String test = "aa";
-        System.out.println(test.split(";"));
+        String test = "a1~a2~a3~";
+        String[] arrays = test.split("~");
+        System.out.println(arrays.length);
+        for (String str: arrays){
+            System.out.println(str);
+        }
+//        System.out.println()
         System.out.println(test.split(";").length);
         List<OutBean>  beans = new ArrayList<OutBean>();
         OutBean bean1 = new OutBean();

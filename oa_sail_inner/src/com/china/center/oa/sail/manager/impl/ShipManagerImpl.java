@@ -421,7 +421,50 @@ public class ShipManagerImpl implements ShipManager
 		return true;
 	}
 
-	/**
+    @Transactional(rollbackFor = MYException.class)
+    @Override
+    public int addPickup(String packageIds) throws MYException {
+        String [] packages = packageIds.split("~");
+
+        if (null != packages)
+        {
+            _logger.info(packageIds+"*****addPickup size*************"+packages.length);
+            //TODO
+            //一个批次里的商品总数量不能大于50，如一张CK单的数量超过50，单独为一个批次
+            String pickupId = commonDAO.getSquenceString20("PC");
+
+            int i = 1;
+
+
+            for (String id : packages)
+            {
+                // 只能拣配初始态的
+                PackageBean bean = packageDAO.find(id);
+
+                if (null == bean)
+                {
+                    throw new MYException("出库单[%s]不存在", id);
+                }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
+                {
+                    throw new MYException("[%s]已被拣配", id);
+                }
+
+                bean.setIndex_pos(i++);
+
+                bean.setPickupId(pickupId);
+
+                bean.setStatus(ShipConstant.SHIP_STATUS_PICKUP);
+
+                packageDAO.updateEntityBean(bean);
+                _logger.info(id+"*****update package pickupId****"+pickupId);
+            }
+
+        }
+
+        return 1;
+    }
+
+    /**
 	 * 撤销生成的出库单
 	 */
 	@Transactional(rollbackFor = MYException.class)
@@ -1216,6 +1259,116 @@ public class ShipManagerImpl implements ShipManager
             }
         }
 //        this.branchRelationDAO.saveAllEntityBeans(branchRelationBeans);
+    }
+
+    @Override
+    public void autoPickup(int pickupCount, String productName) throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        _logger.info("***autoPickup****"+pickupCount+":"+productName);
+        ConditionParse con1 = new ConditionParse();
+        con1.addWhereStr();
+        con1.addIntCondition("status","=", ShipConstant.SHIP_STATUS_INIT);
+        List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(con1);
+
+        if (!ListTools.isEmptyOrNull(packages)){
+            int realPickupCount = 0;
+            _logger.info("****packages size****"+packages.size());
+
+            //紧急的最优先
+            StringBuilder sb1 = new StringBuilder();
+            for (Iterator<PackageBean> it = packages.iterator();it.hasNext();){
+                PackageBean current = it.next();
+                if (current.getEmergency() == 1){
+                    String ck = current.getId();
+                    _logger.info("*****getEmergency***"+ck);
+                    it.remove();
+                    sb1.append(ck).append("~");
+                }
+            }
+            String emergencyPackages = sb1.toString();
+            _logger.info("****packages size remove emergency****"+packages.size());
+            if (!StringTools.isNullOrNone(emergencyPackages)){
+                realPickupCount += this.addPickup(emergencyPackages);
+                if (realPickupCount>= pickupCount){
+                    return ;
+                }
+            }
+
+            //发货方式为“自提”类的CK单拣配在一个批次里
+            StringBuilder sb2 = new StringBuilder();
+            for (Iterator<PackageBean> it = packages.iterator();it.hasNext();){
+                PackageBean current = it.next();
+                if (current.getShipping() == 0){
+                    String ck = current.getId();
+                    _logger.info("*****selfTakePackages***"+ck);
+                    it.remove();
+                    sb2.append(ck).append("~");
+                }
+            }
+            _logger.info("****packages size remove selfTakePackages****"+packages.size());
+            String selfTakePackages = sb2.toString();
+            if (!StringTools.isNullOrNone(selfTakePackages)){
+                realPickupCount += this.addPickup(selfTakePackages);
+                if (realPickupCount>= pickupCount){
+                    return ;
+                }
+            }
+
+            //TODO
+            //仓库地点相同的在一个批次里
+//            Map<String,StringBuilder> map1 = new HashMap<String,StringBuilder>();
+//            for (Iterator<PackageBean> it = packages.iterator();it.hasNext();){
+//                PackageBean current = it.next();
+//                if (current.getShipping() == 0){
+//                    String ck = current.getId();
+//                    _logger.info("*****selfTakePackages***"+ck);
+//                    it.remove();
+//                    sb2.append(ck).append("~");
+//                }
+//            }
+//            _logger.info("****packages size remove selfTakePackages****"+packages.size());
+//            String selfTakePackages = sb2.toString();
+//            if (!StringTools.isNullOrNone(selfTakePackages)){
+//                this.addPickup(selfTakePackages);
+//            }
+
+            //同一事业部的CK单在同一批次里
+            Map<String,StringBuilder> map2 = new HashMap<String,StringBuilder>();
+            for (Iterator<PackageBean> it = packages.iterator();it.hasNext();){
+                PackageBean current = it.next();
+                String industryName = current.getIndustryName();
+                if (map2.containsKey(industryName)){
+                    map2.get(industryName).append(current.getId()+"~");
+                } else{
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(current.getId()).append("~");
+                    map2.put(industryName,sb);
+                }
+            }
+            for (StringBuilder sb :map2.values()){
+                realPickupCount += this.addPickup(sb.toString());
+                if (realPickupCount>= pickupCount){
+                    return ;
+                }
+            }
+
+            _logger.info("****autoPickup exit with pickup count:"+realPickupCount);
+        }
+
+    }
+
+    @Override
+    public void sortPackagesJob() throws MYException {
+        _logger.info("**********sortPackagesJob running*************");
+        //TODO
+        ConditionParse con1 = new ConditionParse();
+        con1.addWhereStr();
+        con1.addIntCondition("status","=", ShipConstant.SHIP_STATUS_INIT);
+        List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(con1);
+
+        if (!ListTools.isEmptyOrNull(packages)){
+            _logger.info("****sortPackagesJob with packages size****"+packages.size());
+        }
     }
 
     /**

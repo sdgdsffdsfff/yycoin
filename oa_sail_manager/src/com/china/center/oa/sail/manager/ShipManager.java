@@ -25,6 +25,13 @@ public interface ShipManager
     void sendMailForShipping() throws MYException;
 
     void saveAllEntityBeans(List<BranchRelationBean> importItemList) throws MYException;
+
+    void autoPickup(int pickupCount, String productName) throws MYException;
+
+    int addPickup(String packageIds) throws MYException;
+
+    // 2015/2/8 后台Job，商品拣配的排序默认按订单日期由远到近的顺序排列
+    void sortPackagesJob() throws MYException;
 //	
 //	void createInsPackage(PreConsignBean pre, String insId) throws MYException;
 }

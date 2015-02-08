@@ -47,12 +47,18 @@ function load()
          buttons : [
              {id: 'add', bclass: 'add', caption : '拣配', onpress : addBean},
              {id: 'del', bclass: 'del', caption : '撤销', onpress : undoBean},
+             {id: 'autoPickup', bclass: 'add', caption : '自动拣配数量', onpress : autoPickup},
              {id: 'search', bclass: 'search', onpress : doSearch}
              ],
         <p:conf/>
      };
      
      $("#mainTable").flexigrid(guidMap, thisObj);
+}
+
+function autoPickup()
+{
+    $l(gurl + 'preForAutoPickup');
 }
  
 function $callBack()
@@ -115,4 +121,13 @@ function doSearch()
 <p:message></p:message>
 <table id="mainTable" style="display: none"></table>
 <p:query/>
+
+<%--<form id="pickupForm" method="post" action="../sail/ship.do?method=autoPickup">--%>
+    <%--<div id="dlg" title="需自动拣配的批次数量" style="width:320px;">--%>
+        <%--<div style="padding:20px;height:300px;" id="dia_inner" title="">--%>
+            <%--<input type="text" name="pickupCount" placeholder="需自动拣配的批次数量">--%>
+            <%--<input type="text" name="productName" placeholder="产品名称">--%>
+        <%--</div>--%>
+    <%--</div>--%>
+<%--</form>--%>
 </body>

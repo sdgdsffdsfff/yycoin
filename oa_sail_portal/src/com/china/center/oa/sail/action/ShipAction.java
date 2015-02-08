@@ -1920,6 +1920,35 @@ public class ShipAction extends DispatchAction
         return result;
     }
 
+    public ActionForward preForAutoPickup(ActionMapping mapping, ActionForm form,
+                                    HttpServletRequest request, HttpServletResponse response){
+        _logger.info("***************preForAutoPickup**************");
+        return mapping.findForward("addAutoPickup");
+    }
+
+    public ActionForward autoPickup(ActionMapping mapping, ActionForm form,
+                                              HttpServletRequest request, HttpServletResponse response){
+        String pickupCount = request.getParameter("pickupCount");
+        String productName = request.getParameter("productName");
+        String productId = request.getParameter("productId");
+        _logger.info("*****autoPickup****************"+pickupCount+";"+productName+":"+productId);
+        try
+        {
+            this.shipManager.autoPickup(Integer.valueOf(pickupCount), productName);
+            request.setAttribute(KeyConstant.MESSAGE, "自动捡配成功");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            _logger.error("自动捡配失败:", e);
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "自动捡配出错:"+ e.getMessage());
+
+            return mapping.findForward("queryPickup");
+        }
+
+        return mapping.findForward("queryPickup");
+    }
+
     public PackageDAO getPackageDAO()
     {
         return packageDAO;
