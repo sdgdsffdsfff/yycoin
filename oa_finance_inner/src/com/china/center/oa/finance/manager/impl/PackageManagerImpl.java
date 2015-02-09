@@ -824,6 +824,7 @@ public class PackageManagerImpl implements PackageManager {
             String customerName = null;
             List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
             String id = commonDAO.getSquenceString20("CK");
+            List<InvoiceinsBean> insBeans = new ArrayList<InvoiceinsBean>();
 
             for (int i=0;i<outIdList.size();i++) {
                 String outId = outIdList.get(i);
@@ -837,6 +838,7 @@ public class PackageManagerImpl implements PackageManager {
                     insBean = invoiceinsDAO.find(outId);
                     if (insBean!= null){
                         numList = insVSInvoiceNumDAO.queryEntityBeansByFK(insBean.getId());
+                        insBeans.add(insBean);
                     }
                 } else{
                     baseList = baseDAO.queryEntityBeansByFK(outId);
@@ -1015,6 +1017,10 @@ public class PackageManagerImpl implements PackageManager {
                 vsBean.setIndexPos(1);
                 packageVSCustomerDAO.saveEntityBean(vsBean);
 
+                for (InvoiceinsBean insBean :insBeans){
+                    insBean.setPackaged(1);
+                    this.invoiceinsDAO.updateEntityBean(insBean);
+                }
 
             }
         }

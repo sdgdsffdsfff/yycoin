@@ -263,6 +263,10 @@ public class InvoiceinsBean implements Serializable
      * 2015/1/29 票随货发
      */
     private String invoiceFollowOut = "";
+    /**
+     * 0 未打包 1： 已打包
+     */
+    private int packaged = 0;
     
 	//-----------------------------------distribution------------------------------
 	
@@ -1041,6 +1045,21 @@ public class InvoiceinsBean implements Serializable
      */
     public void setInvoiceFollowOut(String invoiceFollowOut) {
         this.invoiceFollowOut = invoiceFollowOut;
+    }
+
+
+    /**
+     * @return the packaged
+     */
+    public int getPackaged() {
+        return packaged;
+    }
+
+    /**
+     * @param packaged the packaged to set
+     */
+    public void setPackaged(int packaged) {
+        this.packaged = packaged;
     }
 
     /**

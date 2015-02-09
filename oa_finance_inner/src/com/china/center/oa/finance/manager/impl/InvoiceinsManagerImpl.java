@@ -2563,14 +2563,16 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         ConditionParse conditionParse = new ConditionParse();
         conditionParse.addWhereStr();
         conditionParse.addCondition("invoiceFollowOut", "=", InvoiceinsImportBean.INVOICE_FOLLOW_OUT);
+        conditionParse.addIntCondition("packaged", "=", 0);
         List<InvoiceinsBean> beans = this.invoiceinsDAO.queryEntityBeansByCondition(conditionParse);
         if (!ListTools.isEmptyOrNull(beans)){
             _logger.info("********票随货发发票数量******"+beans.size());
             for (InvoiceinsBean bean : beans){
+                String insId = bean.getId();
                 List<String>  outIdList = new ArrayList<String>();
                 ConditionParse condition = new ConditionParse();
                 condition.addWhereStr();
-                condition.addCondition("insId", "=", bean.getId());
+                condition.addCondition("insId", "=", insId);
                 List<InsVSOutBean> insVSOutBeans = insVSOutDAO.queryEntityBeansByCondition(condition);
                 if (!ListTools.isEmptyOrNull(insVSOutBeans)){
                     for (InsVSOutBean vs : insVSOutBeans){
@@ -2578,7 +2580,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                        boolean result = this.passOut(outId);
                        _logger.info(outId+"*****passOut result****"+result);
                        if (result){
+                           if (!outIdList.contains(insId)){
+                              outIdList.add(insId);
+                              _logger.info("****InsID to be packaged***"+insId);
+                           }
                            outIdList.add(outId);
+                           _logger.info("****outId to be packaged***"+outId);
+
                            //并检查待库管审批状态的订单地址有无与发票地址一致的订单，如有，则一并自动审批通过
                            String invoiceAddress = bean.getAddress();
                            ConditionParse con1 = new ConditionParse();
@@ -2594,6 +2602,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                    boolean pass = this.passOut(o.getFullId());
                                    if (pass){
                                        outIdList.add(o.getFullId());
+                                       _logger.info("****same address outId to be packaged***"+o.getFullId());
                                    }
                                }
                            }
@@ -2609,7 +2618,6 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     _logger.info("****createPackage with OUT size******"+outIdList.size());
                     this.packageManager.createPackage(outIdList);
                 }
-
             }
         }
     }
