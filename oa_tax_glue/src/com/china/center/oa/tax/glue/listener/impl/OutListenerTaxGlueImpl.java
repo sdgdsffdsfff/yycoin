@@ -76,7 +76,7 @@ import com.china.center.tools.TimeTools;
  */
 public class OutListenerTaxGlueImpl implements OutListener
 {
-    private final Log _logger = LogFactory.getLog("bad");
+    private final Log _logger = LogFactory.getLog(getClass());
 
     private DutyDAO dutyDAO = null;
 
@@ -1307,6 +1307,7 @@ public class OutListenerTaxGlueImpl implements OutListener
     {
         // 其他应收款（销售金额，含税价）/主营业务收入
         // 主营业务成本(5401) /库存商品（成本价*数量）
+        _logger.info("processBuyCommonBack*******"+outBean.getFullId());
         FinanceBean financeBean = new FinanceBean();
 
         String name = "入库-销售退库:" + outBean.getFullId() + '.';
@@ -3020,6 +3021,7 @@ public class OutListenerTaxGlueImpl implements OutListener
             List<FinanceItemBean> itemList)
 	throws MYException
 	{
+        _logger.info("createBuySwatchItem11*****"+outBean.getFullId());
         String name = "入库-个人领样退库:" + outBean.getFullId() + '.';
 
         // 其他应收款（销售金额，含税价）1133-20/主营业务收入
@@ -3205,15 +3207,17 @@ public class OutListenerTaxGlueImpl implements OutListener
         double money = 0.0d;
         
         money = -outBean.getTotal() ;
-        
+        _logger.info("createBuyCommonBackItem1*****money*****"+money);
         if ((outBean.getPromStatus() == OutConstant.OUT_PROMSTATUS_BACKBIND
                 || outBean.getPromStatus() == OutConstant.OUT_PROMSTATUS_PARTBACKBIND)
                 && FinanceHelper.isPromBind(outBean.getRefOutFullId(), outBean.getRefBindOutId()))
         {
             money = -outBean.getTotal() + outBean.getPromValue();
+            _logger.info("createBuyCommonBackItem1*****outBean.getTotal()*****"+outBean.getTotal()+"****outBean.getPromValue()***"+outBean.getPromValue());
         }
 
         itemIn.setInmoney(FinanceHelper.doubleToLong(money));
+        _logger.info("createBuyCommonBackItem1*****inMoney*****"+itemIn.getInmoney());
 
         itemIn.setOutmoney(0);
 
@@ -3266,6 +3270,8 @@ public class OutListenerTaxGlueImpl implements OutListener
             itemOut1.setInmoney(0);
 
             itemOut1.setOutmoney(FinanceHelper.doubleToLong(outMoney));
+            _logger.info("createBuyCommonBackItem1*****getAmount*****"+baseBean.getAmount()+"****getPrice****"+baseBean.getPrice());
+            _logger.info("createBuyCommonBackItem1*****outMoney*****"+itemOut1.getOutmoney());
 
             outTotal += itemOut1.getOutmoney();
 
