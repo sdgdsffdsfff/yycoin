@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.dao.*;
+import com.china.center.oa.sail.vo.PackageVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -59,40 +62,9 @@ import com.china.center.oa.publics.dao.FlowLogDAO;
 import com.china.center.oa.publics.dao.LocationDAO;
 import com.china.center.oa.publics.dao.ProvinceDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
-import com.china.center.oa.sail.bean.BankSailBean;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.BatchApproveBean;
-import com.china.center.oa.sail.bean.BatchReturnLog;
-import com.china.center.oa.sail.bean.BatchSwatchBean;
-import com.china.center.oa.sail.bean.ConsignBean;
-import com.china.center.oa.sail.bean.DistributionBaseBean;
-import com.china.center.oa.sail.bean.DistributionBean;
-import com.china.center.oa.sail.bean.EstimateProfitBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.OutImportBean;
-import com.china.center.oa.sail.bean.OutImportLogBean;
-import com.china.center.oa.sail.bean.OutImportResultBean;
-import com.china.center.oa.sail.bean.PackageItemBean;
-import com.china.center.oa.sail.bean.ReplenishmentBean;
-import com.china.center.oa.sail.bean.SailConfBean;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.constanst.SailConstant;
-import com.china.center.oa.sail.dao.BankSailDAO;
-import com.china.center.oa.sail.dao.BaseDAO;
-import com.china.center.oa.sail.dao.BatchApproveDAO;
-import com.china.center.oa.sail.dao.BatchReturnLogDAO;
-import com.china.center.oa.sail.dao.BatchSwatchDAO;
-import com.china.center.oa.sail.dao.ConsignDAO;
-import com.china.center.oa.sail.dao.DistributionBaseDAO;
-import com.china.center.oa.sail.dao.DistributionDAO;
-import com.china.center.oa.sail.dao.EstimateProfitDAO;
-import com.china.center.oa.sail.dao.OutDAO;
-import com.china.center.oa.sail.dao.OutImportDAO;
-import com.china.center.oa.sail.dao.OutImportLogDAO;
-import com.china.center.oa.sail.dao.OutImportResultDAO;
-import com.china.center.oa.sail.dao.PackageItemDAO;
-import com.china.center.oa.sail.dao.ReplenishmentDAO;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.manager.OutImportManager;
 import com.china.center.oa.sail.manager.OutManager;
@@ -173,6 +145,8 @@ public class OutImportManagerImpl implements OutImportManager
 	private DepotpartDAO depotpartDAO = null;
 	
 	private PackageItemDAO packageItemDAO = null;
+
+    private PackageDAO packageDAO = null;
 	
 	private BatchReturnLogDAO batchReturnLogDAO = null;
 	
@@ -2309,10 +2283,27 @@ public class OutImportManagerImpl implements OutImportManager
 			{
 				throw new MYException("导入异常，请退出重新登陆");
 			}
-			
-			operationLog.info("紧急状态更新，销售单：" + each.getFullId());
-			
-			outDAO.updateEmergency(each.getFullId(), 1);
+
+            _logger.info("紧急状态更新，销售单：" + each.getFullId());
+
+            String outId = each.getFullId();
+			outDAO.updateEmergency(outId, 1);
+
+            try{
+                ConditionParse condtion = new ConditionParse();
+                condtion.addCondition("PackageItemBean.outId", "=", outId);
+                List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(condtion);
+                if (!ListTools.isEmptyOrNull(packages)){
+                     for (PackageBean pack: packages){
+                         pack.setEmergency(1);
+                         this.packageDAO.updateEntityBean(pack);
+                         _logger.info("CK updated to emergency****"+pack.getId());
+                    }
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+                _logger.error("***CK update emergency fail:",e);
+            }
 		}
 		
 		return true;
@@ -3059,4 +3050,19 @@ public class OutImportManagerImpl implements OutImportManager
 	{
 		this.estimateProfitDAO = estimateProfitDAO;
 	}
+
+    /**
+     * @return the packageDAO
+     */
+    public PackageDAO getPackageDAO() {
+        return packageDAO;
+    }
+
+
+    /**
+     * @param packageDAO the packageDAO to set
+     */
+    public void setPackageDAO(PackageDAO packageDAO) {
+        this.packageDAO = packageDAO;
+    }
 }

@@ -4182,8 +4182,9 @@ public class OutImportAction extends DispatchAction
                                             .append("第[" + currentNumber + "]错误:")
                                             .append("销售单号已是发货态，不能操作.")
                                             .append("<br>");
-
-                                    importError = true;
+                                    _logger.warn(builder.toString());
+//                                    importError = true;
+                                    bean.setFullId(outId);
                                 }else{
                                     bean.setFullId(outId);
                                 }
