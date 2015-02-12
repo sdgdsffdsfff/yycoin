@@ -64,6 +64,8 @@ import com.china.center.tools.TimeTools;
  */
 public class PackageManagerImpl implements PackageManager {
 	private final Log triggerLog = LogFactory.getLog("trigger");
+
+    private final Log _logger = LogFactory.getLog(getClass());
 	
 	private PreConsignDAO preConsignDAO = null;
 	
@@ -406,6 +408,9 @@ public class PackageManagerImpl implements PackageManager {
     {
        int shipping = distVO.getShipping();
        if (shipping == 0){
+           //发货方式也必须一致
+           con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
+
             //自提：收货人，电话一致，才合并
             con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
 
@@ -422,6 +427,8 @@ public class PackageManagerImpl implements PackageManager {
            }else{
                con.addCondition("PackageBean.address", "like", "%"+temp);
            }
+
+           con.addIntCondition("PackageBean.shipping", "=", distVO.getShipping());
 
            con.addCondition("PackageBean.receiver", "=", distVO.getReceiver());
 
@@ -555,16 +562,15 @@ public class PackageManagerImpl implements PackageManager {
                 //2015/2/5 同一个CK单中的所有SO单必须location一致才能合并
                 List<PackageItemBean> currentItems = this.packageItemDAO.queryEntityBeansByFK(packBean.getId());
                 if (!ListTools.isEmptyOrNull(currentItems)){
-                   triggerLog.info("****current package items****"+currentItems.size());
+                   _logger.info("****current package items****"+currentItems.size());
                     PackageItemBean first = currentItems.get(0);
                     OutVO outBean = outDAO.findVO(first.getOutId());
                     if (outBean!= null){
                         String lo = outBean.getLocation();
                         if (!StringTools.isNullOrNone(lo) && !lo.equals(out.getLocation())){
-                            triggerLog.info(first.getOutId()+"****location is not same****"+out.getFullId());
+                            _logger.info(first.getOutId()+"****location is not same****"+out.getFullId());
                             return;
                         }
-
                     }
                 }
 				List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
