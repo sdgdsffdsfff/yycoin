@@ -2580,12 +2580,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                        boolean result = this.passOut(outId);
                        _logger.info(outId+"*****passOut result****"+result);
                        if (result){
-                           if (!outIdList.contains(insId)){
-                              outIdList.add(insId);
-                              _logger.info("****InsID to be packaged***"+insId);
-                           }
                            outIdList.add(outId);
                            _logger.info("****outId to be packaged***"+outId);
+
+                           if (!outIdList.contains(insId)){
+                               outIdList.add(insId);
+                               _logger.info("****InsID to be packaged***"+insId);
+                           }
 
                            //并检查待库管审批状态的订单地址有无与发票地址一致的订单，如有，则一并自动审批通过
                            String invoiceAddress = bean.getAddress();
@@ -2599,10 +2600,11 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                _logger.info("****No same address SO exists****");
                            } else{
                                for (OutBean o: outBeans){
-                                   boolean pass = this.passOut(o.getFullId());
-                                   if (pass){
-                                       outIdList.add(o.getFullId());
-                                       _logger.info("****same address outId to be packaged***"+o.getFullId());
+                                   String fullId = o.getFullId();
+                                   boolean pass = this.passOut(fullId);
+                                   if (pass && !outIdList.contains(fullId)){
+                                       outIdList.add(fullId);
+                                       _logger.info("****same address outId to be packaged***"+fullId);
                                    }
                                }
                            }
@@ -2615,7 +2617,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 if (ListTools.isEmptyOrNull(outIdList)){
                    _logger.info("****No OUT to do******");
                 } else{
-                    _logger.info("****createPackage with OUT size******"+outIdList.size());
+                    _logger.info(insId+"****createPackage with OUT size******"+outIdList.size());
                     this.packageManager.createPackage(outIdList);
                 }
             }

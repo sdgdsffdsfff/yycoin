@@ -1764,7 +1764,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         // 检查日志核对
         int outStatusInLog = this.findOutStatusInLog(outBean.getFullId());
-        System.out.println("*****************11111111111111111111111******************");
+        _logger.info("*****************submitWithOutAffair2******************");
         if (outStatusInLog != -1 && outStatusInLog != OutConstant.STATUS_REJECT
                 && outStatusInLog != outBean.getStatus())
         {
@@ -1778,16 +1778,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
         //TODO
 //        final List<BaseBean> baseList = checkSubmit(fullId, outBean);
-        System.out.println("*****************222222222222222222222222******************");
+        _logger.info("submitWithOutAffair2*****************222222222222222222222222******************");
         // 这里是入库单的直接库存变动(部分)
         processBuyBaseList(user, outBean, baseList, type);
-        System.out.println("*****************3333333333333333333333******************");
+        _logger.info("submitWithOutAffair2*****************3333333333333333333333******************");
         //add 针对促销订单绑定历史订单，更新被绑定订单的相关信息
         processPromBindOutId(user, outBean);
-        System.out.println("*****************44444444444444444444444444******************");
+        _logger.info("submitWithOutAffair2*****************44444444444444444444444444******************");
         // CORE 修改库单(销售/入库)的状态(信用额度处理)
         int status = processOutStutus(fullId, user, outBean);
-        System.out.println("*****************55555555555555555555555******************");
+        _logger.info("submitWithOutAffair2*****************55555555555555555555555******************");
         try
         {
             if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
@@ -2362,7 +2362,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                                     final List<BaseBean> baseList, int type)
         throws MYException
     {
-        System.out.println("*************processBuyBaseList*************1111111111111111");
+        _logger.info("processBuyBaseList*************processBuyBaseList*************1111111111111111");
         // 入库单提交后就直接移动库存了,销售需要在库管通过后生成发货单前才会变动库存
         if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
         {
@@ -2402,7 +2402,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
                 storageRelationManager.changeStorageRelationWithoutTransaction(user, wrap, false);
             }
-            System.out.println("*************processBuyBaseList*************22222222222222222222");
+            _logger.info("processBuyBaseList*************processBuyBaseList*************22222222222222222222");
             saveUnique(user, outBean);
 
             outBean.setBaseList(baseList);
@@ -2412,7 +2412,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
             {
                 // 检查是否溢出
                 boolean ret = checkIfAllSwithToSail(outBean.getRefOutFullId());
-                System.out.println("*************processBuyBaseList*************33333333333333333333");
+                _logger.info("processBuyBaseList*************processBuyBaseList*************33333333333333333333");
                 if (ret)
                 {
                  // add 原领样单自动变为已付款
@@ -2430,7 +2430,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                 listener.onConfirmOutOrBuy(user, outBean);
                 
             }
-            System.out.println("*************processBuyBaseList*************444444444444444444");
+            _logger.info("processBuyBaseList*************finished*************"+outBean.getFullId());
         }
     }
 

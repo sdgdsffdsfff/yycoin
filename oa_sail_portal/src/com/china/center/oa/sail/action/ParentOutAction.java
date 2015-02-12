@@ -6610,6 +6610,7 @@ public class ParentOutAction extends DispatchAction
                                  base.setCostPrice(b.getCostPrice());
                                  base.setOwner(b.getOwner());
                                  base.setInputRate(b.getInputRate());
+                                 base.setPrice(b.getPrice());
                              }
                          }
                      }
