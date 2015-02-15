@@ -228,7 +228,7 @@ public class ShipManagerImpl implements ShipManager
 	 */
 	public void createPackage(PreConsignBean pre, OutVO out) throws MYException
 	{
-        System.out.println("**************ShipManager createPackage************");
+        _logger.info("**************ShipManager createPackage************"+out.getFullId());
 		String location = "";
 		
 		// 通过仓库获取 仓库地点
@@ -284,7 +284,7 @@ public class ShipManagerImpl implements ShipManager
 			createNewPackage(out, baseList, distVO, fullAddress, location);
 			
 		}else{
-            System.out.println("**********ShipManager package already exist*******************");
+            _logger.info("**********ShipManager package already exist*******************");
 			String id = packageList.get(0).getId();
 			
 			PackageBean packBean = packageDAO.find(id);

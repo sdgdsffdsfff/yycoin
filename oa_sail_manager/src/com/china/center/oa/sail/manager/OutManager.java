@@ -667,4 +667,6 @@ public interface OutManager extends ListenerManager<OutListener>
      * @throws MYException
      */
     boolean updateBase(final BaseBean base) throws MYException;
+
+    public void createPackage(final OutBean outBean);
 }

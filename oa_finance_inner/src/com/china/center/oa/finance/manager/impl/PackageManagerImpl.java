@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.china.center.oa.sail.manager.OutManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -94,6 +95,8 @@ public class PackageManagerImpl implements PackageManager {
 	private InvoiceinsItemDAO invoiceinsItemDAO = null;
 	
 	private OutImportDAO outImportDAO = null;
+
+    private OutManager outManager = null;
 	
 	private PlatformTransactionManager transactionManager = null;
 
@@ -546,19 +549,23 @@ public class PackageManagerImpl implements PackageManager {
 		
 		if (ListTools.isEmptyOrNull(packageList))
 		{
+            _logger.info("****create new package now***"+out.getFullId());
 			createNewPackage(out, baseList, distVO, fullAddress, location);
 			
 		}else{
-			String id = packageList.get(0).getId();
+            String id = packageList.get(0).getId();
 			
 			PackageBean packBean = packageDAO.find(id);
 			
 			// 不存在或已不是初始状态(可能已被拣配)
 			if (null == packBean || packBean.getStatus() != 0)
 			{
+                _logger.info(out.getFullId()+"****added to new package***");
 				createNewPackage(out, baseList, distVO, fullAddress, location);
 			}else
 			{
+                _logger.info(out.getFullId()+"****add SO to existent package now***"+packBean.getId());
+
                 //2015/2/5 同一个CK单中的所有SO单必须location一致才能合并
                 List<PackageItemBean> currentItems = this.packageItemDAO.queryEntityBeansByFK(packBean.getId());
                 if (!ListTools.isEmptyOrNull(currentItems)){
@@ -572,6 +579,17 @@ public class PackageManagerImpl implements PackageManager {
                             return;
                         }
                     }
+
+                    //2015/2/15 检查重复SO单
+                    for (PackageItemBean p: currentItems){
+                        if (out.getFullId().equals(p.getOutId())){
+                            _logger.warn("****duplicate package item***"+out.getFullId());
+                            preConsignDAO.deleteEntityBean(pre.getId());
+                            return;
+                        }
+                    }
+                } else{
+                    _logger.warn("***no package items exist***"+packBean.getId());
                 }
 				List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
 				
@@ -856,205 +874,237 @@ public class PackageManagerImpl implements PackageManager {
     }
 
     private void processOut2(List<String> outIdList) throws MYException{
-        PackageBean packBean = new PackageBean();
-        String customerId = null;
-        String customerName = null;
-        List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
-        String id = commonDAO.getSquenceString20("CK");
-        List<InvoiceinsBean> insBeans = new ArrayList<InvoiceinsBean>();
-        _logger.info("****createPackage11111111111111111111***********");
-        for (int i=0;i<outIdList.size();i++) {
-            String outId = outIdList.get(i);
-            OutVO outBean = outDAO.findVO(outId);
-            InvoiceinsBean insBean = null;
-            List<BaseBean> baseList = new ArrayList<BaseBean>();
-            List<InsVSInvoiceNumBean> numList = new ArrayList<InsVSInvoiceNumBean>();
-            Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
-            _logger.info("****createPackage2222222222222222222***********");
-            if (outBean == null){
-                insBean = invoiceinsDAO.find(outId);
+            for (int i=0;i<outIdList.size();i++) {
+                String outId = outIdList.get(i);
+                InvoiceinsBean insBean = invoiceinsDAO.find(outId);
                 if (insBean!= null){
-                    numList = insVSInvoiceNumDAO.queryEntityBeansByFK(insBean.getId());
-                    insBeans.add(insBean);
-                    _logger.info("****insBean found***********"+outId);
-                }
-            } else{
-                if (customerId == null){
-                    customerId = outBean.getCustomerId();
-                }
-                if (customerName == null){
-                    customerName = outBean.getCustomerName();
-                }
-                baseList = baseDAO.queryEntityBeansByFK(outId);
-                _logger.info("****createPackage baseList size***********"+baseList.size());
-            }
-
-            int allAmount = 0;
-
-            if (i == 0){
-
-                List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(outId);
-
-                if (ListTools.isEmptyOrNull(distList))
-                {
-                    _logger.info("======createPackage== (distList is null or empty)====" + outId);
-                    return;
+                    insBean.setPackaged(1);
+                    this.invoiceinsDAO.updateEntityBean(insBean);
+                    _logger.info("InsVSOutBean updated to packaged***"+outId);
                 }
 
-                DistributionVO distVO = distList.get(0);
 
-                String location = "";
-
-                // 通过仓库获取 仓库地点
-                DepotBean depot = depotDAO.find(outBean.getLocation());
-
-                if (depot != null)
-                    location = depot.getIndustryId2();
-
-//                    List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
-
-                // 如果是空发,则不处理
-                if (distVO.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING)
-                {
-                    _logger.info("======createPackage== (shipping is OUT_SHIPPING_NOTSHIPPING)====" + outId);
-                    return;
-                }
-
-                // 地址不全,不发
-                if (distVO.getAddress().trim().equals("0") && distVO.getReceiver().trim().equals("0") && distVO.getMobile().trim().equals("0"))
-                {
-                    _logger.info("======address not complete==" + outId);
-                    return;
-                }
-
-                String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
-
-
-                packBean.setId(id);
-                packBean.setCustomerId(outBean.getCustomerId());
-                packBean.setShipping(distVO.getShipping());
-                packBean.setTransport1(distVO.getTransport1());
-                packBean.setExpressPay(distVO.getExpressPay());
-                packBean.setTransport2(distVO.getTransport2());
-                packBean.setTransportPay(distVO.getTransportPay());
-                packBean.setAddress(fullAddress);
-                packBean.setReceiver(distVO.getReceiver());
-                packBean.setMobile(distVO.getMobile());
-                packBean.setLocationId(location);
-                packBean.setCityId(distVO.getCityId());
-                packBean.setStafferName(outBean.getStafferName());
-
-                StafferVO staff = stafferDAO.findVO(outBean.getStafferId());
-
-                if (null != staff) {
-                    packBean.setIndustryName(staff.getIndustryName());
-                    packBean.setDepartName(staff.getIndustryName3());
-                }
-
-                //TODO
-//                    packBean.setTotal(outBean.getMoneys());
-                packBean.setStatus(0);
-                packBean.setLogTime(TimeTools.now());
-
-                _logger.info("****createPackage000000000000000000000***********");
-            }
-
-            double total = 0.0;
-            if (!ListTools.isEmptyOrNull(baseList)){
-                boolean isEmergency = false;
-
-                for (BaseBean base : baseList)
-                {
-                    PackageItemBean item = new PackageItemBean();
-
-                    item.setPackageId(id);
-                    item.setOutId(outBean.getFullId());
-                    item.setBaseId(base.getId());
-                    item.setProductId(base.getProductId());
-                    item.setProductName(base.getProductName());
-                    item.setAmount(base.getAmount());
-                    item.setPrice(base.getPrice());
-                    item.setValue(base.getValue());
-                    item.setOutTime(outBean.getOutTime());
-                    item.setDescription(outBean.getDescription());
-                    item.setCustomerId(outBean.getCustomerId());
-                    item.setEmergency(outBean.getEmergency());
-                    total += base.getValue();
-
-                    if (item.getEmergency() == 1) {
-                        isEmergency = true;
-                        packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
-                    }
-
-                    itemList.add(item);
-
-                    allAmount += item.getAmount();
-
-                    if (!pmap.containsKey(base.getProductId()))
-                    {
-                        List<BaseBean> blist = new ArrayList<BaseBean>();
-
-                        blist.add(base);
-
-                        pmap.put(base.getProductId(), blist);
-                    }else
-                    {
-                        List<BaseBean> blist = pmap.get(base.getProductId());
-
-                        blist.add(base);
-                    }
-                }
-            }
-            _logger.info("****createPackage44444444444444444444***********");
-            if (!ListTools.isEmptyOrNull(numList)){
-                for (InsVSInvoiceNumBean base : numList)
-                {
-                    PackageItemBean item = new PackageItemBean();
-
-                    item.setPackageId(id);
-                    item.setOutId(insBean.getId());
-                    item.setBaseId(base.getId());
-                    item.setProductId(base.getInvoiceNum());
-                    item.setProductName("发票号：" + base.getInvoiceNum());
-                    item.setAmount(1);
-                    item.setPrice(base.getMoneys());
-                    item.setValue(base.getMoneys());
-                    item.setOutTime(TimeTools.changeFormat(insBean.getLogTime(), TimeTools.LONG_FORMAT, TimeTools.SHORT_FORMAT));
-                    item.setDescription(insBean.getDescription());
-                    item.setCustomerId(insBean.getCustomerId());
-
-                    itemList.add(item);
-
-                    allAmount += item.getAmount();
-                }
-            }
-
-            _logger.info("****createPackage55555555555555555***********");
-            packBean.setAmount(packBean.getAmount() + allAmount);
-            packBean.setTotal(packBean.getTotal() + total);
-            packBean.setProductCount(packBean.getProductCount() + pmap.values().size());
-        }
-
-        if (!StringTools.isNullOrNone(packBean.getId())){
-            this.packageDAO.saveEntityBean(packBean);
-            _logger.info("****package is created****"+packBean.getId());
-            packageItemDAO.saveAllEntityBeans(itemList);
-
-            PackageVSCustomerBean vsBean = new PackageVSCustomerBean();
-
-            vsBean.setPackageId(id);
-            vsBean.setCustomerId(customerId);
-            vsBean.setCustomerName(customerName);
-            vsBean.setIndexPos(1);
-            packageVSCustomerDAO.saveEntityBean(vsBean);
-
-            for (InvoiceinsBean insBean :insBeans){
-                insBean.setPackaged(1);
-                this.invoiceinsDAO.updateEntityBean(insBean);
-                _logger.info("********InvoiceinsBean is packaged***********"+insBean.getId());
-            }
-        }
+//                OutVO outBean = outDAO.findVO(outId);
+//                InvoiceinsBean insBean = null;
+//                List<BaseBean> baseList = new ArrayList<BaseBean>();
+//                List<InsVSInvoiceNumBean> numList = new ArrayList<InsVSInvoiceNumBean>();
+//                Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
+//                _logger.info("****processOut22222222222222222222***********");
+//                if (outBean == null){
+//                    _logger.error("****OutBean not found:"+outId);
+////                    insBean = invoiceinsDAO.find(outId);
+////                    if (insBean!= null){
+////                        numList = insVSInvoiceNumDAO.queryEntityBeansByFK(insBean.getId());
+////                        insBeans.add(insBean);
+////                        _logger.info("****insBean found***********"+outId);
+////                    }
+//                } else{
+//                    this.outManager.createPackage(outBean);
+//                }
+//            }
     }
+    }
+
+//    private void processOut2(List<String> outIdList) throws MYException{
+//        PackageBean packBean = new PackageBean();
+//        String customerId = null;
+//        String customerName = null;
+//        List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
+//        String id = commonDAO.getSquenceString20("CK");
+//        List<InvoiceinsBean> insBeans = new ArrayList<InvoiceinsBean>();
+//        _logger.info("****createPackage11111111111111111111***********");
+//        for (int i=0;i<outIdList.size();i++) {
+//            String outId = outIdList.get(i);
+//            OutVO outBean = outDAO.findVO(outId);
+//            InvoiceinsBean insBean = null;
+//            List<BaseBean> baseList = new ArrayList<BaseBean>();
+//            List<InsVSInvoiceNumBean> numList = new ArrayList<InsVSInvoiceNumBean>();
+//            Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
+//            _logger.info("****createPackage2222222222222222222***********");
+//            if (outBean == null){
+//                insBean = invoiceinsDAO.find(outId);
+//                if (insBean!= null){
+//                    numList = insVSInvoiceNumDAO.queryEntityBeansByFK(insBean.getId());
+//                    insBeans.add(insBean);
+//                    _logger.info("****insBean found***********"+outId);
+//                }
+//            } else{
+//                if (customerId == null){
+//                    customerId = outBean.getCustomerId();
+//                }
+//                if (customerName == null){
+//                    customerName = outBean.getCustomerName();
+//                }
+//                baseList = baseDAO.queryEntityBeansByFK(outId);
+//                _logger.info("****createPackage baseList size***********"+baseList.size());
+//            }
+//
+//            int allAmount = 0;
+//
+//            if (i == 0){
+//
+//                List<DistributionVO> distList = distributionDAO.queryEntityVOsByFK(outId);
+//
+//                if (ListTools.isEmptyOrNull(distList))
+//                {
+//                    _logger.info("======createPackage== (distList is null or empty)====" + outId);
+//                    return;
+//                }
+//
+//                DistributionVO distVO = distList.get(0);
+//
+//                String location = "";
+//
+//                // 通过仓库获取 仓库地点
+//                DepotBean depot = depotDAO.find(outBean.getLocation());
+//
+//                if (depot != null)
+//                    location = depot.getIndustryId2();
+//
+////                    List<BaseBean> baseList = baseDAO.queryEntityBeansByFK(outId);
+//
+//                // 如果是空发,则不处理
+//                if (distVO.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING)
+//                {
+//                    _logger.info("======createPackage== (shipping is OUT_SHIPPING_NOTSHIPPING)====" + outId);
+//                    return;
+//                }
+//
+//                // 地址不全,不发
+//                if (distVO.getAddress().trim().equals("0") && distVO.getReceiver().trim().equals("0") && distVO.getMobile().trim().equals("0"))
+//                {
+//                    _logger.info("======address not complete==" + outId);
+//                    return;
+//                }
+//
+//                String fullAddress = distVO.getProvinceName()+distVO.getCityName()+distVO.getAddress();
+//
+//
+//                packBean.setId(id);
+//                packBean.setCustomerId(outBean.getCustomerId());
+//                packBean.setShipping(distVO.getShipping());
+//                packBean.setTransport1(distVO.getTransport1());
+//                packBean.setExpressPay(distVO.getExpressPay());
+//                packBean.setTransport2(distVO.getTransport2());
+//                packBean.setTransportPay(distVO.getTransportPay());
+//                packBean.setAddress(fullAddress);
+//                packBean.setReceiver(distVO.getReceiver());
+//                packBean.setMobile(distVO.getMobile());
+//                packBean.setLocationId(location);
+//                packBean.setCityId(distVO.getCityId());
+//                packBean.setStafferName(outBean.getStafferName());
+//
+//                StafferVO staff = stafferDAO.findVO(outBean.getStafferId());
+//
+//                if (null != staff) {
+//                    packBean.setIndustryName(staff.getIndustryName());
+//                    packBean.setDepartName(staff.getIndustryName3());
+//                }
+//
+//                //TODO
+////                    packBean.setTotal(outBean.getMoneys());
+//                packBean.setStatus(0);
+//                packBean.setLogTime(TimeTools.now());
+//
+//                _logger.info("****createPackage000000000000000000000***********");
+//            }
+//
+//            double total = 0.0;
+//            if (!ListTools.isEmptyOrNull(baseList)){
+//                boolean isEmergency = false;
+//
+//                for (BaseBean base : baseList)
+//                {
+//                    PackageItemBean item = new PackageItemBean();
+//
+//                    item.setPackageId(id);
+//                    item.setOutId(outBean.getFullId());
+//                    item.setBaseId(base.getId());
+//                    item.setProductId(base.getProductId());
+//                    item.setProductName(base.getProductName());
+//                    item.setAmount(base.getAmount());
+//                    item.setPrice(base.getPrice());
+//                    item.setValue(base.getValue());
+//                    item.setOutTime(outBean.getOutTime());
+//                    item.setDescription(outBean.getDescription());
+//                    item.setCustomerId(outBean.getCustomerId());
+//                    item.setEmergency(outBean.getEmergency());
+//                    total += base.getValue();
+//
+//                    if (item.getEmergency() == 1) {
+//                        isEmergency = true;
+//                        packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
+//                    }
+//
+//                    itemList.add(item);
+//
+//                    allAmount += item.getAmount();
+//
+//                    if (!pmap.containsKey(base.getProductId()))
+//                    {
+//                        List<BaseBean> blist = new ArrayList<BaseBean>();
+//
+//                        blist.add(base);
+//
+//                        pmap.put(base.getProductId(), blist);
+//                    }else
+//                    {
+//                        List<BaseBean> blist = pmap.get(base.getProductId());
+//
+//                        blist.add(base);
+//                    }
+//                }
+//            }
+//            _logger.info("****createPackage44444444444444444444***********");
+//            if (!ListTools.isEmptyOrNull(numList)){
+//                for (InsVSInvoiceNumBean base : numList)
+//                {
+//                    PackageItemBean item = new PackageItemBean();
+//
+//                    item.setPackageId(id);
+//                    item.setOutId(insBean.getId());
+//                    item.setBaseId(base.getId());
+//                    item.setProductId(base.getInvoiceNum());
+//                    item.setProductName("发票号：" + base.getInvoiceNum());
+//                    item.setAmount(1);
+//                    item.setPrice(base.getMoneys());
+//                    item.setValue(base.getMoneys());
+//                    item.setOutTime(TimeTools.changeFormat(insBean.getLogTime(), TimeTools.LONG_FORMAT, TimeTools.SHORT_FORMAT));
+//                    item.setDescription(insBean.getDescription());
+//                    item.setCustomerId(insBean.getCustomerId());
+//
+//                    itemList.add(item);
+//
+//                    allAmount += item.getAmount();
+//                }
+//            }
+//
+//            _logger.info("****createPackage55555555555555555***********");
+//            packBean.setAmount(packBean.getAmount() + allAmount);
+//            packBean.setTotal(packBean.getTotal() + total);
+//            packBean.setProductCount(packBean.getProductCount() + pmap.values().size());
+//        }
+//
+//        if (!StringTools.isNullOrNone(packBean.getId())){
+//            this.packageDAO.saveEntityBean(packBean);
+//            _logger.info("****package is created****"+packBean.getId());
+//            packageItemDAO.saveAllEntityBeans(itemList);
+//
+//            PackageVSCustomerBean vsBean = new PackageVSCustomerBean();
+//
+//            vsBean.setPackageId(id);
+//            vsBean.setCustomerId(customerId);
+//            vsBean.setCustomerName(customerName);
+//            vsBean.setIndexPos(1);
+//            packageVSCustomerDAO.saveEntityBean(vsBean);
+//
+//            for (InvoiceinsBean insBean :insBeans){
+//                insBean.setPackaged(1);
+//                this.invoiceinsDAO.updateEntityBean(insBean);
+//                _logger.info("********InvoiceinsBean is packaged***********"+insBean.getId());
+//            }
+//        }
+//    }
 
 
     /**
@@ -1268,4 +1318,12 @@ public class PackageManagerImpl implements PackageManager {
 	public void setOutImportDAO(OutImportDAO outImportDAO) {
 		this.outImportDAO = outImportDAO;
 	}
+
+    public OutManager getOutManager() {
+        return outManager;
+    }
+
+    public void setOutManager(OutManager outManager) {
+        this.outManager = outManager;
+    }
 }

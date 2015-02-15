@@ -6837,46 +6837,46 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         }
     }
 
-	private void createPackage(final OutBean outBean)
-	{
-        System.out.println(outBean.getFullId()+"****outBean.getRefOutFullId()****"+outBean.getRefOutFullId());
-		if (StringTools.isNullOrNone(outBean.getRefOutFullId()))
-		{
-			List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
-            System.out.println("****distList****"+distList);
-			if (!ListTools.isEmptyOrNull(distList))
-			{
-				DistributionBean dist = distList.get(0);
-				
-				if (dist.getShipping() == OutConstant.OUT_SHIPPING_SELFSERVICE)
-				{
-                    System.out.println("**************OUT_SHIPPING_SELFSERVICE**********************");
-					 PreConsignBean preConsign = new PreConsignBean();
-		             
-		             preConsign.setOutId(outBean.getFullId());
-		             
-		             try{
-		            	 OutVO vo = outDAO.findVO(outBean.getFullId());
-		            	 
-		            	 shipManager.createPackage(preConsign, vo);
-		             }
-		             catch (MYException e)
-		             {
-		                 throw new RuntimeException(e.getErrorContent(), e);
-		             }
-				}else
-				{
-		            PreConsignBean preConsign = new PreConsignBean();
-		            
-		            preConsign.setOutId(outBean.getFullId());
-		            
-		            preConsignDAO.saveEntityBean(preConsign);
-				}
-			} else {
-                System.out.println("****distList not found 2222222222222222222222222222****");
+	public void createPackage(final OutBean outBean)
+{
+    _logger.info(outBean.getFullId()+"****outBean.getRefOutFullId()****"+outBean.getRefOutFullId());
+    if (StringTools.isNullOrNone(outBean.getRefOutFullId()))
+    {
+        List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outBean.getFullId());
+        if (!ListTools.isEmptyOrNull(distList))
+        {
+            DistributionBean dist = distList.get(0);
+
+            if (dist.getShipping() == OutConstant.OUT_SHIPPING_SELFSERVICE)
+            {
+                _logger.info("**************OUT_SHIPPING_SELFSERVICE**********************");
+                PreConsignBean preConsign = new PreConsignBean();
+
+                preConsign.setOutId(outBean.getFullId());
+
+                try{
+                    OutVO vo = outDAO.findVO(outBean.getFullId());
+
+                    shipManager.createPackage(preConsign, vo);
+                }
+                catch (MYException e)
+                {
+                    throw new RuntimeException(e.getErrorContent(), e);
+                }
+            }else
+            {
+                PreConsignBean preConsign = new PreConsignBean();
+
+                preConsign.setOutId(outBean.getFullId());
+
+                preConsignDAO.saveEntityBean(preConsign);
+                _logger.info("create PreConsignBean****"+outBean.getFullId());
             }
-		}
-	}
+        } else {
+            _logger.info("****distList not found 2222222222222222222222222222****");
+        }
+    }
+}
 
     /**
      * 拆分行项目

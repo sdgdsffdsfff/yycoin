@@ -1143,10 +1143,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     		return;
     	} else if (bean.getShipping() == OutConstant.OUT_SHIPPING_NOTSHIPPING) {
     		return;
-    	} else if (InvoiceinsImportBean.INVOICE_FOLLOW_OUT.equals(bean.getInvoiceFollowOut())){
-            _logger.info("*****票随货发不生成CK单******"+bean.getId());
-            return;
-        }
+    	}
+        //2015/2/15 仍然在导入发票时就进入中间表T_CENTER_PRECONSIGN
+//        else if (InvoiceinsImportBean.INVOICE_FOLLOW_OUT.equals(bean.getInvoiceFollowOut())){
+//            _logger.info("*****票随货发不生成CK单******"+bean.getId());
+//            return;
+//        }
     	
     	if (bean.getShipping() == OutConstant.OUT_SHIPPING_SELFSERVICE)
 		{
@@ -2580,13 +2582,15 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                        boolean result = this.passOut(outId);
                        _logger.info(outId+"*****passOut result****"+result);
                        if (result){
-                           outIdList.add(outId);
+//                           outIdList.add(outId);
                            _logger.info("****outId to be packaged***"+outId);
 
+                           //2015/2/15 发票单在导入时已进入中间表
                            if (!outIdList.contains(insId)){
                                outIdList.add(insId);
                                _logger.info("****InsID to be packaged***"+insId);
                            }
+
 
                            //并检查待库管审批状态的订单地址有无与发票地址一致的订单，如有，则一并自动审批通过
                            String invoiceAddress = bean.getAddress();
@@ -2603,7 +2607,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                                    String fullId = o.getFullId();
                                    boolean pass = this.passOut(fullId);
                                    if (pass && !outIdList.contains(fullId)){
-                                       outIdList.add(fullId);
+//                                       outIdList.add(fullId);
                                        _logger.info("****same address outId to be packaged***"+fullId);
                                    }
                                }
@@ -2613,11 +2617,12 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     }
                 }
 
-                //与开票申请一并生成CK单，此类订单不再经过中间表过渡生成CK单
+                //与开票申请一并生成CK单，此类订单不再经过中间表过渡生成CK单-->2015/2/15 改为写入中间表
                 if (ListTools.isEmptyOrNull(outIdList)){
                    _logger.info("****No OUT to do******");
                 } else{
                     _logger.info(insId+"****createPackage with OUT size******"+outIdList.size());
+                    //2015/2/15 更新InvoiceinsBean.packaged状态
                     this.packageManager.createPackage(outIdList);
                 }
             }
