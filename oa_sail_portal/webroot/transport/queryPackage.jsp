@@ -28,18 +28,18 @@ function load()
          url: gurl + 'query' + ukey,
          colModel : [
              {display: '<input type=checkbox id=flexi_Check onclick=checkAll(this)>选择', name : 'check', content : '<input type=checkbox name=checkb value={id} lstatus={status}>', width : 40, sortable : false, align: 'center'},             
-             {display: '出库单', name : 'id', width : '15%'},
+             {display: '出库单', name : 'id', width : '15%', sortable : true},
              {display: '商品种类', name : 'productCount', width : '6%'},
              {display: '发货数量', name : 'amount',  width : '6%'},
-             {display: '收货人', name : 'receiver',  width : '10%'},
-             {display: '收货电话', name : 'mobile',  width : '10%'},
-             {display: '发货方式', name : 'shipping', cc : 'outShipment', width : '10%'},
-             {display: '发货公司', name : 'transportName1', content : '{transportName1}/{transportName2}',  width : '10%'},
-             {display: '支付方式', name : 'pay', width : '10%'},
-             {display: '承担人', name : 'stafferName', width : '6%'},
+             {display: '收货人', name : 'receiver',  width : '10%' , sortable : true},
+             {display: '收货电话', name : 'mobile',  width : '10%' , sortable : true},
+             {display: '发货方式', name : 'shipping', cc : 'outShipment', width : '10%' , sortable : true},
+             {display: '发货公司', name : 'transportName1', content : '{transportName1}/{transportName2}',  width : '10%' },
+             {display: '支付方式', name : 'pay', width : '10%' },
+             {display: '承担人', name : 'stafferName', width : '6%' , sortable : true},
              {display: '仓库地点', name : 'locationName', width : '10%'},
-             {display: '状态', name : 'status', cc: 'shipStatus',  width : '5%'},
-             {display: '时间', name : 'logTime',  width : 'auto', sortable : true}
+             {display: '状态', name : 'status', cc: 'shipStatus',  width : '5%' , sortable : true},
+             {display: '时间', name : 'logTime',  width : 'auto', sortable : true }
              ],
          extAtt: {
              id : {begin : '<a href=' + gurl + 'findPackage&packageId={id}>', end : '</a>'}
