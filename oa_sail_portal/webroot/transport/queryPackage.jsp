@@ -47,7 +47,7 @@ function load()
          buttons : [
              {id: 'add', bclass: 'add', caption : '拣配', onpress : addBean},
              {id: 'del', bclass: 'del', caption : '撤销', onpress : undoBean},
-             {id: 'autoPickup', bclass: 'add', caption : '自动拣配数量', onpress : autoPickup},
+//             {id: 'autoPickup', bclass: 'add', caption : '自动拣配数量', onpress : autoPickup},
              {id: 'search', bclass: 'search', onpress : doSearch}
              ],
         <p:conf/>
