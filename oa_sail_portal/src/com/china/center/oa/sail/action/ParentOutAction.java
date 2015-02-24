@@ -8587,6 +8587,11 @@ public class ParentOutAction extends DispatchAction
 						String.valueOf(OutConstant.STATUS_SUBMIT));
 			}
 
+            //2015/2/24 Filter by product name
+            String productName = request.getParameter("product_name");
+            if (!StringTools.isNullOrNone(productName)){
+                condtion.addCondition(" and exists (select b.id from t_center_base b where b.outId=OutBean.fullId and b.productName like '%"+productName+"%')");
+            }
 			condtion.addCondition("order by outTime desc");
 		}
 		// 处理发货单 物流审批(只有中心仓库才有物流的)
@@ -8623,6 +8628,11 @@ public class ParentOutAction extends DispatchAction
 
 			setDepotCondotionInOut(user, condtion);
 
+            //2015/2/24 Filter by product name
+            String productName = request.getParameter("product_name");
+            if (!StringTools.isNullOrNone(productName)){
+                condtion.addCondition(" and exists (select b.id from t_center_base b where b.outId=OutBean.fullId and b.productName like '%"+productName+"%')");
+            }
 			condtion.addCondition("order by managerTime desc");
 		}
 		// 会计往来核对
