@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.china.center.oa.product.constant.DepotConstant;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
@@ -640,8 +641,11 @@ public class ZJRCManagerImpl implements ZJRCManager
 	    	
 	    	newOutBean.setLocationId("999");
 	    	
-	    	newOutBean.setLocation(each.getLocationId());
-	    	
+//	    	newOutBean.setLocation(each.getLocationId());
+
+            //2015/2/24 紫金订单转OA时，默认使用“公共库--南京物流中心"
+            newOutBean.setLocation(DepotConstant.CENTER_DEPOT_ID);
+
 	    	newOutBean.setType(OutConstant.OUT_TYPE_OUTBILL);
 	    	
 	    	newOutBean.setOutType(OutConstant.OUTTYPE_OUT_COMMON);
