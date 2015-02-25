@@ -1152,6 +1152,7 @@ function clears()
 						<td align="center" onclick="tableSort(this)" class="td_class">单据编号</td>
 						<td align="center" onclick="tableSort(this)" class="td_class">客户</td>
 						<td align="center" onclick="tableSort(this)" class="td_class">状态</td>
+                        <td align="center" onclick="tableSort(this)" class="td_class">紧急标识</td>
 						<td align="center" onclick="tableSort(this)" class="td_class">${fg}类型</td>
 						<td align="center" onclick="tableSort(this)" class="td_class">${fg}时间</td>
 						<c:if test="${queryType == '5' || queryType == '6'}">
@@ -1196,6 +1197,14 @@ function clears()
 							${item.fullId}</a></td>
 							<td align="center" onclick="hrefAndSelect(this)">${item.customerName}</td>
 							<td align="center" onclick="hrefAndSelect(this)">${my:get('outStatus', item.status)}</td>
+                            <td align="center" onclick="hrefAndSelect(this)">
+                                <c:if test="${item.emergency == 1}">
+                                    紧急订单
+                                </c:if>
+                                <c:if test="${item.emergency == 0}">
+                                    非紧急订单
+                                </c:if>
+                            </td>
 							<td align="center" onclick="hrefAndSelect(this)">${my:get('outType_out', item.outType)}</td>
 							<td align="center" onclick="hrefAndSelect(this)">${item.outTime}</td>
 							
