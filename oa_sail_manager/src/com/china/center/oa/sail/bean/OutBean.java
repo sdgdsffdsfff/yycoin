@@ -21,6 +21,7 @@ import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
+import com.china.center.tools.TimeTools;
 
 
 /**
@@ -448,7 +449,8 @@ public class OutBean implements Serializable
      */
     private int presentFlag = 0;
 
-    private String podate = "";
+    //2015/2/25 默认为当前时间
+    private String podate = TimeTools.now_short();
     
     @Ignore
     private List<BaseBean> baseList = null;
