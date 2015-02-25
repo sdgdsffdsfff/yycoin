@@ -1920,6 +1920,35 @@ public class ShipAction extends DispatchAction
         return result;
     }
 
+    public ActionForward preForMergePackages(ActionMapping mapping, ActionForm form,
+                                          HttpServletRequest request, HttpServletResponse response){
+        _logger.info("***************preForMergePackages**************");
+        return mapping.findForward("mergePackages");
+    }
+
+    public ActionForward mergePackages(ActionMapping mapping, ActionForm form,
+                                    HttpServletRequest request, HttpServletResponse response){
+        String address = request.getParameter("address");
+        String receiver = request.getParameter("receiver");
+        String phone = request.getParameter("phone");
+        _logger.info("*****mergePickups****************"+address+";"+receiver+":"+phone);
+        try
+        {
+//            this.shipManager.autoPickup(Integer.valueOf(pickupCount), productName);
+            request.setAttribute(KeyConstant.MESSAGE, "手动合并出库单成功");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            _logger.error("手动合并出库单失败:", e);
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "手动合并出库单出错:"+ e.getMessage());
+
+            return mapping.findForward("queryPickup");
+        }
+
+        return mapping.findForward("queryPickup");
+    }
+
     public ActionForward preForAutoPickup(ActionMapping mapping, ActionForm form,
                                     HttpServletRequest request, HttpServletResponse response){
         _logger.info("***************preForAutoPickup**************");

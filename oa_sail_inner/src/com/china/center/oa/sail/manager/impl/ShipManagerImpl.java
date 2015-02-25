@@ -376,8 +376,140 @@ public class ShipManagerImpl implements ShipManager
 		
 		preConsignDAO.deleteEntityBean(pre.getId());
 	}
-	
-	/**
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void mergePackages(String user, String packageIds, String address ,String receiver, String phone) throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        JudgeTools.judgeParameterIsNull(user, packageIds);
+
+        String[] packages = packageIds.split("~");
+
+        List<String> packageList = new ArrayList<String>();
+        if (null != packages)
+        {
+            int i = 1;
+
+            PackageBean packBean = null;
+            List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
+            PackageBean firstPack = null;
+            for (String id : packages)
+            {
+                packageList.add(id);
+                // 只能合并初始态的
+                PackageBean bean = packageDAO.find(id);
+
+                if (null == bean)
+                {
+                    throw new MYException("出库单[%s]不存在", id);
+                }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
+                {
+                    throw new MYException("[%s]已被拣配", id);
+                }
+
+                if (i == 1){
+                    packBean = new PackageBean();
+                    firstPack = packBean;
+                }
+                i++;
+                List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(bean.getId());
+
+                int allAmount = 0;
+                double total = 0;
+
+                Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
+                boolean isEmergency = false;
+                if (!ListTools.isEmptyOrNull(items)){
+                    for (PackageItemBean item : items){
+                        PackageItemBean newItem = new PackageItemBean();
+
+//                        newItem.setPackageId(id);
+                        //copy current items
+                        newItem.setOutId(item.getOutId());
+                        newItem.setBaseId(item.getId());
+                        newItem.setProductId(item.getProductId());
+                        newItem.setProductName(item.getProductName());
+                        newItem.setAmount(item.getAmount());
+                        newItem.setPrice(item.getPrice());
+                        newItem.setValue(item.getValue());
+                        newItem.setOutTime(item.getOutTime());
+                        newItem.setDescription(item.getDescription());
+                        newItem.setCustomerId(item.getCustomerId());
+                        newItem.setEmergency(item.getEmergency());
+
+                        if (item.getEmergency() == 1) {
+                            isEmergency = true;
+                        }
+
+                        itemList.add(item);
+
+                        allAmount += item.getAmount();
+//                        total += base.getValue();
+//
+//                        if (!pmap.containsKey(base.getProductId()))
+//                        {
+//                            List<BaseBean> blist = new ArrayList<BaseBean>();
+//
+//                            blist.add(base);
+//
+//                            pmap.put(base.getProductId(), blist);
+//                        }else
+//                        {
+//                            List<BaseBean> blist = pmap.get(base.getProductId());
+//
+//                            blist.add(base);
+//                        }
+                    }
+                }
+
+                packBean.setAmount(packBean.getAmount() + allAmount);
+                packBean.setTotal(packBean.getTotal() + total);
+                packBean.setProductCount(packBean.getProductCount() + pmap.values().size());
+
+                if (isEmergency) {
+                    packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
+                }
+
+            }
+
+            String id = commonDAO.getSquenceString20("CK");
+            packBean.setId(id);
+            packBean.setCustomerId(firstPack.getCustomerId());
+            packBean.setShipping(firstPack.getShipping());
+            packBean.setTransport1(firstPack.getTransport1());
+            packBean.setExpressPay(firstPack.getExpressPay());
+            packBean.setTransport2(firstPack.getTransport2());
+            packBean.setTransportPay(firstPack.getTransportPay());
+            packBean.setAddress(address);
+            packBean.setReceiver(receiver);
+            packBean.setMobile(phone);
+            packBean.setLocationId(firstPack.getLocationId());
+            packBean.setCityId(firstPack.getCityId());
+
+            packBean.setStafferName(firstPack.getStafferName());
+            packBean.setIndustryName(firstPack.getIndustryName());
+            packBean.setDepartName(firstPack.getDepartName());
+
+//            packBean.setTotal(outBean.getTotal());
+            packBean.setStatus(0);
+            packBean.setLogTime(TimeTools.now());
+            packageDAO.saveEntityBean(packBean);
+            _logger.info("****new package created manullay***"+id);
+
+            for (PackageItemBean item : itemList){
+                item.setPackageId(id);
+            }
+            packageItemDAO.saveAllEntityBeans(itemList);
+            _logger.info("***save new merged package items****");
+
+            //Delete original packages
+            this.packageDAO.deleteByIds(packageList);
+            _logger.info("***remove merged packages****");
+        }
+
+    }
+
+    /**
 	 * 拣配包
 	 */
 	@Transactional(rollbackFor = MYException.class)

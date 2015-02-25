@@ -47,7 +47,8 @@ function load()
          buttons : [
              {id: 'add', bclass: 'add', caption : '拣配', onpress : addBean},
              {id: 'del', bclass: 'del', caption : '撤销', onpress : undoBean},
-//             {id: 'autoPickup', bclass: 'add', caption : '自动拣配数量', onpress : autoPickup},
+             {id: 'autoPickup', bclass: 'add', caption : '自动拣配数量', onpress : autoPickup},
+             {id: 'mergePackages', bclass: 'add', caption : '合并', onpress : mergePackages},
              {id: 'search', bclass: 'search', onpress : doSearch}
              ],
         <p:conf/>
@@ -59,6 +60,11 @@ function load()
 function autoPickup()
 {
     $l(gurl + 'preForAutoPickup');
+}
+
+function mergePackages()
+{
+    $l(gurl + 'preForMergePackages');
 }
  
 function $callBack()
