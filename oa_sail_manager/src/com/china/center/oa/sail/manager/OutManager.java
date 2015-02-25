@@ -669,4 +669,12 @@ public interface OutManager extends ListenerManager<OutListener>
     boolean updateBase(final BaseBean base) throws MYException;
 
     public void createPackage(final OutBean outBean);
+
+    /** 2015/2/25
+     * 更新紫金农商订单状态
+     * @param fullId
+     * @return
+     * @throws MYException
+     */
+    public  boolean updateZjrcOutStatus(final String fullId) throws MYException;
 }

@@ -27,6 +27,11 @@ import java.util.List;
  */
 public class Test {
     public static void main(String[] args){
+        String desc = "紫金农商订单转OA订单. ZJ1502242118017451319.发货备注：.发票抬头：，发票明细:,发票备注:.销售单备注：";
+        String[] temp1 = desc.split("\\.");
+        System.out.println(temp1.length);
+        System.out.println(temp1[1].trim());
+
         String test = "a1~a2~a3~";
         String[] arrays = test.split("~");
         System.out.println(arrays.length);

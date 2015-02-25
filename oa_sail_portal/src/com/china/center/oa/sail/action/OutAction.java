@@ -1835,7 +1835,7 @@ public class OutAction extends ParentOutAction
 
                 }
 
-                importLog.info(fullId + ":" + user.getStafferName() + ";form:" + oldStatus + ";to"
+                _logger.info(fullId + ":" + user.getStafferName() + ";form:" + oldStatus + ";to"
                                + resultStatus + "(SUCCESS)");
 
                 RequestTools.actionInitQuery(request);
@@ -1849,6 +1849,22 @@ public class OutAction extends ParentOutAction
                 		{
                 			outManager.updateOut(bean);
                 		}
+                    }
+
+
+                    //2015/2/25 更新紫金订单状态
+                    _logger.info(fullId+"*****check if need to update zjout status****"+statuss+":"+out.getFlowId());
+                    if (statuss == OutConstant.STATUS_PASS &&
+                            "ZJRC".equals(out.getFlowId())){
+                        _logger.info("*****update zjout status****");
+                        String description = out.getDescription();
+
+                        if (!StringTools.isNullOrNone(description)){
+                            String[] temp1 = description.split("\\.");
+                            this.outManager.updateZjrcOutStatus(temp1[1].trim());
+                        } else {
+                            _logger.warn(fullId+"***empty out description***");
+                        }
                     }
                 }
                 catch (MYException e)

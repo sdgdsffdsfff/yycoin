@@ -705,7 +705,7 @@ public class ZJRCManagerImpl implements ZJRCManager
 
             //2014/12/20发货备注和销售单备注也需要写入out表的备注栏位
             StringBuilder description = new StringBuilder();
-            description.append("紫金农商订单转OA订单 ").append(zjrcOut.getFullId())
+            description.append("紫金农商订单转OA订单. ").append(zjrcOut.getFullId())
                     .append(".发货备注：").append(zjrcOut.getShipDescription())
                     .append(".发票抬头：").append(zjrcOut.getInvoiceHead())
                     .append("，发票明细:").append(zjrcOut.getInvoiceDetail())

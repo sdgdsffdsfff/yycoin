@@ -26,6 +26,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.china.center.oa.client.dao.CustomerIndividualDAO;
+import com.china.center.oa.extsail.bean.ZJRCOutBean;
+import com.china.center.oa.extsail.dao.ZJRCOutDAO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -318,6 +320,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private ZJRCManager zjrcManager = null;
 
     private CustomerIndividualDAO  customerIndividualDAO = null;
+
+    private ZJRCOutDAO zjrcOutDAO = null;
     
     /**
      * 短信最大停留时间
@@ -4716,6 +4720,51 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         operationLog.info(user.getStafferName() + "/" + user.getName() + "/DELETE OUT:" + outBean);
 
         return true;
+    }
+
+    @Override
+    public boolean updateZjrcOutStatus(final String fullId) throws MYException {
+        final ZJRCOutBean out = this.zjrcOutDAO.find(fullId);
+
+        if (out == null){
+            String msg = "紫金订单未找到："+fullId;
+            _logger.error(msg);
+            throw new MYException(msg);
+        } else {
+            out.setStatus(OutImportConstant.STATUS_SHIPPING);
+            // 入库操作在数据库事务中完成
+            TransactionTemplate tran = new TransactionTemplate(transactionManager);
+            try
+            {
+                tran.execute(new TransactionCallback()
+                {
+                    public Object doInTransaction(TransactionStatus arg0)
+                    {
+                        zjrcOutDAO.updateEntityBean(out);
+                        _logger.info(fullId+" ZJRC out status update to OutImportConstant.STATUS_SHIPPING") ;
+
+                        return Boolean.TRUE;
+                    }
+                });
+            }
+            catch (TransactionException e)
+            {
+                _logger.error("修改紫金订单错误：", e);
+                throw new MYException("数据库内部错误");
+            }
+            catch (DataAccessException e)
+            {
+                _logger.error("修改紫金订单错误：", e);
+                throw new MYException(e.getCause().toString());
+            }
+            catch (Exception e)
+            {
+                _logger.error("修改紫金订单错误：", e);
+                throw new MYException("系统错误,请重新操作");
+            }
+            return true;
+        }
+
     }
 
     /**
@@ -11607,6 +11656,21 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	{
 		this.zjrcManager = zjrcManager;
 	}
+
+
+    /**
+     * @return the zjrcOutDAO
+     */
+    public ZJRCOutDAO getZjrcOutDAO() {
+        return zjrcOutDAO;
+    }
+
+    /**
+     * @param zjrcOutDAO the zjrcOutDAO to set
+     */
+    public void setZjrcOutDAO(ZJRCOutDAO zjrcOutDAO) {
+        this.zjrcOutDAO = zjrcOutDAO;
+    }
 
     public CustomerIndividualDAO getCustomerIndividualDAO() {
         return customerIndividualDAO;
