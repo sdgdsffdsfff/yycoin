@@ -594,10 +594,41 @@ public class ShipManagerImpl implements ShipManager
         return 1;
     }
 
-    /**
-	 * 撤销生成的出库单
-	 */
-	@Transactional(rollbackFor = MYException.class)
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean cancelPackage(User user, String packageIds) throws MYException {
+        JudgeTools.judgeParameterIsNull(user, packageIds);
+
+        String [] packages = packageIds.split("~");
+
+        if (null != packages)
+        {
+            for (String id : packages)
+            {
+                // “已拣配”与“已打印”状态的CK单可以撤销
+                PackageBean bean = packageDAO.find(id);
+
+                if (null == bean)
+                {
+                    throw new MYException("出库单[%s]不存在", id);
+                } else {
+                    int status = bean.getStatus();
+                    if (status == ShipConstant.SHIP_STATUS_PICKUP || status == ShipConstant.SHIP_STATUS_PRINT){
+                        bean.setStatus(ShipConstant.SHIP_STATUS_INIT);
+                        bean.setPickupId("");
+                        this.packageDAO.updateEntityBean(bean);
+                        _logger.info("**********cancelPackage now*****"+id);
+                    } else if (status == ShipConstant.SHIP_STATUS_CONSIGN){
+                        throw new MYException("出库单[%s]已发货不能撤销捡配", id);
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    @Transactional(rollbackFor = MYException.class)
 	public boolean deletePackage(User user, String packageIds)
 			throws MYException
 	{

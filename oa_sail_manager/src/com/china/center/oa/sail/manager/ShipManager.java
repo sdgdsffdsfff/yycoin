@@ -15,6 +15,15 @@ public interface ShipManager
 	boolean addPickup(User user, String packageIds) throws MYException;
 	
 	boolean deletePackage(User user, String packageIds) throws MYException;
+
+    /**  2015/2/26
+     * 撤销“已拣配”或“已打印”状态的CK单
+     * @param user
+     * @param packageIds
+     * @return
+     * @throws MYException
+     */
+    boolean cancelPackage(User user, String packageIds) throws MYException;
 	
 	boolean updateStatus(User user, String pickupId) throws MYException;
 	

@@ -89,6 +89,33 @@ function sub()
 	formEntry.submit();
 }
 
+function cancelPickup()
+{
+    var clis = getCheckBox('packageIds');
+
+    if (clis.length > 0)
+    {
+        var str = '';
+        for (var i = 0; i < clis.length; i++)
+        {
+            str += clis[i].value + '~';
+        }
+
+        if (window.confirm('确定撤销捡配选中的出库单?'))
+        {
+//            $O('method').value = 'cancelPickup';
+//
+//            $O('packageIds').value = str;
+//
+//            formEntry.submit();
+            $l('../sail/ship.do?method=cancelPickup&packageIds='+str);
+        }
+    }
+
+
+}
+
+
 function query()
 {
 	var transport1 = $$('transport1');
@@ -286,6 +313,7 @@ function clears()
 				<td align="center" class="td_class">选择</td>
 				<td align="center" class="td_class" ><strong>批次号</strong></td>
 				<td align="center" class="td_class" ><strong>系列号</strong></td>
+                <td align="center" class="td_class" ><strong>选择2</strong></td>
 				<td align="center" class="td_class" ><strong>出库单</strong></td>
 				<td align="center" class="td_class" ><strong>状态</strong></td>
 				<td align="center" class="td_class" ><strong>事业部</strong></td>
@@ -319,6 +347,7 @@ function clears()
                     <td align="center"></td>
                     <td align="center">--</td>
                     <td align="center" onclick="hrefAndSelect(this)">${item2.index_pos}</td>
+                    <td align="center"><input type="checkbox" name="packageIds" value="${item2.id}"></td>
                     <td align="center" onclick="hrefAndSelect(this)">
                     <a
                         href="../sail/ship.do?method=findPackage&packageId=${item2.id}"
@@ -365,6 +394,9 @@ function clears()
 			<input type="button" 
 			class="button_class" onclick="sub()"
 			value="&nbsp;&nbsp;确认发货&nbsp;&nbsp;">&nbsp;&nbsp;
+            <input type="button"
+                   class="button_class" onclick="cancelPickup()"
+                   value="&nbsp;&nbsp;撤销拣配&nbsp;&nbsp;">&nbsp;&nbsp;
 		</div>
 	</p:button>
 

@@ -659,6 +659,42 @@ public class ShipAction extends DispatchAction
     }
 
     /**
+     * 2015/2/26 撤销捡配CK单
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward cancelPickup(ActionMapping mapping, ActionForm form,
+                                       HttpServletRequest request,
+                                       HttpServletResponse response)
+            throws ServletException
+    {
+        User user = Helper.getUser(request);
+
+        AjaxResult ajax = new AjaxResult();
+
+        // separate by ~
+        String packageIds = request.getParameter("packageIds");
+        _logger.info("****cancelPickup****"+packageIds);
+
+        try{
+            shipManager.cancelPackage(user, packageIds);
+
+            ajax.setSuccess("撤销成功");
+        }catch(MYException e)
+        {
+            _logger.warn(e, e);
+
+            ajax.setError("撤销出错:"+ e.getErrorContent());
+        }
+
+        return JSONTools.writeResponse(response, ajax);
+    }
+
+    /**
      * findPackage
      *
      * @param mapping
