@@ -392,7 +392,7 @@ public class ShipManagerImpl implements ShipManager
 
             PackageBean packBean = null;
             List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
-            PackageBean firstPack = null;
+            PackageBean firstPack = new PackageBean();
             for (String id : packages)
             {
                 packageList.add(id);
@@ -408,8 +408,7 @@ public class ShipManagerImpl implements ShipManager
                 }
 
                 if (i == 1){
-                    packBean = new PackageBean();
-                    firstPack = packBean;
+                    firstPack = bean;
                 }
                 i++;
                 List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(bean.getId());
@@ -417,13 +416,12 @@ public class ShipManagerImpl implements ShipManager
                 int allAmount = 0;
                 double total = 0;
 
-                Map<String, List<BaseBean>> pmap = new HashMap<String, List<BaseBean>>();
+                Map<String, List<PackageItemBean>> pmap = new HashMap<String, List<PackageItemBean>>();
                 boolean isEmergency = false;
                 if (!ListTools.isEmptyOrNull(items)){
                     for (PackageItemBean item : items){
                         PackageItemBean newItem = new PackageItemBean();
 
-//                        newItem.setPackageId(id);
                         //copy current items
                         newItem.setOutId(item.getOutId());
                         newItem.setBaseId(item.getId());
@@ -444,27 +442,27 @@ public class ShipManagerImpl implements ShipManager
                         itemList.add(item);
 
                         allAmount += item.getAmount();
-//                        total += base.getValue();
-//
-//                        if (!pmap.containsKey(base.getProductId()))
-//                        {
-//                            List<BaseBean> blist = new ArrayList<BaseBean>();
-//
-//                            blist.add(base);
-//
-//                            pmap.put(base.getProductId(), blist);
-//                        }else
-//                        {
-//                            List<BaseBean> blist = pmap.get(base.getProductId());
-//
-//                            blist.add(base);
-//                        }
+                        total += item.getValue();
+
+                        if (!pmap.containsKey(item.getProductId()))
+                        {
+                            List<PackageItemBean> blist = new ArrayList<PackageItemBean>();
+
+                            blist.add(item);
+
+                            pmap.put(item.getProductId(), blist);
+                        }else
+                        {
+                            List<PackageItemBean> blist = pmap.get(item.getProductId());
+
+                            blist.add(item);
+                        }
                     }
                 }
 
-                packBean.setAmount(packBean.getAmount() + allAmount);
-                packBean.setTotal(packBean.getTotal() + total);
-                packBean.setProductCount(packBean.getProductCount() + pmap.values().size());
+                packBean.setAmount(allAmount);
+                packBean.setTotal(total);
+                packBean.setProductCount(pmap.values().size());
 
                 if (isEmergency) {
                     packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
@@ -490,11 +488,10 @@ public class ShipManagerImpl implements ShipManager
             packBean.setIndustryName(firstPack.getIndustryName());
             packBean.setDepartName(firstPack.getDepartName());
 
-//            packBean.setTotal(outBean.getTotal());
             packBean.setStatus(0);
             packBean.setLogTime(TimeTools.now());
             packageDAO.saveEntityBean(packBean);
-            _logger.info("****new package created manullay***"+id);
+            _logger.info("****new package created manually***"+id);
 
             for (PackageItemBean item : itemList){
                 item.setPackageId(id);

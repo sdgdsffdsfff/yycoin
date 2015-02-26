@@ -1922,7 +1922,8 @@ public class ShipAction extends DispatchAction
 
     public ActionForward preForMergePackages(ActionMapping mapping, ActionForm form,
                                           HttpServletRequest request, HttpServletResponse response){
-        _logger.info("***************preForMergePackages**************");
+        String packageIds = request.getParameter("packageIds");
+        _logger.info("***************preForMergePackages**************"+packageIds);
         return mapping.findForward("mergePackages");
     }
 
@@ -1931,10 +1932,11 @@ public class ShipAction extends DispatchAction
         String address = request.getParameter("address");
         String receiver = request.getParameter("receiver");
         String phone = request.getParameter("phone");
-        _logger.info("*****mergePickups****************"+address+";"+receiver+":"+phone);
+        String packageIds = request.getParameter("packageIds");
+        _logger.info("*****mergePickups****************"+address+";"+receiver+":"+phone+":"+packageIds);
         try
         {
-//            this.shipManager.autoPickup(Integer.valueOf(pickupCount), productName);
+            this.shipManager.mergePackages(null,packageIds, address, receiver, phone );
             request.setAttribute(KeyConstant.MESSAGE, "手动合并出库单成功");
         }
         catch(Exception e)

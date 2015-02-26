@@ -64,7 +64,21 @@ function autoPickup()
 
 function mergePackages()
 {
-    $l(gurl + 'preForMergePackages');
+    var clis = getCheckBox('checkb');
+
+    if (clis.length > 0)
+    {
+        var str = '';
+        for (var i = 0; i < clis.length; i++)
+        {
+            str += clis[i].value + '~';
+        }
+
+        if (window.confirm('确定合并选中的发货单?'))
+        {
+            $l(gurl + 'preForMergePackages&&packageIds='+str);
+        }
+    }
 }
  
 function $callBack()
