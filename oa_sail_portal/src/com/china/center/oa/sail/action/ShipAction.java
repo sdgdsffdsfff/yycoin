@@ -1923,6 +1923,7 @@ public class ShipAction extends DispatchAction
     public ActionForward preForMergePackages(ActionMapping mapping, ActionForm form,
                                           HttpServletRequest request, HttpServletResponse response){
         String packageIds = request.getParameter("packageIds");
+        request.getSession().setAttribute("packageIds", packageIds);
         _logger.info("***************preForMergePackages**************"+packageIds);
         return mapping.findForward("mergePackages");
     }
@@ -1932,7 +1933,8 @@ public class ShipAction extends DispatchAction
         String address = request.getParameter("address");
         String receiver = request.getParameter("receiver");
         String phone = request.getParameter("phone");
-        String packageIds = request.getParameter("packageIds");
+//        String packageIds = request.getParameter("packageIds");
+        String packageIds = (String)request.getSession().getAttribute("packageIds");
         _logger.info("*****mergePickups****************"+address+";"+receiver+":"+phone+":"+packageIds);
         try
         {

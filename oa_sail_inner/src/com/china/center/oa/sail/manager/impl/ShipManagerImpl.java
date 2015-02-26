@@ -381,7 +381,8 @@ public class ShipManagerImpl implements ShipManager
     @Transactional(rollbackFor = MYException.class)
     public void mergePackages(String user, String packageIds, String address ,String receiver, String phone) throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
-        JudgeTools.judgeParameterIsNull(user, packageIds);
+//        JudgeTools.judgeParameterIsNull(user, packageIds);
+        JudgeTools.judgeParameterIsNull(packageIds);
 
         String[] packages = packageIds.split("~");
 
@@ -390,9 +391,9 @@ public class ShipManagerImpl implements ShipManager
         {
             int i = 1;
 
-            PackageBean packBean = null;
+            PackageBean packBean = new PackageBean();
             List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
-            PackageBean firstPack = new PackageBean();
+            PackageBean firstPack = null;
             for (String id : packages)
             {
                 packageList.add(id);
