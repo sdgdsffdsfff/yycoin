@@ -75,14 +75,17 @@
         <p:line flag="0" />
 
         <p:subBody width="98%">
-            <p:class value="com.china.center.oa.product.bean.PriceConfigBean" />
 
             <p:table cells="2">
 
-                <p:pro field="productId" cell="0" innerString="readonly=true size=80" >
-                    <input type="button" value="&nbsp;...&nbsp;" name="qout" id="qout"
-                           class="button_class" onclick="selectProduct()">&nbsp;&nbsp;
-                </p:pro>
+                <%--<p:pro field="productId" cell="0" innerString="readonly=true size=80" >--%>
+                    <%--<input type="button" value="&nbsp;...&nbsp;" name="qout" id="qout"--%>
+                           <%--class="button_class" onclick="selectProduct()">&nbsp;&nbsp;--%>
+                <%--</p:pro>--%>
+
+                <p:cell title="产品名称" end="true">
+                    <input type="text" name='productName' id ='productName' maxlength="12" />
+                </p:cell>
 
                 <p:cell title="自动捡配批次数量" end="true">
                     <input type="number" name='pickupCount' id ='pickupCount' maxlength="12" />
