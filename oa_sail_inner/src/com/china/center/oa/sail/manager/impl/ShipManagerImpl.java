@@ -552,7 +552,6 @@ public class ShipManagerImpl implements ShipManager
 	}
 
     @Transactional(rollbackFor = MYException.class)
-    @Override
     public int addPickup(String packageIds) throws MYException {
         String [] packages = packageIds.split("~");
 
@@ -1423,13 +1422,25 @@ public class ShipManagerImpl implements ShipManager
     }
 
     @Override
+    @Transactional(rollbackFor = MYException.class)
     public void autoPickup(int pickupCount, String productName) throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         _logger.info("***autoPickup****"+pickupCount+":"+productName);
-        ConditionParse con1 = new ConditionParse();
-        con1.addWhereStr();
-        con1.addIntCondition("status","=", ShipConstant.SHIP_STATUS_INIT);
-        List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(con1);
+        ConditionParse condtion = new ConditionParse();
+        condtion.addWhereStr();
+        condtion.addIntCondition("status","=", ShipConstant.SHIP_STATUS_INIT);
+
+
+        String temp = condtion.toString();
+        _logger.info("****************temp************"+temp);
+        if (!StringTools.isNullOrNone(productName)){
+//            int index2 = temp.lastIndexOf("AND");
+//            String prefix = temp.substring(0,index2);
+            String sql = temp+" and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%"+productName+"%')";
+            condtion.setCondition(sql);
+        }
+
+        List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(condtion);
 
         if (!ListTools.isEmptyOrNull(packages)){
             int realPickupCount = 0;
@@ -1477,21 +1488,54 @@ public class ShipManagerImpl implements ShipManager
 
             //TODO
             //仓库地点相同的在一个批次里
-//            Map<String,StringBuilder> map1 = new HashMap<String,StringBuilder>();
-//            for (Iterator<PackageBean> it = packages.iterator();it.hasNext();){
-//                PackageBean current = it.next();
-//                if (current.getShipping() == 0){
-//                    String ck = current.getId();
-//                    _logger.info("*****selfTakePackages***"+ck);
-//                    it.remove();
-//                    sb2.append(ck).append("~");
-//                }
-//            }
-//            _logger.info("****packages size remove selfTakePackages****"+packages.size());
-//            String selfTakePackages = sb2.toString();
-//            if (!StringTools.isNullOrNone(selfTakePackages)){
-//                this.addPickup(selfTakePackages);
-//            }
+            //<key,value> as <location,packageIds>
+            Map<String,StringBuilder> map1 = new HashMap<String,StringBuilder>();
+
+            for (Iterator<PackageBean> it = packages.iterator();it.hasNext();){
+                PackageBean current = it.next();
+                List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(current.getId());
+                if (!ListTools.isEmptyOrNull(items)){
+                    PackageItemBean first = items.get(0);
+                    OutVO outBean = outDAO.findVO(first.getOutId());
+                    if (outBean!= null){
+                        String lo = outBean.getLocation();
+                        if (!StringTools.isNullOrNone(lo)){
+                            if (map1.containsKey(lo)){
+                                StringBuilder sb = map1.get(lo);
+                                sb.append(current.getId()).append("~");
+                            } else {
+                                StringBuilder sb = new StringBuilder();
+                                sb.append(current.getId()).append("~");
+                                map1.put(lo, sb);
+                            }
+                        }
+                    }
+                }
+            }
+
+            //remove from queue
+            for (String location : map1.keySet()){
+                StringBuilder sb = map1.get(location);
+                String[] packageIds = sb.toString().split("~");
+                _logger.info("****location***packageIds***"+location+":"+sb.toString());
+                //只有仓库相同的CK单才合并
+                if (packageIds.length >1){
+                    for (Iterator<PackageBean> it = packages.iterator();it.hasNext();){
+                        PackageBean current = it.next();
+                        for (String id : packageIds){
+                            if (id.equals(current.getId())){
+                                it.remove();
+                            }
+                        }
+                    }
+
+                    realPickupCount += this.addPickup(sb.toString());
+                    if (realPickupCount>= pickupCount){
+                        return ;
+                    }
+                }
+            }
+            _logger.info("****packages size after remove same location****"+packages.size());
 
             //同一事业部的CK单在同一批次里
             Map<String,StringBuilder> map2 = new HashMap<String,StringBuilder>();
@@ -1514,6 +1558,8 @@ public class ShipManagerImpl implements ShipManager
             }
 
             _logger.info("****autoPickup exit with pickup count:"+realPickupCount);
+        } else {
+            _logger.info("****autoPickup no packages to do****");
         }
 
     }

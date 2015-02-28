@@ -100,6 +100,8 @@ public class PackageManagerImpl implements PackageManager {
 	
 	private PlatformTransactionManager transactionManager = null;
 
+    private Object lock = new Object();
+
 	public PackageManagerImpl()
 	{
 	}
@@ -109,39 +111,41 @@ public class PackageManagerImpl implements PackageManager {
 	 */
 	public void createPackage()
 	{
-        String msg = "*******************createPackage 开始统计***********************";
-        System.out.println(msg);
-        triggerLog.info(msg);
-        
-        long statsStar = System.currentTimeMillis();
-        
-        TransactionTemplate tran = new TransactionTemplate(transactionManager);
-        
-        try
-        {
-            tran.execute(new TransactionCallback()
+        synchronized (this.lock){
+            String msg = "*******************createPackage 开始统计***********************";
+            System.out.println(msg);
+            triggerLog.info(msg);
+
+            long statsStar = System.currentTimeMillis();
+
+            TransactionTemplate tran = new TransactionTemplate(transactionManager);
+
+            try
             {
-                public Object doInTransaction(TransactionStatus arg0)
+                tran.execute(new TransactionCallback()
                 {
-                    try{
-                    	processOut();
-                    }catch(MYException e)
+                    public Object doInTransaction(TransactionStatus arg0)
                     {
-                    	throw new RuntimeException(e);
+                        try{
+                            processOut();
+                        }catch(MYException e)
+                        {
+                            throw new RuntimeException(e);
+                        }
+
+                        return Boolean.TRUE;
                     }
-                	
-                    return Boolean.TRUE;
-                }
-            });
+                });
+            }
+            catch (Exception e)
+            {
+                triggerLog.error(e, e);
+            }
+
+            triggerLog.info("createPackage 统计结束... ,共耗时："+ (System.currentTimeMillis() - statsStar));
+
+            return;
         }
-        catch (Exception e)
-        {
-            triggerLog.error(e, e);
-        }
-      
-        triggerLog.info("createPackage 统计结束... ,共耗时："+ (System.currentTimeMillis() - statsStar));
-        
-        return;
     }
 	
 	/**
