@@ -13,6 +13,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.china.center.oa.stock.bean.StockItemBean;
+import com.china.center.tools.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,11 +48,6 @@ import com.china.center.oa.publics.manager.UserManager;
 import com.china.center.oa.stock.bean.StockBean;
 import com.china.center.oa.stock.dao.StockDAO;
 import com.china.center.oa.stock.dao.StockItemDAO;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.JudgeTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
 
 
 /**
@@ -62,6 +61,8 @@ import com.china.center.tools.TimeTools;
 @Exceptional
 public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayApplyListener> implements StockPayApplyManager
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private StockPayApplyDAO stockPayApplyDAO = null;
 
     private FlowLogDAO flowLogDAO = null;
@@ -229,6 +230,8 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 
         String pid = "";
 
+        String invoiceType = "";
+
         StringBuffer stockBuffer = new StringBuffer();
 
         StringBuffer stockItemBuffer = new StringBuffer();
@@ -282,6 +285,22 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
                 }
             }
 
+            //2015/2/28发票类型必须一致
+            List<StockItemBean> items = this.stockItemDAO.queryEntityBeansByFK(stock.getId());
+            if (!ListTools.isEmptyOrNull(items)){
+                 StockItemBean item = items.get(0);
+                if (StringTools.isNullOrNone(invoiceType))
+                {
+                    invoiceType = item.getInvoiceType();
+                } else
+                {
+                    if ( !invoiceType.equals(item.getInvoiceType()))
+                    {
+                        throw new MYException("发票类型一致才能合并,请确认操作");
+                    }
+                }
+            }
+
             idBuffer
                 .append(id)
                 .append("/金额:")
@@ -316,7 +335,12 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 
         apply.setDutyId(beanList.get(0).getDutyId());
 
-        apply.setInvoiceId(beanList.get(0).getInvoiceId());
+        String invoiceId = beanList.get(0).getInvoiceId();
+        if (StringTools.isNullOrNone(invoiceId)){
+           _logger.warn("********empty invoiceId****");
+        } else{
+            apply.setInvoiceId(invoiceId);
+        }
 
         apply.setLocationId(beanList.get(0).getLocationId());
 
