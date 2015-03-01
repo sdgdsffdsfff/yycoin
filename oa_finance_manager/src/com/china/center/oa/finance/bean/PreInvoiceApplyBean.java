@@ -83,6 +83,18 @@ public class PreInvoiceApplyBean implements Serializable
      * 开票
      */
     private int otype = FinanceConstant.INVOICEINS_TYPE_OUT;
+
+    /**
+     * 2015/3/1 增加地址、收货人、电话字段
+     */
+    @Html(title = "地址", must = true, maxLength = 60)
+    private String address = "";
+
+    @Html(title = "收货人", must = true, maxLength = 20)
+    private String receiver = "";
+
+    @Html(title = "电话", must = true, maxLength = 20)
+    private String mobile = "";
     
     /**
      * 计划开单日期
@@ -299,4 +311,28 @@ public class PreInvoiceApplyBean implements Serializable
 	{
 		this.invoiceMoney = invoiceMoney;
 	}
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
 }

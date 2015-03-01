@@ -103,6 +103,12 @@ function getCustomer(obj)
             <p:pro field="total" value="0"/>
             
             <p:pro field="planOutTime"/>
+
+            <p:pro field="address" cell="0" innerString="size=60"/>
+
+            <p:pro field="receiver" cell="0" innerString="size=60"/>
+
+            <p:pro field="mobile" cell="0" innerString="size=60"/>
             
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
             

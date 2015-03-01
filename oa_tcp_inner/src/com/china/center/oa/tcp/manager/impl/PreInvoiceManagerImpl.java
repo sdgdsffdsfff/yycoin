@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.china.center.oa.sail.bean.PreConsignBean;
+import com.china.center.oa.sail.dao.PreConsignDAO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +64,8 @@ import com.china.center.tools.TimeTools;
 
 public class PreInvoiceManagerImpl implements PreInvoiceManager
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private final Log          operationLog       = LogFactory.getLog("opr");
 
     private CommonDAO commonDAO = null;
@@ -97,6 +101,8 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
     private InvoiceinsItemDAO invoiceinsItemDAO = null;
     
     private InsVSOutDAO insVSOutDAO = null;
+
+    private PreConsignDAO preConsignDAO = null;
     
     /**
 	 * 
@@ -410,6 +416,7 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
 	public boolean passPreInvoiceBean(User user, TcpParamWrap param)
 			throws MYException
 	{
+        try{
         String id = param.getId();
         String processId = param.getProcessId();
         String reason = param.getReason();
@@ -426,7 +433,7 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         //checkAuth(user, id);
 
         int oldStatus = bean.getStatus();
-
+        _logger.info("************passPreInvoiceBean oldStatus***"+oldStatus);
         // 分支处理
         logicProcess(user, param, bean, oldStatus);
         
@@ -470,6 +477,7 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
             throw new MYException("数据错误,请确认操作");
         }
 
+        _logger.info("****flowKey:"+bean.getFlowKey()+"***status***"+bean.getStatus()+"***nextPlugin***"+token.getNextPlugin()+"**nextStatus***"+token.getNextStatus());
         // 群组模式
         if (token.getNextPlugin().startsWith("group")) {
             int newStatus = saveApprove(user, processId, bean, token.getNextStatus(), 0);
@@ -478,6 +486,7 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
                 bean.setStatus(newStatus);
 
                 preInvoiceApplyDAO.updateStatus(bean.getId(), newStatus);
+
             }
 
             // 记录操作日志
@@ -514,6 +523,17 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         else if (token.getNextPlugin().startsWith("plugin")) {
         	int newStatus = saveApprove(user, bean.getStafferId(), bean, token.getNextStatus(), 0);
 
+
+            //2015/3/1 当状态为“待财务开票”通过后，将此发票信息写入CK单中间表
+            if (TcpConstanst.TCP_STATUS_TAX_INVOICE == oldStatus){
+                PreConsignBean preConsign = new PreConsignBean();
+
+                preConsign.setOutId(bean.getId());
+
+                preConsignDAO.saveEntityBean(preConsign);
+                _logger.info("*******create PreConsignBean for preinvoice****"+bean.getId());
+            }
+
             if (newStatus != oldStatus) {
                 bean.setStatus(newStatus);
 
@@ -537,6 +557,11 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         }
 
         return true;
+        }catch(Exception e){
+            e.printStackTrace();
+            _logger.error("passPreInvoiceBean exception:",e);
+            throw new MYException("后台数据错误");
+        }
     }
 
     /**
@@ -562,36 +587,44 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
         	double hasInvoice = MathTools.parseDouble(TCPHelper.longToDouble2(bean.getInvoiceMoney())); 
         	
         	// 本次新增的
-        	List<PreInvoiceVSOutBean> vsList = (List<PreInvoiceVSOutBean>)param.getOther();
+            List<PreInvoiceVSOutBean> vsList = null;
+            if (param.getOther() == null){
+                _logger.warn("param.getOther is null**************");
+                throw new MYException("参数错误");
+            } else{
+        	    vsList = (List<PreInvoiceVSOutBean>)param.getOther();
+            }
         	
         	List<PreInvoiceVSOutBean> lastVsList = new ArrayList<PreInvoiceVSOutBean>();
-        	
-        	for (PreInvoiceVSOutBean each : vsList)
-        	{
-        		each.setParentId(bean.getId());
-        		
-        		if ((hasInvoice + each.getInvoiceMoney())>= preInvoice){
-        			
-        			if (preInvoice - hasInvoice <= 0)
-        				break;
-        			
-        			each.setInvoiceMoney(preInvoice - hasInvoice);
-        			
-        			invoiceMoney += each.getInvoiceMoney();
-        			
-        			hasInvoice += each.getInvoiceMoney();
-        			
-        			lastVsList.add(each);
-        			
-        			break;
-        		}else{
-        			invoiceMoney += each.getInvoiceMoney();
-        			
-        			hasInvoice += each.getInvoiceMoney();
-        			
-        			lastVsList.add(each);
-        		}
-        	}
+
+            if (vsList!= null){
+                for (PreInvoiceVSOutBean each : vsList)
+                {
+                    each.setParentId(bean.getId());
+
+                    if ((hasInvoice + each.getInvoiceMoney())>= preInvoice){
+
+                        if (preInvoice - hasInvoice <= 0)
+                            break;
+
+                        each.setInvoiceMoney(preInvoice - hasInvoice);
+
+                        invoiceMoney += each.getInvoiceMoney();
+
+                        hasInvoice += each.getInvoiceMoney();
+
+                        lastVsList.add(each);
+
+                        break;
+                    }else{
+                        invoiceMoney += each.getInvoiceMoney();
+
+                        hasInvoice += each.getInvoiceMoney();
+
+                        lastVsList.add(each);
+                    }
+                }
+            }
         	
         	long invoiceMoneys = bean.getInvoiceMoney() + MathTools.doubleToLong2(invoiceMoney);
         	
@@ -1102,4 +1135,20 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
 	{
 		this.insVSOutDAO = insVSOutDAO;
 	}
+
+
+    /**
+     * @return the preConsignDAO
+     */
+    public PreConsignDAO getPreConsignDAO() {
+        return preConsignDAO;
+    }
+
+
+    /**
+     * @param preConsignDAO the preConsignDAO to set
+     */
+    public void setPreConsignDAO(PreConsignDAO preConsignDAO) {
+        this.preConsignDAO = preConsignDAO;
+    }
 }

@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.china.center.oa.finance.bean.PreInvoiceApplyBean;
+import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
+import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
 import com.china.center.oa.sail.manager.OutManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -102,6 +105,8 @@ public class PackageManagerImpl implements PackageManager {
 
     private Object lock = new Object();
 
+    private PreInvoiceApplyDAO preInvoiceApplyDAO = null;
+
 	public PackageManagerImpl()
 	{
 	}
@@ -169,10 +174,18 @@ public class PackageManagerImpl implements PackageManager {
 					triggerLog.info("======is invoiceins======" + each.getOutId());
 					createInsPackage(each, insBean.getId());
 				} else {
-					triggerLog.info("======is other, direct delete, handle nothing======");
-					preConsignDAO.deleteEntityBean(each.getId());
-					
-					continue;
+                    //2015/3/1 预开票申请也需要进入CK单
+                    PreInvoiceApplyVO applyBean = this.preInvoiceApplyDAO.findVO(each.getOutId());
+
+                    if (applyBean!= null){
+                        triggerLog.info("======is PreInvoiceApplyBean======" + each.getOutId());
+                        this.createPreInsPackage(each, applyBean);
+                    } else{
+                        triggerLog.info("======is other, direct delete, handle nothing======");
+                        preConsignDAO.deleteEntityBean(each.getId());
+
+                        continue;
+                    }
 				}
 			}
 		}
@@ -279,8 +292,7 @@ public class PackageManagerImpl implements PackageManager {
 	
 	/**
 	 * for invoiceins
-	 * @param outBean
-	 * @param baseList
+	 * @param ins
 	 * @param distVO
 	 * @param fullAddress
 	 * @param location
@@ -839,6 +851,181 @@ public class PackageManagerImpl implements PackageManager {
 	}
 
     /**
+     *  2015/3/1 预开票也需要进入CK单
+     * @param pre
+     * @param bean
+     * @throws MYException
+     */
+    public void createPreInsPackage(PreConsignBean pre, PreInvoiceApplyVO bean) throws MYException
+    {
+        // 此客户是否存在同一个发货包裹,且未拣配
+        ConditionParse con = new ConditionParse();
+        con.addWhereStr();
+
+        String fullAddress = bean.getAddress();
+        String temp = fullAddress.trim();
+
+        if (temp.length()>=6){
+            con.addCondition("PackageBean.address", "like", "%"+temp.substring(temp.length()-6));
+        }else{
+            con.addCondition("PackageBean.address", "like", "%"+temp);
+        }
+
+        con.addCondition("PackageBean.receiver", "=", bean.getReceiver());
+
+        con.addCondition("PackageBean.mobile", "=", bean.getMobile());
+
+        con.addIntCondition("PackageBean.status", "=", 0);
+
+
+        List<PackageVO> packageList = packageDAO.queryVOsByCondition(con);
+
+//		if (packageList.size() > 1){
+//			throw new MYException("数据异常,生成发货单出错.");
+//		}
+
+        if (ListTools.isEmptyOrNull(packageList))
+        {
+            //TODO
+            createNewPreInsPackage(bean, null, fullAddress, null);
+        }else{
+            String id = packageList.get(0).getId();
+
+            PackageBean packBean = packageDAO.find(id);
+
+            // 不存在或已不是初始状态(可能已被拣配)
+            if (null == packBean || packBean.getStatus() != 0)
+            {
+                createNewPreInsPackage(bean, null, fullAddress, null);
+            }else
+            {
+                List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
+                PackageItemBean item = new PackageItemBean();
+
+                item.setPackageId(id);
+                item.setOutId(bean.getId());
+                item.setBaseId(bean.getId());
+//                item.setProductId(bean.getInvoiceNum());
+                item.setProductName("发票号：" + bean.getInvoiceName());
+                item.setAmount(1);
+                item.setPrice(bean.getInvoiceMoney());
+                item.setValue(bean.getInvoiceMoney());
+                item.setOutTime(TimeTools.changeFormat(bean.getLogTime(), TimeTools.LONG_FORMAT, TimeTools.SHORT_FORMAT));
+                item.setDescription(bean.getDescription());
+                item.setCustomerId(bean.getCustomerId());
+                item.setPrintText("test text");
+
+                itemList.add(item);
+
+                packBean.setAmount(packBean.getAmount() + 1);
+                packBean.setTotal(packBean.getTotal() + bean.getInvoiceMoney());
+                packBean.setProductCount(packBean.getProductCount() + 1);
+
+                packageDAO.updateEntityBean(packBean);
+
+                packageItemDAO.saveAllEntityBeans(itemList);
+
+                // 包与客户关系
+                PackageVSCustomerBean vsBean = packageVSCustomerDAO.findByUnique(id, bean.getCustomerId());
+
+                if (null == vsBean)
+                {
+                    int count = packageVSCustomerDAO.countByCondition("where packageId = ?", id);
+
+                    PackageVSCustomerBean newvsBean = new PackageVSCustomerBean();
+
+                    newvsBean.setPackageId(id);
+                    newvsBean.setCustomerId(bean.getCustomerId());
+                    newvsBean.setCustomerName(bean.getCustomerName());
+                    newvsBean.setIndexPos(count + 1);
+
+                    packageVSCustomerDAO.saveEntityBean(newvsBean);
+                }
+            }
+        }
+
+        preConsignDAO.deleteEntityBean(pre.getId());
+    }
+
+    private void createNewPreInsPackage(PreInvoiceApplyVO ins, DistributionVO distVO, String fullAddress, String location)
+    {
+        String id = commonDAO.getSquenceString20("CK");
+
+        PackageBean packBean = new PackageBean();
+
+        packBean.setId(id);
+        packBean.setCustomerId(ins.getCustomerId());
+
+        //TODO
+//        packBean.setShipping(distVO.getShipping());
+//        packBean.setTransport1(distVO.getTransport1());
+//        packBean.setExpressPay(distVO.getExpressPay());
+//        packBean.setTransport2(distVO.getTransport2());
+//        packBean.setTransportPay(distVO.getTransportPay());
+//        packBean.setCityId(distVO.getCityId());
+
+        packBean.setLocationId(packBean.getLocationId());
+        packBean.setAddress(ins.getAddress());
+        packBean.setReceiver(ins.getReceiver());
+        packBean.setMobile(ins.getMobile());
+
+        packBean.setStafferName(ins.getStafferName());
+
+        StafferVO staff = stafferDAO.findVO(ins.getStafferId());
+
+        if (null != staff) {
+            packBean.setIndustryName(staff.getIndustryName());
+            packBean.setDepartName(staff.getIndustryName3());
+        }
+
+        packBean.setTotal(ins.getTotal());
+        packBean.setStatus(0);
+        packBean.setLogTime(TimeTools.now());
+
+//        StringBuilder sb = getPrintTextForIns(ins);
+
+        List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
+
+        PackageItemBean item = new PackageItemBean();
+
+        item.setPackageId(id);
+        item.setOutId(ins.getId());
+        //TODO
+//        item.setBaseId(base.getId());
+//        item.setProductId(base.getInvoiceNum());
+        item.setProductName("发票号：" + ins.getInvoiceName());
+        item.setAmount(1);
+        item.setPrice(ins.getInvoiceMoney());
+        item.setValue(ins.getInvoiceMoney());
+        item.setOutTime(TimeTools.changeFormat(ins.getLogTime(), TimeTools.LONG_FORMAT, TimeTools.SHORT_FORMAT));
+        item.setDescription(ins.getDescription());
+        item.setCustomerId(ins.getCustomerId());
+        //TODO
+        item.setPrintText("test print text");
+
+        itemList.add(item);
+
+
+        packBean.setAmount(1);
+
+        packBean.setProductCount(1);
+
+        PackageVSCustomerBean vsBean = new PackageVSCustomerBean();
+
+        vsBean.setPackageId(id);
+        vsBean.setCustomerId(ins.getCustomerId());
+        vsBean.setCustomerName(ins.getCustomerName());
+        vsBean.setIndexPos(1);
+
+        packageDAO.saveEntityBean(packBean);
+        _logger.info("***create new package for preinvoice****"+ins.getId());
+
+        packageItemDAO.saveAllEntityBeans(itemList);
+
+        packageVSCustomerDAO.saveEntityBean(vsBean);
+    }
+
+    /**
      * 2015/2/3 票随货发合并订单及发票
      * @param outIdList
      * @throws MYException
@@ -1329,5 +1516,21 @@ public class PackageManagerImpl implements PackageManager {
 
     public void setOutManager(OutManager outManager) {
         this.outManager = outManager;
+    }
+
+
+    /**
+     * @return the preInvoiceApplyDAO
+     */
+    public PreInvoiceApplyDAO getPreInvoiceApplyDAO() {
+        return preInvoiceApplyDAO;
+    }
+
+
+    /**
+     * @param preInvoiceApplyDAO the preInvoiceApplyDAO to set
+     */
+    public void setPreInvoiceApplyDAO(PreInvoiceApplyDAO preInvoiceApplyDAO) {
+        this.preInvoiceApplyDAO = preInvoiceApplyDAO;
     }
 }

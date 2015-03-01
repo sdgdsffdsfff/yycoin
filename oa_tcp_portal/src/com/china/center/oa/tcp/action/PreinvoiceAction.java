@@ -434,7 +434,14 @@ public class PreinvoiceAction extends DispatchAction
         String totals = request.getParameter("total");
         
         bean.setTotal(MathTools.doubleToLong2(totals));
-        
+
+        String address = request.getParameter("address");
+        bean.setAddress(address);
+        String receiver = request.getParameter("receiver");
+        bean.setReceiver(receiver);
+        String mobile = request.getParameter("mobile");
+        bean.setMobile(mobile);
+
         try
         {
             User user = Helper.getUser(request);
@@ -533,7 +540,8 @@ public class PreinvoiceAction extends DispatchAction
         String oprType = request.getParameter("oprType");
         String reason = request.getParameter("reason");
         String processId = request.getParameter("processId");
-        
+
+        _logger.info("id:"+id+" optType:"+oprType+" reason:"+reason+" processId:"+processId);
         try
         {
             User user = Helper.getUser(request);
@@ -548,6 +556,7 @@ public class PreinvoiceAction extends DispatchAction
             // 组装参数
             fillWrap(request, param);
 
+            _logger.info("************11111111111111111");
             // 提交
             if ("0".equals(oprType))
             {

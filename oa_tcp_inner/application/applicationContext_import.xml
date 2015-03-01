@@ -93,6 +93,8 @@
 	<osgi:reference id="outBalanceDAO" interface="com.china.center.oa.sail.dao.OutBalanceDAO" />
 
 	<osgi:reference id="baseBalanceDAO" interface="com.china.center.oa.sail.dao.BaseBalanceDAO" />
+
+    <osgi:reference id="preConsignDAO" interface="com.china.center.oa.sail.dao.PreConsignDAO" />
 	
 	<osgi:reference id="invoiceinsItemDAO" interface="com.china.center.oa.finance.dao.InvoiceinsItemDAO" />
 
