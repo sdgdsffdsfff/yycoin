@@ -77,6 +77,12 @@ function load()
             <p:pro field="total" value="${my:formatNum(bean.total / 100.0)}"/>
             
             <p:pro field="invoiceMoney" value="${my:formatNum(bean.invoiceMoney / 100.0)}"/>
+
+            <p:pro field="address" cell="0" innerString="size=60"/>
+
+            <p:pro field="receiver" cell="0" innerString="size=20"/>
+
+            <p:pro field="mobile" cell="0" innerString="size=20"/>
             
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
             

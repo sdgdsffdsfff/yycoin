@@ -177,7 +177,9 @@ public class ShipAction extends DispatchAction
 //            System.out.println("**************condition44444444444444444"+condtion.toString());
         }
 
-        condtion.addCondition("order by CustomerBean.name");
+//        condtion.addCondition("order by CustomerBean.name");
+        //2015/3/1 暂时按照时间排序，时间最老的最先显示
+        condtion.addCondition("order by PackageBean.logTime asc");
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPACKAGE, request, condtion, this.packageDAO,
                 new HandleResult<PackageVO>()
                 {

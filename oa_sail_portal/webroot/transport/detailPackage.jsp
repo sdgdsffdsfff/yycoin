@@ -135,10 +135,13 @@ function load()
                     <c:forEach items="${bean.itemList}" var="item" varStatus="vs">
                         <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
 	                        <c:if test="${fn:substring(item.outId, 0, 1)== 'A'}">
-	                        <td align="center"><a href="../finance/invoiceins.do?method=findInvoiceins&id=${item.outId}">${item.outId}</a></td>
+	                            <td align="center"><a href="../finance/invoiceins.do?method=findInvoiceins&id=${item.outId}">${item.outId}</a></td>
 	                        </c:if>
-	                        <c:if test="${fn:substring(item.outId, 0, 1)!= 'A'}">
-	                        <td align="center"><a href="../sail/out.do?method=findOut&flow=99&outId=${item.outId}">${item.outId}</a></td>
+                            <c:if test="${fn:substring(item.outId, 0, 2)== 'FP'}">
+                                <td align="center"><a href="../tcp/preinvoice.do?method=findPreInvoice&id=${item.outId}">${item.outId}</a></td>
+                            </c:if>
+	                        <c:if test="${fn:substring(item.outId, 0, 1)!= 'A' && fn:substring(item.outId, 0, 2)!= 'FP'}">
+	                            <td align="center"><a href="../sail/out.do?method=findOut&flow=99&outId=${item.outId}">${item.outId}</a></td>
 	                        </c:if>
 
                             <td  align="center">${item.productName}</td>
