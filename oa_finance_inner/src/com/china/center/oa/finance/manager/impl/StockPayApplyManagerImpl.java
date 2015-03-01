@@ -335,11 +335,17 @@ public class StockPayApplyManagerImpl extends AbstractListenerManager<StockPayAp
 
         apply.setDutyId(beanList.get(0).getDutyId());
 
-        String invoiceId = beanList.get(0).getInvoiceId();
+        String invoiceId = "";
+        for (StockPayApplyBean bean :beanList){
+             if (!StringTools.isNullOrNone(bean.getInvoiceId())){
+                 invoiceId = bean.getInvoiceId();
+             }
+        }
         if (StringTools.isNullOrNone(invoiceId)){
-           _logger.warn("********empty invoiceId****");
+           _logger.warn(apply.getId()+"********empty invoiceId****");
         } else{
             apply.setInvoiceId(invoiceId);
+            _logger.warn(apply.getId()+"********apply invoiceId****"+invoiceId);
         }
 
         apply.setLocationId(beanList.get(0).getLocationId());
