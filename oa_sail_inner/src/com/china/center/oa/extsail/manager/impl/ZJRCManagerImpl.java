@@ -641,10 +641,9 @@ public class ZJRCManagerImpl implements ZJRCManager
 	    	
 	    	newOutBean.setLocationId("999");
 	    	
-//	    	newOutBean.setLocation(each.getLocationId());
+	    	newOutBean.setLocation(each.getLocationId());
 
-            //2015/2/24 紫金订单转OA时，默认使用“公共库--南京物流中心"
-            newOutBean.setLocation(DepotConstant.CENTER_DEPOT_ID);
+//            newOutBean.setLocation(DepotConstant.CENTER_DEPOT_ID);
 
 	    	newOutBean.setType(OutConstant.OUT_TYPE_OUTBILL);
 	    	
@@ -740,9 +739,14 @@ public class ZJRCManagerImpl implements ZJRCManager
 			
 			base.setLocationId(each.getLocationId());
 			
-			base.setDepotpartId(each.getDepotpartId());
+//			base.setDepotpartId(each.getDepotpartId());
 			
-			base.setDepotpartName(OutImportConstant.ZJRC_DEPOTPARTNAME);
+//			base.setDepotpartName(OutImportConstant.ZJRC_DEPOTPARTNAME);
+
+            //2015/3/2 转OA单时默认为南京公共库
+            base.setDepotpartId(DepotConstant.CENTER_DEPOT_ID);
+            base.setDepotpartName("南京物流中心-物流中心库(销售可发)");
+            _logger.info(newOutId+"****ZJRC2OA default use nanjing center*********"+base.getId());
 			
 			base.setOwner("0");
 			
