@@ -676,7 +676,7 @@ public class ShipAction extends DispatchAction
     {
         User user = Helper.getUser(request);
 
-        AjaxResult ajax = new AjaxResult();
+//        AjaxResult ajax = new AjaxResult();
 
         // separate by ~
         String packageIds = request.getParameter("packageIds");
@@ -685,15 +685,18 @@ public class ShipAction extends DispatchAction
         try{
             shipManager.cancelPackage(user, packageIds);
 
-            ajax.setSuccess("撤销成功");
+//            ajax.setSuccess("撤销成功");
+            request.setAttribute(KeyConstant.MESSAGE, "撤销成功");
         }catch(MYException e)
         {
             _logger.warn(e, e);
 
-            ajax.setError("撤销出错:"+ e.getErrorContent());
+//            ajax.setError("撤销出错:"+ e.getErrorContent());
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "撤销出错:"+e.getErrorContent());
         }
 
-        return JSONTools.writeResponse(response, ajax);
+//        return JSONTools.writeResponse(response, ajax);
+        return mapping.findForward("queryPickup");
     }
 
     /**
