@@ -641,9 +641,10 @@ public class ZJRCManagerImpl implements ZJRCManager
 	    	
 	    	newOutBean.setLocationId("999");
 	    	
-	    	newOutBean.setLocation(each.getLocationId());
+//	    	newOutBean.setLocation(each.getLocationId());
 
-//            newOutBean.setLocation(DepotConstant.CENTER_DEPOT_ID);
+            //2015/3/3 紫金订单转OA时，默认使用“公共库--南京物流中心"
+            newOutBean.setLocation(DepotConstant.CENTER_DEPOT_ID);
 
 	    	newOutBean.setType(OutConstant.OUT_TYPE_OUTBILL);
 	    	
