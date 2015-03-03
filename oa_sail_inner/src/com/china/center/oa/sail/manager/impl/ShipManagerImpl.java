@@ -756,6 +756,58 @@ public class ShipManagerImpl implements ShipManager
 		return true;
 	}
 
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public boolean updatePackagesStatus(User user, String packageIds) throws MYException {
+        JudgeTools.judgeParameterIsNull(user, packageIds);
+
+        List<PackageBean> packageList = new ArrayList<PackageBean>();
+        String [] packages = packageIds.split("~");
+
+        if (packages!= null){
+            for (String pack : packages){
+                  PackageBean bean = this.packageDAO.find(pack);
+                  if (bean!= null){
+                      packageList.add(bean);
+                  }
+            }
+        }
+
+        Set<String> set = new HashSet<String>();
+
+        for (PackageBean each : packageList)
+        {
+            if (StringTools.isNullOrNone(each.getPickupId())){
+                _logger.info("****CK单pickupId不能为空****"+each.getId());
+                throw new MYException("CK单[%s]pickupId不能为空", each.getId());
+            }
+            each.setStatus(ShipConstant.SHIP_STATUS_CONSIGN);
+
+            each.setShipTime(TimeTools.now());
+
+            List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
+
+            for (PackageItemBean eachItem : itemList)
+            {
+                if (!set.contains(eachItem.getOutId()))
+                {
+                    OutBean out = outDAO.find(eachItem.getOutId());
+
+                    if (null != out && out.getStatus() == OutConstant.STATUS_PASS)
+                    {
+                        outDAO.modifyOutStatus(out.getFullId(), OutConstant.STATUS_SEC_PASS);
+
+                        distributionDAO.updateOutboundDate(out.getFullId(), TimeTools.now_short());
+                    }
+                }
+            }
+
+            packageDAO.updateEntityBean(each);
+        }
+
+        return true;
+    }
+
     @Deprecated
     @Transactional(rollbackFor = MYException.class)
     public void sendMailForShipping2() throws MYException {

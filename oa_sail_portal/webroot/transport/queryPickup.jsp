@@ -76,17 +76,35 @@ function receiptPagePrint(flag)
 
 function sub()
 {
-	if (getRadioValue('pickupId') == '')
-	{
-		alert('请选择出库单');
-		return;
-	}
+//	if (getRadioValue('pickupId') == '')
+//	{
+//		alert('请选择出库单');
+//		return;
+//	}
+//
+//	$O('method').value = 'mUpdateStatus';
+//
+//	$O('pickupId').value = getRadioValue("pickupId");
+//
+//	formEntry.submit();
+    var clis = getCheckBox('packageIds');
+    var pickupId = getRadioValue("pickupId");
 
-	$O('method').value = 'mUpdateStatus';
-
-	$O('pickupId').value = getRadioValue("pickupId");
-
-	formEntry.submit();
+    if (clis.length > 0)
+    {
+        var packageIds = "";
+        for (var i = 0; i < clis.length; i++)
+        {
+            packageIds += clis[i].value + '~';
+        }
+        if (window.confirm('确认发货选中的出库单?')){
+            $l('../sail/ship.do?method=mUpdateStatus&packageIds='+packageIds);
+        }
+    } else {
+        if (window.confirm('确认发货选中批次下的所有出库单?')){
+            $l('../sail/ship.do?method=mUpdateStatus&pickupId='+pickupId);
+        }
+    }
 }
 
 function cancelPickup()

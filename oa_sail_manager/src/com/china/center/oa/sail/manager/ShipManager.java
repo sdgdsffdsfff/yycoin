@@ -26,6 +26,8 @@ public interface ShipManager
     boolean cancelPackage(User user, String packageIds) throws MYException;
 	
 	boolean updateStatus(User user, String pickupId) throws MYException;
+
+    boolean updatePackagesStatus(User user, String packageIds) throws MYException;
 	
 	boolean updatePrintStatus(String pickupId, int index_pos) throws MYException;
 	

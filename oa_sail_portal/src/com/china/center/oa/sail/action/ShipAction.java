@@ -1720,19 +1720,35 @@ public class ShipAction extends DispatchAction
             throws ServletException
     {
         String pickupId = request.getParameter("pickupId");
+        String packageIds = request.getParameter("packageIds");
 
         User user = Helper.getUser(request);
 
-        try{
-            shipManager.updateStatus(user, pickupId);
+        if (StringTools.isNullOrNone(pickupId)){
+            _logger.info("****mUpdateStatus with packageIds****"+packageIds);
+            try{
+                shipManager.updatePackagesStatus(user, packageIds);
+                request.setAttribute(KeyConstant.MESSAGE, "发货确认成功");
+            }catch(MYException e)
+            {
+                _logger.warn(e, e);
 
-            request.setAttribute(KeyConstant.MESSAGE, "发货确认成功");
-        }catch(MYException e)
-        {
-            _logger.warn(e, e);
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "确认发货失败");
+            }
+        } else {
+            _logger.info("****mUpdateStatus with pickupId****"+pickupId);
+            try{
+                shipManager.updateStatus(user, pickupId);
+                request.setAttribute(KeyConstant.MESSAGE, "发货确认成功");
+            }catch(MYException e)
+            {
+                _logger.warn(e, e);
 
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "确认发货失败");
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "确认发货失败");
+            }
         }
+
+
 
         return mapping.findForward("queryPickup");
     }
