@@ -676,26 +676,31 @@ public class ShipAction extends DispatchAction
     {
         User user = Helper.getUser(request);
 
-//        AjaxResult ajax = new AjaxResult();
-
         // separate by ~
         String packageIds = request.getParameter("packageIds");
-        _logger.info("****cancelPickup****"+packageIds);
+        String pickupId = request.getParameter("pickupId");
+        if (StringTools.isNullOrNone(pickupId)){
+            _logger.info("****cancelPickup with packageIds****"+packageIds);
+        } else {
+            _logger.info("****cancelPickup with pickupId****"+pickupId);
+            List<PackageBean> packages = this.packageDAO.queryEntityBeansByFK(pickupId);
+            StringBuilder sb = new StringBuilder();
+            for (PackageBean pack : packages){
+                sb.append(pack.getId()+"~");
+            }
+            packageIds = sb.toString();
+            _logger.info("cancelPickup packages***"+packageIds);
+        }
 
         try{
             shipManager.cancelPackage(user, packageIds);
-
-//            ajax.setSuccess("撤销成功");
             request.setAttribute(KeyConstant.MESSAGE, "撤销成功");
         }catch(MYException e)
         {
-            _logger.warn(e, e);
-
-//            ajax.setError("撤销出错:"+ e.getErrorContent());
+            _logger.error(e, e);
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "撤销出错:"+e.getErrorContent());
         }
 
-//        return JSONTools.writeResponse(response, ajax);
         return mapping.findForward("queryPickup");
     }
 

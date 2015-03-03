@@ -92,27 +92,23 @@ function sub()
 function cancelPickup()
 {
     var clis = getCheckBox('packageIds');
+    var pickupId = getRadioValue("pickupId");
 
     if (clis.length > 0)
     {
-        var str = '';
+        var packageIds = "";
         for (var i = 0; i < clis.length; i++)
         {
-            str += clis[i].value + '~';
+            packageIds += clis[i].value + '~';
         }
-
-        if (window.confirm('确定撤销捡配选中的出库单?'))
-        {
-//            $O('method').value = 'cancelPickup';
-//
-//            $O('packageIds').value = str;
-//
-//            formEntry.submit();
-            $l('../sail/ship.do?method=cancelPickup&packageIds='+str);
+        if (window.confirm('确定撤销捡配选中的出库单?')){
+            $l('../sail/ship.do?method=cancelPickup&packageIds='+packageIds);
+        }
+    } else {
+        if (window.confirm('确定撤销捡配选中批次下的所有出库单?')){
+            $l('../sail/ship.do?method=cancelPickup&pickupId='+pickupId);
         }
     }
-
-
 }
 
 
