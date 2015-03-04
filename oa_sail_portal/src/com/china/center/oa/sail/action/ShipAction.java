@@ -701,7 +701,8 @@ public class ShipAction extends DispatchAction
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "撤销出错:"+e.getErrorContent());
         }
 
-        return mapping.findForward("queryPickup");
+//        return mapping.findForward("queryPickup");
+        return this.queryPickup(mapping,form,request,response);
     }
 
     /**
@@ -1704,7 +1705,7 @@ public class ShipAction extends DispatchAction
         return JSONTools.writeResponse(response, ajax);
     }
 
-    /**
+    /** 确认发货
      * mUpdateStatus
      *
      * @param mapping
@@ -1733,7 +1734,7 @@ public class ShipAction extends DispatchAction
             {
                 _logger.warn(e, e);
 
-                request.setAttribute(KeyConstant.ERROR_MESSAGE, "确认发货失败");
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "确认发货失败:"+e.getErrorContent());
             }
         } else {
             _logger.info("****mUpdateStatus with pickupId****"+pickupId);
@@ -1744,13 +1745,14 @@ public class ShipAction extends DispatchAction
             {
                 _logger.warn(e, e);
 
-                request.setAttribute(KeyConstant.ERROR_MESSAGE, "确认发货失败");
+                request.setAttribute(KeyConstant.ERROR_MESSAGE, "确认发货失败:"+e.getErrorContent());
             }
         }
 
 
 
-        return mapping.findForward("queryPickup");
+//        return mapping.findForward("queryPickup");
+        return this.queryPickup(mapping, form, request, response);
     }
 
     /**

@@ -11,6 +11,9 @@ import com.china.center.jdbc.annotation.Unique;
 @Table(name = "T_CENTER_EXPRESS")
 public class ExpressBean implements Serializable
 {
+    public static final int EXPRESS_TYPE = 0;
+    public static final int FREIGHT_TYPE = 1;
+
 	@Id
 	private String id = "";
 	

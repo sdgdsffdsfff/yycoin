@@ -720,6 +720,7 @@ public class ShipManagerImpl implements ShipManager
 		JudgeTools.judgeParameterIsNull(user, pickupId);
 		
 		List<PackageBean> packageList = packageDAO.queryEntityBeansByFK(pickupId);
+        this.checkEmptyTransportNo(packageList);
 		
 		Set<String> set = new HashSet<String>();
 		
@@ -756,6 +757,36 @@ public class ShipManagerImpl implements ShipManager
 		return true;
 	}
 
+    //2015/3/4 确认发货时要检查发货方式为第三方快递的CK单的快递单号不能为空
+    private void checkEmptyTransportNo(List<PackageBean> packageList) throws MYException{
+        for (PackageBean each : packageList)
+        {
+            List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
+
+            for (PackageItemBean eachItem : itemList)
+            {
+                String outId = eachItem.getOutId();
+                OutBean out = outDAO.find(outId);
+                if (out!= null){
+                    List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(outId);
+                    if (!ListTools.isEmptyOrNull(distList)){
+                        DistributionBean distBean = distList.get(0);
+                        //发货方式为第三方快递
+                        if (distBean.getShipping() == 2){
+                            // 获取发货单号
+                            String distId = distBean.getId();
+                            ConsignBean consign = consignDAO.findDefaultConsignByDistId(distId);
+                            if (consign == null || StringTools.isNullOrNone(consign.getTransportNo())){
+                                _logger.info(each.getId()+":"+distId+" no ConsignBean related with SO:"+outId);
+                                throw new MYException("第三方快递的CK单[%s]的快递单号不能为空", each.getId()+":"+outId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     @Transactional(rollbackFor = MYException.class)
     public boolean updatePackagesStatus(User user, String packageIds) throws MYException {
@@ -773,8 +804,9 @@ public class ShipManagerImpl implements ShipManager
             }
         }
 
-        Set<String> set = new HashSet<String>();
+        this.checkEmptyTransportNo(packageList);
 
+        Set<String> set = new HashSet<String>();
         for (PackageBean each : packageList)
         {
             if (StringTools.isNullOrNone(each.getPickupId())){
