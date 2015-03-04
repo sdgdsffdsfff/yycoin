@@ -9,6 +9,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.publics.bean.*;
+import com.china.center.oa.publics.dao.*;
+import com.china.center.oa.sail.bean.ExpressBean;
+import com.china.center.oa.sail.dao.ExpressDAO;
 import jxl.write.Label;
 
 import org.apache.commons.logging.Log;
@@ -36,12 +40,6 @@ import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
 import com.china.center.oa.finance.dao.PreInvoiceVSOutDAO;
 import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
 import com.china.center.oa.publics.Helper;
-import com.china.center.oa.publics.bean.DutyBean;
-import com.china.center.oa.publics.bean.FlowLogBean;
-import com.china.center.oa.publics.bean.StafferBean;
-import com.china.center.oa.publics.dao.DutyDAO;
-import com.china.center.oa.publics.dao.FlowLogDAO;
-import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.OutBean;
@@ -95,6 +93,12 @@ public class PreinvoiceAction extends DispatchAction
 	private OutDAO outDAO = null;
 	
 	private BaseDAO baseDAO = null;
+
+    private ExpressDAO expressDAO = null;
+
+    private ProvinceDAO provinceDAO = null;
+
+    private CityDAO cityDAO = null;
 	
 	private final static String QUERYSELFPREINVOICE = "querySelfPreInvoice";
 	
@@ -370,7 +374,12 @@ public class PreinvoiceAction extends DispatchAction
                                           HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
-        prepareInner(request);
+        try{
+            prepareInner(request);
+        }catch(Exception e){
+            e.printStackTrace();
+            _logger.error("preForAddPreInvoice exception:",e);
+        }
 
         return mapping.findForward("addPreInvoice");
     }
@@ -400,6 +409,28 @@ public class PreinvoiceAction extends DispatchAction
         request.setAttribute("pluginType", "group");
 
         request.setAttribute("pluginValue", TcpFlowConstant.GROUP_DM);
+
+        //运输方式
+        //快递
+        ConditionParse condition = new ConditionParse();
+        condition.addWhereStr();
+        condition.addIntCondition("type", "=", ExpressBean.EXPRESS_TYPE);
+        List<ExpressBean> expressList = this.expressDAO.queryEntityBeansByCondition(condition);
+        request.setAttribute("expressList", expressList);
+
+        //货运
+        ConditionParse condition2 = new ConditionParse();
+        condition2.addWhereStr();
+        condition2.addIntCondition("type", "=", ExpressBean.FREIGHT_TYPE);
+        List<ExpressBean> freightList = this.expressDAO.queryEntityBeansByCondition(condition2);
+        request.setAttribute("freightList", freightList);
+
+        //省市
+        List<ProvinceBean> provinceList = this.provinceDAO.listEntityBeans();
+        request.setAttribute("provinceList", provinceList);
+        List<CityBean> cityList = this.cityDAO.listEntityBeans();
+        request.setAttribute("cityList", cityList);
+
     }
     
 	/**
@@ -435,12 +466,15 @@ public class PreinvoiceAction extends DispatchAction
         
         bean.setTotal(MathTools.doubleToLong2(totals));
 
+        String shipping = request.getParameter("shipping");
+        bean.setShipping(Integer.valueOf(shipping));
         String address = request.getParameter("address");
         bean.setAddress(address);
         String receiver = request.getParameter("receiver");
         bean.setReceiver(receiver);
         String mobile = request.getParameter("mobile");
         bean.setMobile(mobile);
+
 
         try
         {
@@ -480,7 +514,7 @@ public class PreinvoiceAction extends DispatchAction
 	/**
 	 * 
 	 * @param request
-	 * @param bean
+	 * @param param
 	 */
     private void fillWrap(HttpServletRequest request, TcpParamWrap param)
     {
@@ -861,4 +895,47 @@ public class PreinvoiceAction extends DispatchAction
 	{
 		this.baseDAO = baseDAO;
 	}
+
+    /**
+     * @return the expressDAO
+     */
+    public ExpressDAO getExpressDAO() {
+        return expressDAO;
+    }
+
+
+    /**
+     * @param expressDAO the expressDAO to set
+     */
+    public void setExpressDAO(ExpressDAO expressDAO) {
+        this.expressDAO = expressDAO;
+    }
+
+    /**
+     * @return the cityDAO
+     */
+    public CityDAO getCityDAO() {
+        return cityDAO;
+    }
+
+    /**
+     * @param cityDAO the cityDAO to set
+     */
+    public void setCityDAO(CityDAO cityDAO) {
+        this.cityDAO = cityDAO;
+    }
+
+    /**
+     * @return the provinceDAO
+     */
+    public ProvinceDAO getProvinceDAO() {
+        return provinceDAO;
+    }
+
+    /**
+     * @param provinceDAO the provinceDAO to set
+     */
+    public void setProvinceDAO(ProvinceDAO provinceDAO) {
+        this.provinceDAO = provinceDAO;
+    }
 }

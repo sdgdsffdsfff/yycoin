@@ -104,6 +104,56 @@ function getCustomer(obj)
             
             <p:pro field="planOutTime"/>
 
+            <p:cell title="发货方式" end="true">
+                <input type="radio" name="shipping" value="0" onClick="radio_click(this)">自提&nbsp;&nbsp;
+                <input type="radio" name="shipping" value="1" onClick="radio_click(this)">公司&nbsp;&nbsp;
+                <input type="radio" name="shipping" value="2" onClick="radio_click(this)">第三方快递&nbsp;&nbsp;
+                <input type="radio" name="shipping" value="3" onClick="radio_click(this)">第三方货运&nbsp;&nbsp;
+                <input type="radio" name="shipping" value="4" onClick="radio_click(this)">第三方快递+货运&nbsp;&nbsp;
+            </p:cell>
+
+            <p:cell title="运输方式" end="true">
+                <select name="transport1" quick=true class="select_class" style="width:20%" >
+                    <option>-</option>
+                    <c:forEach items="${expressList}" var="item">
+                        <option value="${item.id}">${item.name}</option>
+                    </c:forEach>
+                </select>&nbsp;&nbsp;
+                <select name="transport2" quick=true class="select_class" style="width:20%" >
+                    <option>-</option>
+                    <c:forEach items="${freightList}" var="item">
+                        <option value="${item.id}">${item.name}</option>
+                    </c:forEach>
+                </select>
+            </p:cell>
+
+            <p:cell title="运费支付方式" end="true">
+                <select name="expressPay" quick=true class="select_class" style="width:20%">
+                    <p:option type="deliverPay" empty="true"></p:option>
+                </select>&nbsp;&nbsp;
+                <select name="transportPay" quick=true class="select_class" style="width:20%">
+                    <p:option type="deliverPay" empty="true"></p:option>
+                </select>
+            </p:cell>
+
+            <tr  class="content1">
+                <td>送货地址：</td>
+                <td>选择地址：
+                    <select name="provinceId" quick=true onchange="changes(this)" class="select_class" >
+                        <option>-</option>
+                        <c:forEach items="${provinceList}" var="province">
+                            <option value="${province.id}">${province.name}</option>
+                        </c:forEach>
+                    </select>&nbsp;&nbsp;
+                    <select name="cityId" quick=true class="select_class" >
+                        <option>-</option>
+                        <c:forEach items="${cityList}" var="city">
+                            <option value="${city.id}">${city.name}</option>
+                        </c:forEach>
+                    </select>&nbsp;&nbsp;
+                </td>
+            </tr>
+
             <p:pro field="address" cell="0" innerString="size=60"/>
 
             <p:pro field="receiver" cell="0" innerString="size=60"/>

@@ -96,6 +96,12 @@ public class PreInvoiceApplyBean implements Serializable
     @Html(title = "运输方式2", must = true, maxLength = 60)
     private int transport2 = 0;
 
+    @Html(title = "运费支付方式", must = true, maxLength = 60)
+    private int expressPay = -1;
+
+    @Html(title = "运费支付方式", must = true, maxLength = 60)
+    private int transportPay = -1;
+
     @Html(title = "省", must = true, maxLength = 60)
     private String provinceId = "";
 
@@ -389,5 +395,21 @@ public class PreInvoiceApplyBean implements Serializable
 
     public void setTransport2(int transport2) {
         this.transport2 = transport2;
+    }
+
+    public int getExpressPay() {
+        return expressPay;
+    }
+
+    public void setExpressPay(int expressPay) {
+        this.expressPay = expressPay;
+    }
+
+    public int getTransportPay() {
+        return transportPay;
+    }
+
+    public void setTransportPay(int transportPay) {
+        this.transportPay = transportPay;
     }
 }

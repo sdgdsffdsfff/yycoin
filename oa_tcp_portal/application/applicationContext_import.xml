@@ -53,6 +53,12 @@
 	<osgi:reference id="stafferManager" interface="com.china.center.oa.publics.manager.StafferManager" />
 	
 	<osgi:reference id="showDAO" interface="com.china.center.oa.publics.dao.ShowDAO" />
+
+    <osgi:reference id="expressDAO" interface="com.china.center.oa.sail.dao.ExpressDAO"/>
+
+    <osgi:reference id="provinceDAO" interface="com.china.center.oa.publics.dao.ProvinceDAO" />
+
+    <osgi:reference id="cityDAO" interface="com.china.center.oa.publics.dao.CityDAO" />
 	
 	<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
 	
