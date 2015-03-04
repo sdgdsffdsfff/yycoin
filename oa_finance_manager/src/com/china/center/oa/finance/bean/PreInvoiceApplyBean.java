@@ -87,6 +87,21 @@ public class PreInvoiceApplyBean implements Serializable
     /**
      * 2015/3/1 增加地址、收货人、电话字段
      */
+    @Html(title = "发货方式", must = true, maxLength = 60)
+    private int shipping = 0;
+
+    @Html(title = "运输方式1", must = true, maxLength = 60)
+    private int transport1 = 0;
+
+    @Html(title = "运输方式2", must = true, maxLength = 60)
+    private int transport2 = 0;
+
+    @Html(title = "省", must = true, maxLength = 60)
+    private String provinceId = "";
+
+    @Html(title = "市", must = true, maxLength = 60)
+    private String cityId = "";
+
     @Html(title = "地址", must = true, maxLength = 60)
     private String address = "";
 
@@ -334,5 +349,45 @@ public class PreInvoiceApplyBean implements Serializable
 
     public void setMobile(String mobile) {
         this.mobile = mobile;
+    }
+
+    public String getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(String cityId) {
+        this.cityId = cityId;
+    }
+
+    public String getProvinceId() {
+        return provinceId;
+    }
+
+    public void setProvinceId(String provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    public int getShipping() {
+        return shipping;
+    }
+
+    public void setShipping(int shipping) {
+        this.shipping = shipping;
+    }
+
+    public int getTransport1() {
+        return transport1;
+    }
+
+    public void setTransport1(int transport1) {
+        this.transport1 = transport1;
+    }
+
+    public int getTransport2() {
+        return transport2;
+    }
+
+    public void setTransport2(int transport2) {
+        this.transport2 = transport2;
     }
 }

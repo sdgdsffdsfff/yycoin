@@ -78,11 +78,63 @@ function load()
             
             <p:pro field="invoiceMoney" value="${my:formatNum(bean.invoiceMoney / 100.0)}"/>
 
-            <p:pro field="address" cell="0" innerString="size=60"/>
+            <p:cell title="发货方式" end="true">
+                <input type="radio" name="rshipping" value="0" onClick="radio_click(this)">自提&nbsp;&nbsp;
+                <input type="radio" name="rshipping" value="1" onClick="radio_click(this)">公司&nbsp;&nbsp;
+                <input type="radio" name="rshipping" value="2" onClick="radio_click(this)">第三方快递&nbsp;&nbsp;
+                <input type="radio" name="rshipping" value="3" onClick="radio_click(this)">第三方货运&nbsp;&nbsp;
+                <input type="radio" name="rshipping" value="4" onClick="radio_click(this)">第三方快递+货运&nbsp;&nbsp;
+            </p:cell>
 
-            <p:pro field="receiver" cell="0" innerString="size=20"/>
+            <p:cell title="运输方式" end="true">
+                <select name="transport1" quick=true class="select_class" style="width:20%" values="${pmap['transport1']}">
+                </select>&nbsp;&nbsp;
+                <select name="transport2" quick=true class="select_class" style="width:20%" values="${pmap['transport2']}">
+                </select>
+            </p:cell>
 
-            <p:pro field="mobile" cell="0" innerString="size=20"/>
+            <p:cell title="运费支付方式" end="true">
+                <select name="expressPay" quick=true class="select_class" style="width:20%" values="${pmap['expressPay']}">
+                    <p:option type="deliverPay" empty="true"></p:option>
+                </select>&nbsp;&nbsp;
+                <select name="transportPay" quick=true class="select_class" style="width:20%" values="${pmap['transportPay']}">
+                    <p:option type="deliverPay" empty="true"></p:option>
+                </select>
+            </p:cell>
+
+            <tr  class="content1">
+                <td>送货地址：</td>
+                <td>选择地址：
+                    <select name="provinceId" quick=true onchange="changes(this)" values="${pmap['provinceId']}" class="select_class" ></select>&nbsp;&nbsp;
+                    <select name="cityId" quick=true onchange="changeArea()" values="${pmap['cityId']}" class="select_class" ></select>&nbsp;&nbsp;
+                </td>
+            </tr>
+
+            <tr  class="content2">
+                <td></td>
+                <td>详细地址：
+                    <input type="text" name="address" value="${pmap['address']}" size=100 maxlength="300" style="width: 80%;">
+                </td>
+            </tr>
+
+            <p:cell title="收 货 人" end="true">
+                <input type="text" name="receiver" value="${pmap['receiver']}" size=20 maxlength="30">
+            </p:cell>
+
+            <tr  class="content2">
+                <td>手&nbsp;&nbsp;&nbsp;&nbsp;机：</td>
+                <td>
+                    <input type="text" name="mobile" value="${pmap['mobile']}"  size=13 maxlength="13"><font color="#FF0000">*</font>
+                    &nbsp;&nbsp;固定电话：&nbsp;&nbsp;
+                    <input type="text" name="telephone" value="${pmap['telephone']}" size=20 maxlength="30">
+                </td>
+            </tr>
+
+            <%--<p:pro field="address" cell="0" innerString="size=60"/>--%>
+
+            <%--<p:pro field="receiver" cell="0" innerString="size=20"/>--%>
+
+            <%--<p:pro field="mobile" cell="0" innerString="size=20"/>--%>
             
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
             
