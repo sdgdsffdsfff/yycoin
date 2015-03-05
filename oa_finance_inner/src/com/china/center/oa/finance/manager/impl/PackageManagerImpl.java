@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.china.center.oa.finance.bean.PreInvoiceApplyBean;
 import com.china.center.oa.finance.dao.PreInvoiceApplyDAO;
 import com.china.center.oa.finance.vo.PreInvoiceApplyVO;
 import com.china.center.oa.sail.manager.OutManager;
@@ -887,7 +886,7 @@ public class PackageManagerImpl implements PackageManager {
         if (ListTools.isEmptyOrNull(packageList))
         {
             //TODO
-            createNewPreInsPackage(bean, null, fullAddress, null);
+            createNewPreInsPackage(bean);
         }else{
             String id = packageList.get(0).getId();
 
@@ -896,7 +895,7 @@ public class PackageManagerImpl implements PackageManager {
             // 不存在或已不是初始状态(可能已被拣配)
             if (null == packBean || packBean.getStatus() != 0)
             {
-                createNewPreInsPackage(bean, null, fullAddress, null);
+                createNewPreInsPackage(bean);
             }else
             {
                 List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
@@ -906,7 +905,8 @@ public class PackageManagerImpl implements PackageManager {
                 item.setOutId(bean.getId());
                 item.setBaseId(bean.getId());
 //                item.setProductId(bean.getInvoiceNum());
-                item.setProductName("发票号：" + bean.getInvoiceName());
+
+                item.setProductName("发票号：" + bean.getInvoiceNumber());
                 item.setAmount(1);
                 item.setPrice(bean.getInvoiceMoney());
                 item.setValue(bean.getInvoiceMoney());
@@ -947,7 +947,7 @@ public class PackageManagerImpl implements PackageManager {
         preConsignDAO.deleteEntityBean(pre.getId());
     }
 
-    private void createNewPreInsPackage(PreInvoiceApplyVO ins, DistributionVO distVO, String fullAddress, String location)
+    private void createNewPreInsPackage(PreInvoiceApplyVO ins)
     {
         String id = commonDAO.getSquenceString20("CK");
 
@@ -956,13 +956,12 @@ public class PackageManagerImpl implements PackageManager {
         packBean.setId(id);
         packBean.setCustomerId(ins.getCustomerId());
 
-        //TODO
-//        packBean.setShipping(distVO.getShipping());
-//        packBean.setTransport1(distVO.getTransport1());
-//        packBean.setExpressPay(distVO.getExpressPay());
-//        packBean.setTransport2(distVO.getTransport2());
-//        packBean.setTransportPay(distVO.getTransportPay());
-//        packBean.setCityId(distVO.getCityId());
+        packBean.setShipping(ins.getShipping());
+        packBean.setTransport1(ins.getTransport1());
+        packBean.setExpressPay(ins.getExpressPay());
+        packBean.setTransport2(ins.getTransport2());
+        packBean.setTransportPay(ins.getTransportPay());
+        packBean.setCityId(ins.getCityId());
 
         packBean.setLocationId(packBean.getLocationId());
         packBean.setAddress(ins.getAddress());
@@ -993,7 +992,7 @@ public class PackageManagerImpl implements PackageManager {
         //TODO
 //        item.setBaseId(base.getId());
 //        item.setProductId(base.getInvoiceNum());
-        item.setProductName("发票号：" + ins.getInvoiceName());
+        item.setProductName("发票号：" + ins.getInvoiceNumber());
         item.setAmount(1);
         item.setPrice(ins.getInvoiceMoney());
         item.setValue(ins.getInvoiceMoney());

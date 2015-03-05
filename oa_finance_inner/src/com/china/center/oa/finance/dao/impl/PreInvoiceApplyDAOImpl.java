@@ -14,7 +14,12 @@ public class PreInvoiceApplyDAOImpl extends BaseDAO<PreInvoiceApplyBean, PreInvo
         return this.jdbcOperation.updateField("status", status, id, this.claz);
     }
 
-	public int updateInvoiceMoney(String id, Long invoiceMoney)
+    @Override
+    public int updateInvoiceNumber(String id, String invoiceNumber) {
+        return this.jdbcOperation.updateField("invoiceNumber", invoiceNumber, id, this.claz);
+    }
+
+    public int updateInvoiceMoney(String id, Long invoiceMoney)
 	{
 		 return this.jdbcOperation.updateField("invoiceMoney", invoiceMoney, id, this.claz);
 	}

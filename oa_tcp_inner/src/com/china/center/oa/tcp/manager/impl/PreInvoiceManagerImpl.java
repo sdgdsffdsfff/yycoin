@@ -532,6 +532,9 @@ public class PreInvoiceManagerImpl implements PreInvoiceManager
 
                 preConsignDAO.saveEntityBean(preConsign);
                 _logger.info("*******create PreConsignBean for preinvoice****"+bean.getId());
+
+                this.preInvoiceApplyDAO.updateInvoiceNumber(bean.getId(),param.getInvoiceNumber());
+                _logger.info("*******save getInvoiceNumber for preinvoice****"+bean.getId());
             }
 
             if (newStatus != oldStatus) {

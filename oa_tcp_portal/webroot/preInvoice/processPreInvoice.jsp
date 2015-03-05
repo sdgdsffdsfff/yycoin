@@ -222,6 +222,10 @@ function getOutBalance(oos)
             <p:cell title="已开票金额">
                <input type="text" size="20" readonly="readonly" name="invoiceMoney" value="${my:formatNum(bean.invoiceMoney / 100.0)}"> 
             </p:cell>
+
+            <p:cell title="发票号码">
+                <input type="text" size="60" name="invoiceNumber">
+            </p:cell>
             
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
             

@@ -472,21 +472,29 @@ public class PreinvoiceAction extends DispatchAction
         }
         String transport1 = request.getParameter("transport1");
         if (StringTools.isNullOrNone(transport1)){
-            bean.setTransport1(Integer.valueOf(transport1));
+            try{
+                bean.setTransport1(Integer.valueOf(transport1));
+            }catch(Exception e){}
         }
         String transport2 = request.getParameter("transport2");
         if (StringTools.isNullOrNone(transport2)){
-            bean.setTransport2(Integer.valueOf(transport2));
+            try{
+                bean.setTransport2(Integer.valueOf(transport2));
+            }catch(Exception e){}
         }
 
         String expressPay = request.getParameter("expressPay");
         if (StringTools.isNullOrNone(expressPay)){
-            bean.setExpressPay(Integer.valueOf(expressPay));
+            try{
+                bean.setExpressPay(Integer.valueOf(expressPay));
+            }catch(Exception e){}
         }
 
         String transportPay = request.getParameter("transportPay");
         if (StringTools.isNullOrNone(transportPay)){
-            bean.setTransportPay(Integer.valueOf(transportPay));
+            try{
+                bean.setTransportPay(Integer.valueOf(transportPay));
+            }catch(Exception e){}
         }
 
         String provinceId = request.getParameter("provinceId");
@@ -505,7 +513,6 @@ public class PreinvoiceAction extends DispatchAction
         bean.setReceiver(receiver);
         String mobile = request.getParameter("mobile");
         bean.setMobile(mobile);
-
 
         try
         {
@@ -605,8 +612,9 @@ public class PreinvoiceAction extends DispatchAction
         String oprType = request.getParameter("oprType");
         String reason = request.getParameter("reason");
         String processId = request.getParameter("processId");
+        String invoiceNumber = request.getParameter("invoiceNumber");
 
-        _logger.info("id:"+id+" optType:"+oprType+" reason:"+reason+" processId:"+processId);
+        _logger.info("id:"+id+" optType:"+oprType+" reason:"+reason+" processId:"+processId+" invoiceNumber:"+invoiceNumber);
         try
         {
             User user = Helper.getUser(request);
@@ -617,11 +625,11 @@ public class PreinvoiceAction extends DispatchAction
             param.setType(oprType);
             param.setReason(reason);
             param.setProcessId(processId);
+            param.setInvoiceNumber(invoiceNumber);
 
             // 组装参数
             fillWrap(request, param);
 
-            _logger.info("************11111111111111111");
             // 提交
             if ("0".equals(oprType))
             {

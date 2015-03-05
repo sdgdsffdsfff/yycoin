@@ -34,6 +34,11 @@ public class TcpParamWrap implements Serializable
     
     private String compliance = "";
 
+    /**
+     * 2015/3/5 发票号码
+     */
+    private String invoiceNumber = "";
+
     private Object other = null;
 
     private Object other2 = null;
@@ -189,6 +194,14 @@ public class TcpParamWrap implements Serializable
 
     public void setCompliance(String compliance) {
         this.compliance = compliance;
+    }
+
+    public String getInvoiceNumber() {
+        return invoiceNumber;
+    }
+
+    public void setInvoiceNumber(String invoiceNumber) {
+        this.invoiceNumber = invoiceNumber;
     }
 
     /**

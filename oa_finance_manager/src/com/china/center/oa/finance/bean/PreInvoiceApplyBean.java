@@ -116,6 +116,12 @@ public class PreInvoiceApplyBean implements Serializable
 
     @Html(title = "电话", must = true, maxLength = 20)
     private String mobile = "";
+
+    /**
+     * 2015/3/5 发票号码
+     */
+    @Html(title = "发票号码")
+    private String invoiceNumber = "";
     
     /**
      * 计划开单日期
@@ -411,5 +417,13 @@ public class PreInvoiceApplyBean implements Serializable
 
     public void setTransportPay(int transportPay) {
         this.transportPay = transportPay;
+    }
+
+    public String getInvoiceNumber() {
+        return invoiceNumber;
+    }
+
+    public void setInvoiceNumber(String invoiceNumber) {
+        this.invoiceNumber = invoiceNumber;
     }
 }

@@ -78,6 +78,8 @@
 
                 <p:pro field="invoiceMoney" value="${my:formatNum(bean.invoiceMoney / 100.0)}"/>
 
+                <p:pro field="invoiceNumber" cell="0" innerString="size=60"/>
+
                 <p:pro field="address" cell="0" innerString="size=60"/>
 
                 <p:pro field="receiver" cell="0" innerString="size=20"/>
