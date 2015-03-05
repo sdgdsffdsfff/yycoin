@@ -467,7 +467,38 @@ public class PreinvoiceAction extends DispatchAction
         bean.setTotal(MathTools.doubleToLong2(totals));
 
         String shipping = request.getParameter("shipping");
-        bean.setShipping(Integer.valueOf(shipping));
+        if (!StringTools.isNullOrNone(shipping)){
+            bean.setShipping(Integer.valueOf(shipping));
+        }
+        String transport1 = request.getParameter("transport1");
+        if (StringTools.isNullOrNone(transport1)){
+            bean.setTransport1(Integer.valueOf(transport1));
+        }
+        String transport2 = request.getParameter("transport2");
+        if (StringTools.isNullOrNone(transport2)){
+            bean.setTransport2(Integer.valueOf(transport2));
+        }
+
+        String expressPay = request.getParameter("expressPay");
+        if (StringTools.isNullOrNone(expressPay)){
+            bean.setExpressPay(Integer.valueOf(expressPay));
+        }
+
+        String transportPay = request.getParameter("transportPay");
+        if (StringTools.isNullOrNone(transportPay)){
+            bean.setTransportPay(Integer.valueOf(transportPay));
+        }
+
+        String provinceId = request.getParameter("provinceId");
+        if (StringTools.isNullOrNone(provinceId)){
+            bean.setProvinceId(provinceId);
+        }
+
+        String cityId = request.getParameter("cityId");
+        if (StringTools.isNullOrNone(cityId)){
+            bean.setProvinceId(cityId);
+        }
+
         String address = request.getParameter("address");
         bean.setAddress(address);
         String receiver = request.getParameter("receiver");
