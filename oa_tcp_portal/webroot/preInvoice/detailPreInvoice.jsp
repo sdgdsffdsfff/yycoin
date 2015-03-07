@@ -80,6 +80,18 @@
 
                 <p:pro field="invoiceNumber" cell="0" innerString="size=60"/>
 
+                <p:cell title="省">
+                    ${bean.provinceName}
+                </p:cell>
+
+                <p:cell title="市">
+                    ${bean.cityName}
+                </p:cell>
+
+                <%--<p:pro field="provinceName" cell="0" innerString="size=60"/>--%>
+
+                <%--<p:pro field="cityName" cell="0" innerString="size=60"/>--%>
+
                 <p:pro field="address" cell="0" innerString="size=60"/>
 
                 <p:pro field="receiver" cell="0" innerString="size=20"/>

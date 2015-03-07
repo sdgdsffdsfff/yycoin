@@ -15,6 +15,24 @@ public class PreInvoiceApplyVO extends PreInvoiceApplyBean
     @Relationship(relationField = "departmentId")
     private String departmentName = "";
 
+    @Relationship(relationField = "provinceId")
+    private String provinceName = "";
+
+    @Relationship(relationField = "cityId")
+    private String cityName = "";
+
+    /**
+     * 运输方式1
+     */
+    @Relationship(relationField = "transport1")
+    private String transportName1 = "";
+
+    /**
+     * 运输方式2
+     */
+    @Relationship(relationField = "transport2")
+    private String transportName2 = "";
+
     /**
      * 当前处理人
      */
@@ -135,4 +153,60 @@ public class PreInvoiceApplyVO extends PreInvoiceApplyBean
 	{
 		this.showLastMoney = showLastMoney;
 	}
+
+    /**
+     * @return the provinceName
+     */
+    public String getProvinceName() {
+        return provinceName;
+    }
+
+    /**
+     * @param provinceName the provinceName to set
+     */
+    public void setProvinceName(String provinceName) {
+        this.provinceName = provinceName;
+    }
+
+    /**
+     * @return the cityName
+     */
+    public String getCityName() {
+        return cityName;
+    }
+
+    /**
+     * @param cityName the cityName to set
+     */
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    /**
+     * @return the transportName1
+     */
+    public String getTransportName1() {
+        return transportName1;
+    }
+
+    /**
+     * @param transportName1 the transportName1 to set
+     */
+    public void setTransportName1(String transportName1) {
+        this.transportName1 = transportName1;
+    }
+
+    /**
+     * @return the transportName2
+     */
+    public String getTransportName2() {
+        return transportName2;
+    }
+
+    /**
+     * @param transportName2 the transportName2 to set
+     */
+    public void setTransportName2(String transportName2) {
+        this.transportName2 = transportName2;
+    }
 }

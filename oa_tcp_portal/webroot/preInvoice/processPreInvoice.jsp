@@ -223,9 +223,17 @@ function getOutBalance(oos)
                <input type="text" size="20" readonly="readonly" name="invoiceMoney" value="${my:formatNum(bean.invoiceMoney / 100.0)}"> 
             </p:cell>
 
-            <p:cell title="发票号码">
-                <input type="text" size="60" name="invoiceNumber">
-            </p:cell>
+            <c:if test="${bean.status == 26}">
+                <p:cell title="发票号码">
+                    <input type="text" size="60" name="invoiceNumber">
+                </p:cell>
+            </c:if>
+
+            <c:if test="${bean.status == 27 || bean.status == 99}">
+                <p:cell title="发票号码">
+                    <input type="text" size="60" name="invoiceNumber" readonly="readonly" value="${bean.invoiceNumber}">
+                </p:cell>
+            </c:if>
             
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
             

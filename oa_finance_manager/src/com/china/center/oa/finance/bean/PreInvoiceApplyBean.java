@@ -12,8 +12,11 @@ import com.china.center.jdbc.annotation.Table;
 import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.finance.constant.FinanceConstant;
+import com.china.center.oa.publics.bean.CityBean;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
+import com.china.center.oa.publics.bean.ProvinceBean;
 import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.sail.bean.ExpressBean;
 
 @SuppressWarnings("serial")
 @Entity(name = "预开票申请")
@@ -91,9 +94,11 @@ public class PreInvoiceApplyBean implements Serializable
     private int shipping = 0;
 
     @Html(title = "运输方式1", must = true, maxLength = 60)
+    @Join(tagClass = ExpressBean.class, type = JoinType.LEFT, alias = "e1")
     private int transport1 = 0;
 
     @Html(title = "运输方式2", must = true, maxLength = 60)
+    @Join(tagClass = ExpressBean.class, type = JoinType.LEFT, alias = "e2")
     private int transport2 = 0;
 
     @Html(title = "运费支付方式", must = true, maxLength = 60)
@@ -103,9 +108,11 @@ public class PreInvoiceApplyBean implements Serializable
     private int transportPay = -1;
 
     @Html(title = "省", must = true, maxLength = 60)
+    @Join(tagClass=ProvinceBean.class, type = JoinType.LEFT)
     private String provinceId = "";
 
     @Html(title = "市", must = true, maxLength = 60)
+    @Join(tagClass=CityBean.class, type = JoinType.LEFT)
     private String cityId = "";
 
     @Html(title = "地址", must = true, maxLength = 60)

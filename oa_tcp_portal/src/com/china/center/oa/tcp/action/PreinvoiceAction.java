@@ -180,6 +180,7 @@ public class PreinvoiceAction extends DispatchAction
             HttpServletRequest request, HttpServletResponse response)
 	throws ServletException
 	{
+        try{
         ConditionParse condtion = new ConditionParse();
 
         condtion.addWhereStr();
@@ -214,6 +215,11 @@ public class PreinvoiceAction extends DispatchAction
             });
 
         return JSONTools.writeResponse(response, jsonstr);
+        }catch(Exception e){
+            e.printStackTrace();
+            _logger.error("exception:",e);
+            return null;
+        }
     }
     
     /**
@@ -412,10 +418,12 @@ public class PreinvoiceAction extends DispatchAction
 
         //运输方式
         //快递
-        ConditionParse condition = new ConditionParse();
-        condition.addWhereStr();
-        condition.addIntCondition("type", "=", ExpressBean.EXPRESS_TYPE);
-        List<ExpressBean> expressList = this.expressDAO.queryEntityBeansByCondition(condition);
+//        ConditionParse condition = new ConditionParse();
+//        condition.addWhereStr();
+//        condition.addIntCondition("type", "=", ExpressBean.EXPRESS_TYPE);
+//        List<ExpressBean> expressList = this.expressDAO.queryEntityBeansByCondition(condition);
+//        request.setAttribute("expressList", expressList);
+        List<ExpressBean> expressList = this.expressDAO.listEntityBeans();
         request.setAttribute("expressList", expressList);
 
         //货运
@@ -671,7 +679,7 @@ public class PreinvoiceAction extends DispatchAction
 
         String update = request.getParameter("update");
 
-        PreInvoiceApplyBean bean = preInvoiceManager.findVO(id);
+        PreInvoiceApplyVO bean = preInvoiceManager.findVO(id);
 
         if (bean == null)
         {
