@@ -379,7 +379,7 @@ public class ShipManagerImpl implements ShipManager
 
     @Override
     @Transactional(rollbackFor = MYException.class)
-    public void mergePackages(String user, String packageIds, String address ,String receiver, String phone) throws MYException {
+    public void mergePackages(String user, String packageIds, int shipping, int transport1, int transport2, int expressPay, int transportPay, String cityId, String address, String receiver, String phone) throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
 //        JudgeTools.judgeParameterIsNull(user, packageIds);
         JudgeTools.judgeParameterIsNull(packageIds);
@@ -390,10 +390,16 @@ public class ShipManagerImpl implements ShipManager
         if (null != packages)
         {
             int i = 1;
+            String stafferName = "";
 
             PackageBean packBean = new PackageBean();
             List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
             PackageBean firstPack = null;
+
+            int allAmount = 0;
+            double total = 0;
+            Map<String, List<PackageItemBean>> pmap = new HashMap<String, List<PackageItemBean>>();
+
             for (String id : packages)
             {
                 packageList.add(id);
@@ -410,14 +416,16 @@ public class ShipManagerImpl implements ShipManager
 
                 if (i == 1){
                     firstPack = bean;
+                    stafferName = firstPack.getStafferName();
+                }
+
+                //合并时检查CK单对应的承担人是否一致，如果不一致，则不允许合并
+                if (!stafferName.equals(bean.getStafferName())){
+                    throw new MYException("CK单[%s]对应的承担人不一致", firstPack.getId()+":"+bean.getId());
                 }
                 i++;
                 List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(bean.getId());
 
-                int allAmount = 0;
-                double total = 0;
-
-                Map<String, List<PackageItemBean>> pmap = new HashMap<String, List<PackageItemBean>>();
                 boolean isEmergency = false;
                 if (!ListTools.isEmptyOrNull(items)){
                     for (PackageItemBean item : items){
@@ -461,29 +469,28 @@ public class ShipManagerImpl implements ShipManager
                     }
                 }
 
-                packBean.setAmount(allAmount);
-                packBean.setTotal(total);
-                packBean.setProductCount(pmap.values().size());
-
                 if (isEmergency) {
                     packBean.setEmergency(OutConstant.OUT_EMERGENCY_YES);
                 }
-
             }
+
+            packBean.setAmount(allAmount);
+            packBean.setTotal(total);
+            packBean.setProductCount(pmap.values().size());
 
             String id = commonDAO.getSquenceString20("CK");
             packBean.setId(id);
             packBean.setCustomerId(firstPack.getCustomerId());
-            packBean.setShipping(firstPack.getShipping());
-            packBean.setTransport1(firstPack.getTransport1());
-            packBean.setExpressPay(firstPack.getExpressPay());
-            packBean.setTransport2(firstPack.getTransport2());
-            packBean.setTransportPay(firstPack.getTransportPay());
+            packBean.setShipping(shipping);
+            packBean.setTransport1(transport1);
+            packBean.setTransport2(transport2);
+            packBean.setExpressPay(expressPay);
+            packBean.setTransportPay(transportPay);
             packBean.setAddress(address);
             packBean.setReceiver(receiver);
             packBean.setMobile(phone);
             packBean.setLocationId(firstPack.getLocationId());
-            packBean.setCityId(firstPack.getCityId());
+            packBean.setCityId(cityId);
 
             packBean.setStafferName(firstPack.getStafferName());
             packBean.setIndustryName(firstPack.getIndustryName());

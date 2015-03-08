@@ -66,7 +66,7 @@ function mergePackages()
 {
     var clis = getCheckBox('checkb');
 
-    if (clis.length > 0)
+    if (clis.length >=2)
     {
         var str = '';
         for (var i = 0; i < clis.length; i++)
@@ -78,6 +78,8 @@ function mergePackages()
         {
             $l(gurl + 'preForMergePackages&&packageIds='+str);
         }
+    } else{
+        alert("请至少选择2个待合并的CK单！");
     }
 }
  

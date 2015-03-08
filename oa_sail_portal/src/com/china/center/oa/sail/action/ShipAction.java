@@ -22,7 +22,11 @@ import com.china.center.oa.client.bean.CustomerBean;
 import com.china.center.oa.client.dao.CustomerMainDAO;
 import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.finance.bean.InvoiceinsBean;
+import com.china.center.oa.publics.bean.CityBean;
+import com.china.center.oa.publics.bean.ProvinceBean;
 import com.china.center.oa.publics.bean.StafferBean;
+import com.china.center.oa.publics.dao.CityDAO;
+import com.china.center.oa.publics.dao.ProvinceDAO;
 import com.china.center.oa.publics.dao.StafferDAO;
 import com.china.center.oa.sail.bean.*;
 import com.china.center.oa.sail.dao.*;
@@ -105,6 +109,10 @@ public class ShipAction extends DispatchAction
     private InvoiceinsDAO invoiceinsDAO = null;
 
     private CustomerMainDAO customerMainDAO = null;
+
+    private ProvinceDAO provinceDAO = null;
+
+    private CityDAO cityDAO = null;
 
     private final static String QUERYPACKAGE = "queryPackage";
 
@@ -1989,11 +1997,64 @@ public class ShipAction extends DispatchAction
         String packageIds = request.getParameter("packageIds");
         request.getSession().setAttribute("packageIds", packageIds);
         _logger.info("***************preForMergePackages**************"+packageIds);
+
+        //运输方式
+        List<ExpressBean> expressList = this.expressDAO.listEntityBeans();
+        request.setAttribute("expressList", expressList);
+
+        //省市
+        List<ProvinceBean> provinceList = this.provinceDAO.listEntityBeans();
+        request.setAttribute("provinceList", provinceList);
+        List<CityBean> cityList = this.cityDAO.listEntityBeans();
+        request.setAttribute("cityList", cityList);
         return mapping.findForward("mergePackages");
     }
 
     public ActionForward mergePackages(ActionMapping mapping, ActionForm form,
-                                    HttpServletRequest request, HttpServletResponse response){
+                                    HttpServletRequest request, HttpServletResponse response)
+            throws ServletException{
+        String shippingStr = request.getParameter("shipping");
+        int shipping = 0;
+        if (!StringTools.isNullOrNone(shippingStr)){
+            shipping = Integer.valueOf(shippingStr);
+        }
+        String transport1Str = request.getParameter("transport1");
+        int transport1 = 0;
+        if (StringTools.isNullOrNone(transport1Str)){
+            try{
+                transport1 = Integer.valueOf(transport1Str);
+            }catch(Exception e){}
+        }
+        String transport2Str = request.getParameter("transport2");
+        int transport2 = -1;
+        if (StringTools.isNullOrNone(transport2Str)){
+            try{
+                transport2 = Integer.valueOf(transport2Str);
+            }catch(Exception e){}
+        }
+
+        String expressPayStr = request.getParameter("expressPay");
+        int expressPay = -1;
+        if (StringTools.isNullOrNone(expressPayStr)){
+            try{
+                expressPay = Integer.valueOf(expressPayStr);
+            }catch(Exception e){}
+        }
+
+        String transportPayStr = request.getParameter("transportPay");
+        int transportPay = -1;
+        if (StringTools.isNullOrNone(transportPayStr)){
+            try{
+                transportPay = Integer.valueOf(transportPayStr);
+            }catch(Exception e){}
+        }
+
+//        String provinceId = request.getParameter("provinceId");
+//        if (StringTools.isNullOrNone(provinceId)){
+//            bean.setProvinceId(provinceId);
+//        }
+
+        String cityId = request.getParameter("cityId");
         String address = request.getParameter("address");
         String receiver = request.getParameter("receiver");
         String phone = request.getParameter("phone");
@@ -2002,7 +2063,7 @@ public class ShipAction extends DispatchAction
         _logger.info("*****mergePickups****************"+address+";"+receiver+":"+phone+":"+packageIds);
         try
         {
-            this.shipManager.mergePackages(null,packageIds, address, receiver, phone );
+            this.shipManager.mergePackages(null,packageIds, shipping, transport1, transport2, expressPay, transportPay,cityId, address, receiver, phone );
             request.setAttribute(KeyConstant.MESSAGE, "手动合并出库单成功");
         }
         catch(Exception e)
@@ -2015,6 +2076,7 @@ public class ShipAction extends DispatchAction
         }
 
         return mapping.findForward("queryPickup");
+//        return this.queryPackage(mapping,form, request, response);
     }
 
     public ActionForward preForAutoPickup(ActionMapping mapping, ActionForm form,
@@ -2240,5 +2302,21 @@ public class ShipAction extends DispatchAction
 
     public void setCustomerMainDAO(CustomerMainDAO customerMainDAO) {
         this.customerMainDAO = customerMainDAO;
+    }
+
+    public ProvinceDAO getProvinceDAO() {
+        return provinceDAO;
+    }
+
+    public void setProvinceDAO(ProvinceDAO provinceDAO) {
+        this.provinceDAO = provinceDAO;
+    }
+
+    public CityDAO getCityDAO() {
+        return cityDAO;
+    }
+
+    public void setCityDAO(CityDAO cityDAO) {
+        this.cityDAO = cityDAO;
     }
 }

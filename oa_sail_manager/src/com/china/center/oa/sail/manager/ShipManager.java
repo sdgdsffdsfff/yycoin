@@ -46,5 +46,5 @@ public interface ShipManager
 //	
 //	void createInsPackage(PreConsignBean pre, String insId) throws MYException;
     //2015/2/25 手工合并CK单
-    void mergePackages(String user, String packageIds, String address, String receiver, String phone) throws MYException;
+    void mergePackages(String user, String packageIds, int shipping, int transport1, int transport2, int expressPay, int transportPay, String cityId, String address, String receiver, String phone) throws MYException;
 }
