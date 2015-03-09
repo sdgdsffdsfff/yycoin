@@ -1766,7 +1766,6 @@ public class InvoiceinsAction extends DispatchAction
      * @param mapping
      * @param request
      * @param rds
-     * @param bean
      * @return
      */
     private ActionForward parserAttachment(ActionMapping mapping, HttpServletRequest request,
@@ -2859,6 +2858,23 @@ public class InvoiceinsAction extends DispatchAction
             			String value = obj[0].trim();
             			
                 		bean.setOutId(value);
+
+                        OutBean outBean = this.outDAO.find(value);
+                        if (outBean!= null ){
+                            //判断销售单据状态必须为“待库管审批”、“已出库”、“已发货”三种状态之一
+                             int status = outBean.getStatus();
+                            if (status == OutConstant.STATUS_FLOW_PASS || status == OutConstant.STATUS_PASS ||
+                                    status == OutConstant.STATUS_SEC_PASS){
+                                _logger.info(value+" OUT status pass import****"+status);
+                            } else{
+                                builder
+                                        .append("第[" + currentNumber + "]错误:")
+                                        .append("销售单必须为'待库管审批'、'已出库'、'已发货'三种状态之一")
+                                        .append("<br>");
+
+                                importError = true;
+                            }
+                        }
             		}
             		else
             		{
@@ -4773,7 +4789,6 @@ public class InvoiceinsAction extends DispatchAction
      * @param fullId
      * @param user
      * @param reason
-     * @param out
      * @param subject
      */
     private void sendOutRejectMail(String fullId, User user, String reason, InvoiceinsVO vo,String subject) 
