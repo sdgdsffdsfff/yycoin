@@ -37,9 +37,18 @@ public interface ShipManager
 
     void saveAllEntityBeans(List<BranchRelationBean> importItemList) throws MYException;
 
-    void autoPickup(int pickupCount, String productName) throws MYException;
+    List<String> autoPickup(int pickupCount, String productName) throws MYException;
 
-    int addPickup(String packageIds) throws MYException;
+    /**
+     * 2015/3/10 自动捡配时新增批次
+     *
+     * @param packageIds
+     * @param pickupCount
+     * @param currentPickupCount
+     * @return 新建的批次号
+     * @throws MYException
+     */
+    List<String> addPickup(String packageIds, int pickupCount, int currentPickupCount) throws MYException;
 
     // 2015/2/8 后台Job，商品拣配的排序默认按订单日期由远到近的顺序排列
     void sortPackagesJob() throws MYException;

@@ -1992,6 +1992,100 @@ public class ShipAction extends DispatchAction
         return result;
     }
 
+    /**
+     * 2015/3/11 打印货物交接清单
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward printHandover(ActionMapping mapping, ActionForm form,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response)
+            throws ServletException
+    {
+        CommonTools.saveParamers(request);
+
+        String pickupId = request.getParameter("pickupId");
+
+        // 根据拣配单(批次单) 生成一张批次出库单
+        List<PackageVO> packageList = packageDAO.queryEntityVOsByFK(pickupId);
+
+        StringBuilder sb = new StringBuilder();
+
+
+        int pickupCount = packageList.size();
+
+        //<key,value> as <productId,PackageItemBean>
+        Map<String, PackageItemBean> map = new HashMap<String, PackageItemBean>();
+        for (PackageVO each : packageList)
+        {
+            sb.append(each.getId()).append("<br>");
+
+            List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
+
+            // 根据产品分组: 1.判断是否为合成,如是,则要找出子产品;2.数量合并
+            for (PackageItemBean eachItem : itemList)
+            {
+                if (map.containsKey(eachItem.getProductId()))
+                {
+                    PackageItemBean itemBean = map.get(eachItem.getProductId());
+
+                    itemBean.setAmount(itemBean.getAmount() + eachItem.getAmount());
+                }else{
+                    PackageItemBean itemBean = new PackageItemBean();
+
+                    itemBean.setProductId(eachItem.getProductId());
+                    itemBean.setProductName(eachItem.getProductName());
+                    itemBean.setAmount(eachItem.getAmount());
+                    //itemBean.setShowSubProductName(showSubProductName);
+
+                    map.put(eachItem.getProductId(), itemBean);
+                }
+            }
+        }
+
+        PackageVO batchVO = new PackageVO();
+
+        batchVO.setId(sb.toString());
+        batchVO.setPickupId(pickupId);
+        batchVO.setRepTime(TimeTools.now_short());
+
+        List<PackageItemBean> lastList = new ArrayList<PackageItemBean>();
+
+        for (Entry<String, PackageItemBean> entry : map.entrySet())
+        {
+            lastList.add(entry.getValue());
+        }
+
+        //2015/1/14 按照名称排序
+        Collections.sort(lastList, new Comparator(){
+            @Override
+            public int compare(Object o1, Object o2) {
+                PackageItemBean i1 = (PackageItemBean)o1;
+                PackageItemBean i2 = (PackageItemBean)o2;
+                return i1.getProductName().compareTo(i2.getProductName());
+            }
+        });
+        batchVO.setItemList(lastList);
+
+        // key:以批次号做为key ?
+        request.setAttribute("bean", batchVO);
+
+        request.setAttribute("year", TimeTools.now("yyyy"));
+        request.setAttribute("month", TimeTools.now("MM"));
+        request.setAttribute("day", TimeTools.now("dd"));
+
+        request.setAttribute("index_pos", 0);
+
+        request.setAttribute("pickupCount", pickupCount);
+
+        return mapping.findForward("printHandover");
+
+    }
+
     public ActionForward preForMergePackages(ActionMapping mapping, ActionForm form,
                                           HttpServletRequest request, HttpServletResponse response){
         String packageIds = request.getParameter("packageIds");
@@ -2093,8 +2187,13 @@ public class ShipAction extends DispatchAction
         _logger.info("*****autoPickup****************"+pickupCount+";"+productName+":"+productId);
         try
         {
-            this.shipManager.autoPickup(Integer.valueOf(pickupCount), productName);
-            request.setAttribute(KeyConstant.MESSAGE, "自动捡配成功");
+            List<String> pickupList = this.shipManager.autoPickup(Integer.valueOf(pickupCount), productName);
+            StringBuilder sb = new StringBuilder();
+            for (String pickupId: pickupList){
+                sb.append(pickupId)
+                    .append(";");
+            }
+            request.setAttribute(KeyConstant.MESSAGE, "自动捡配成功:"+sb.toString());
         }
         catch(Exception e)
         {

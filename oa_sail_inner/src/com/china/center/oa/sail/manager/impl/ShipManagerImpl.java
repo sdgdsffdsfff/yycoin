@@ -558,46 +558,72 @@ public class ShipManagerImpl implements ShipManager
 		return true;
 	}
 
+    /**
+     *
+     *
+     * @param packageIds
+     * @param pickupCount
+     *@param currentPickupCount @return 捡配批次数量
+     * @throws MYException
+     */
     @Transactional(rollbackFor = MYException.class)
-    public int addPickup(String packageIds) throws MYException {
-        String [] packages = packageIds.split("~");
+    public List<String> addPickup(String packageIds, int pickupCount, int currentPickupCount) throws MYException {
+        String[] packages = packageIds.split("~");
 
+        List<String> pickupIdList = new ArrayList<String>();
         if (null != packages)
         {
-            _logger.info(packageIds+"*****addPickup size*************"+packages.length);
             //TODO
             //一个批次里的商品总数量不能大于50，如一张CK单的数量超过50，单独为一个批次
-            String pickupId = commonDAO.getSquenceString20("PC");
+            final int LIMIT = 50;
+            int batchCount = packages.length/LIMIT+1;
+            _logger.info(packageIds+"*****addPickup with package size*************"+packages.length+"***batchCount***"+batchCount);
 
-            int i = 1;
+            List<String> packageList = Arrays.asList(packages);
+            for (int i=0;i<batchCount;i++){
+                List<String> soList = new ArrayList<String>();
+                if (i== batchCount-1){
+                    soList = packageList.subList(i*LIMIT,packageList.size());
+                }   else{
+                    soList = packageList.subList(i*LIMIT,(i+1)*LIMIT);
+                }
+                String pickupId = commonDAO.getSquenceString20("PC");
+                _logger.info("*******create pickupId********"+pickupId);
+                pickupIdList.add(pickupId);
 
-
-            for (String id : packages)
-            {
-                // 只能拣配初始态的
-                PackageBean bean = packageDAO.find(id);
-
-                if (null == bean)
+                for (String id : soList)
                 {
-                    throw new MYException("出库单[%s]不存在", id);
-                }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
-                {
-                    throw new MYException("[%s]已被拣配", id);
+                    // 只能拣配初始态的
+                    PackageBean bean = packageDAO.find(id);
+
+                    if (null == bean)
+                    {
+                        throw new MYException("出库单[%s]不存在", id);
+                    }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
+                    {
+                        throw new MYException("[%s]已被拣配", id);
+                    }
+
+                    bean.setIndex_pos(i++);
+
+                    bean.setPickupId(pickupId);
+
+                    bean.setStatus(ShipConstant.SHIP_STATUS_PICKUP);
+
+                    packageDAO.updateEntityBean(bean);
+                    _logger.info(id+"*****update package pickupId****"+pickupId);
                 }
 
-                bean.setIndex_pos(i++);
-
-                bean.setPickupId(pickupId);
-
-                bean.setStatus(ShipConstant.SHIP_STATUS_PICKUP);
-
-                packageDAO.updateEntityBean(bean);
-                _logger.info(id+"*****update package pickupId****"+pickupId);
+                if (currentPickupCount+1>=pickupCount){
+                    _logger.info("****pickupCount reach max****");
+                    break;
+                }
             }
 
         }
 
-        return 1;
+        _logger.info("***exit package pickup count****"+pickupIdList.size());
+        return pickupIdList;
     }
 
     @Override
@@ -1514,7 +1540,7 @@ public class ShipManagerImpl implements ShipManager
 
     @Override
     @Transactional(rollbackFor = MYException.class)
-    public void autoPickup(int pickupCount, String productName) throws MYException {
+    public List<String> autoPickup(int pickupCount, String productName) throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
         _logger.info("***autoPickup****"+pickupCount+":"+productName);
         ConditionParse condtion = new ConditionParse();
@@ -1525,16 +1551,20 @@ public class ShipManagerImpl implements ShipManager
         String temp = condtion.toString();
         _logger.info("****************temp************"+temp);
         if (!StringTools.isNullOrNone(productName)){
-//            int index2 = temp.lastIndexOf("AND");
-//            String prefix = temp.substring(0,index2);
-            String sql = temp+" and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%"+productName+"%')";
-            condtion.setCondition(sql);
+            StringBuilder sb = new StringBuilder();
+            sb.append(temp)
+                .append(" and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%")
+                .append(productName)
+                .append("%')")
+                .append(" order by PackageBean.logTime asc");
+
+            condtion.setCondition(sb.toString());
         }
 
         List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(condtion);
+        List<String> pickupIdList = new ArrayList<String>();
 
         if (!ListTools.isEmptyOrNull(packages)){
-            int realPickupCount = 0;
             _logger.info("****packages size****"+packages.size());
 
             //紧急的最优先
@@ -1551,9 +1581,10 @@ public class ShipManagerImpl implements ShipManager
             String emergencyPackages = sb1.toString();
             _logger.info("****packages size remove emergency****"+packages.size());
             if (!StringTools.isNullOrNone(emergencyPackages)){
-                realPickupCount += this.addPickup(emergencyPackages);
-                if (realPickupCount>= pickupCount){
-                    return ;
+                List<String> pickupList = this.addPickup(emergencyPackages, pickupCount, pickupIdList.size());
+                pickupIdList.addAll(pickupList);
+                if (pickupIdList.size()>= pickupCount){
+                    return pickupIdList;
                 }
             }
 
@@ -1571,13 +1602,13 @@ public class ShipManagerImpl implements ShipManager
             _logger.info("****packages size remove selfTakePackages****"+packages.size());
             String selfTakePackages = sb2.toString();
             if (!StringTools.isNullOrNone(selfTakePackages)){
-                realPickupCount += this.addPickup(selfTakePackages);
-                if (realPickupCount>= pickupCount){
-                    return ;
+                List<String> pickupList = this.addPickup(selfTakePackages, pickupCount, pickupIdList.size());
+                pickupIdList.addAll(pickupList);
+                if (pickupIdList.size()>= pickupCount){
+                    return pickupIdList;
                 }
             }
 
-            //TODO
             //仓库地点相同的在一个批次里
             //<key,value> as <location,packageIds>
             Map<String,StringBuilder> map1 = new HashMap<String,StringBuilder>();
@@ -1620,9 +1651,10 @@ public class ShipManagerImpl implements ShipManager
                         }
                     }
 
-                    realPickupCount += this.addPickup(sb.toString());
-                    if (realPickupCount>= pickupCount){
-                        return ;
+                    List<String> pickupList = this.addPickup(sb.toString(), pickupCount, pickupIdList.size());
+                    pickupIdList.addAll(pickupList);
+                    if (pickupIdList.size()>= pickupCount){
+                        return pickupIdList;
                     }
                 }
             }
@@ -1642,17 +1674,19 @@ public class ShipManagerImpl implements ShipManager
                 }
             }
             for (StringBuilder sb :map2.values()){
-                realPickupCount += this.addPickup(sb.toString());
-                if (realPickupCount>= pickupCount){
-                    return ;
+                List<String> pickupList = this.addPickup(sb.toString(), pickupCount, pickupIdList.size());
+                pickupIdList.addAll(pickupList);
+                if (pickupIdList.size()>= pickupCount){
+                    return pickupIdList;
                 }
             }
 
-            _logger.info("****autoPickup exit with pickup count:"+realPickupCount);
+            _logger.info("****autoPickup exit with pickup count:"+pickupIdList.size());
         } else {
             _logger.info("****autoPickup no packages to do****");
         }
 
+        return pickupIdList;
     }
 
     @Override
