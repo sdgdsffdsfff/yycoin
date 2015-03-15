@@ -172,13 +172,6 @@
 
     }
 
-//        function addBean()
-//        {
-//
-//            submit('确定提交CK单合并?', null);
-//        }
-
-
         function selectPrincipalship()
         {
             window.common.modal('../admin/pop.do?method=rptQueryPrincipalship&load=1&selectMode=0');
@@ -246,18 +239,18 @@
                 </p:cell>
 
                 <p:cell title="运输方式" end="true">
-                    <select name="transport1" id="transport1" quick=true class="select_class" style="width:20%" >
+                    <select name="transport1" id="transport1" class="select_class" style="width:20%" >
                     </select>&nbsp;&nbsp;
-                    <select name="transport2" id="transport2" quick=true class="select_class" style="width:20%" >
+                    <select name="transport2" id="transport2" class="select_class" style="width:20%" >
                     </select>
                 </p:cell>
 
                 <p:cell title="运费支付方式" end="true">
-                    <select name="expressPay" quick=true class="select_class" style="width:20%">
-                        <p:option type="deliverPay" empty="true"></p:option>
+                    <select name="expressPay" class="select_class" style="width:20%">
+                        <p:option type="deliverPay"></p:option>
                     </select>&nbsp;&nbsp;
-                    <select name="transportPay" quick=true class="select_class" style="width:20%">
-                        <p:option type="deliverPay" empty="true"></p:option>
+                    <select name="transportPay" class="select_class" style="width:20%">
+                        <p:option type="deliverPay"></p:option>
                     </select>
                 </p:cell>
 
@@ -274,15 +267,15 @@
                 </p:cell>
 
                 <p:cell title="地址" end="true">
-                    <input type="text" name='address' id ='address' maxlength="12" required="required"/><b style="color:red">*</b></td>
+                    <input type="text" name='address' id ='address' maxlength="60" required="required"/><b style="color:red">*</b></td>
                 </p:cell>
 
                 <p:cell title="收货人" end="true">
-                    <input type="text" name='receiver' id ='receiver' maxlength="12" required="required"/><b style="color:red">*</b></td>
+                    <input type="text" name='receiver' id ='receiver' maxlength="60" required="required"/><b style="color:red">*</b></td>
                 </p:cell>
 
                 <p:cell title="电话" end="true">
-                    <input type="text" name='phone' id ='phone' maxlength="13" required="required"/><b style="color:red">*</b></td>
+                    <input type="tel" name='phone' id ='phone' maxlength="60" required="required"/><b style="color:red">*</b></td>
                 </p:cell>
 
             </p:table>

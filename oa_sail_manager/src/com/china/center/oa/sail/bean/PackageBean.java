@@ -454,4 +454,35 @@ public class PackageBean implements Serializable
     public void setSendMailFlag(int sendMailFlag) {
         this.sendMailFlag = sendMailFlag;
     }
+
+    @Override
+    public String toString() {
+        return "PackageBean{" +
+                "id='" + id + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", shipping=" + shipping +
+                ", transport1=" + transport1 +
+                ", expressPay=" + expressPay +
+                ", transport2=" + transport2 +
+                ", transportPay=" + transportPay +
+                ", address='" + address + '\'' +
+                ", receiver='" + receiver + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", amount=" + amount +
+                ", productCount=" + productCount +
+                ", total=" + total +
+                ", status=" + status +
+                ", stafferName='" + stafferName + '\'' +
+                ", industryName='" + industryName + '\'' +
+                ", departName='" + departName + '\'' +
+                ", locationId='" + locationId + '\'' +
+                ", logTime='" + logTime + '\'' +
+                ", pickupId='" + pickupId + '\'' +
+                ", index_pos=" + index_pos +
+                ", shipTime='" + shipTime + '\'' +
+                ", cityId='" + cityId + '\'' +
+                ", emergency=" + emergency +
+                ", sendMailFlag=" + sendMailFlag +
+                '}';
+    }
 }

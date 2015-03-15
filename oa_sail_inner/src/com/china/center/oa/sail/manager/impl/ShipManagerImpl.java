@@ -411,7 +411,7 @@ public class ShipManagerImpl implements ShipManager
                     throw new MYException("出库单[%s]不存在", id);
                 }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
                 {
-                    throw new MYException("[%s]已被拣配", id);
+                    throw new MYException("[%s]不是初始状态无法合并", id);
                 }
 
                 if (i == 1){
@@ -499,7 +499,7 @@ public class ShipManagerImpl implements ShipManager
             packBean.setStatus(0);
             packBean.setLogTime(TimeTools.now());
             packageDAO.saveEntityBean(packBean);
-            _logger.info("****new package created manually***"+id);
+            _logger.info("****new package created manually***"+packBean);
 
             for (PackageItemBean item : itemList){
                 item.setPackageId(id);
@@ -571,59 +571,128 @@ public class ShipManagerImpl implements ShipManager
         String[] packages = packageIds.split("~");
 
         List<String> pickupIdList = new ArrayList<String>();
+        List<PackageBean> pickupList = new ArrayList<PackageBean>();
         if (null != packages)
         {
-            //TODO
-            //一个批次里的商品总数量不能大于50，如一张CK单的数量超过50，单独为一个批次
-            final int LIMIT = 50;
-            int batchCount = packages.length/LIMIT+1;
-            _logger.info(packageIds+"*****addPickup with package size*************"+packages.length+"***batchCount***"+batchCount);
-
+            _logger.info(packageIds+"*****addPickup with package size****"+packages.length+"***pickupCount***"+pickupCount+"***currentPickupCount***"+currentPickupCount);
             List<String> packageList = Arrays.asList(packages);
-            for (int i=0;i<batchCount;i++){
-                List<String> soList = new ArrayList<String>();
-                if (i== batchCount-1){
-                    soList = packageList.subList(i*LIMIT,packageList.size());
-                }   else{
-                    soList = packageList.subList(i*LIMIT,(i+1)*LIMIT);
-                }
-                String pickupId = commonDAO.getSquenceString20("PC");
-                _logger.info("*******create pickupId********"+pickupId);
-                pickupIdList.add(pickupId);
 
-                for (String id : soList)
-                {
-                    // 只能拣配初始态的
-                    PackageBean bean = packageDAO.find(id);
-
-                    if (null == bean)
-                    {
-                        throw new MYException("出库单[%s]不存在", id);
-                    }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
-                    {
-                        throw new MYException("[%s]已被拣配", id);
-                    }
-
-                    bean.setIndex_pos(i++);
-
-                    bean.setPickupId(pickupId);
-
-                    bean.setStatus(ShipConstant.SHIP_STATUS_PICKUP);
-
-                    packageDAO.updateEntityBean(bean);
-                    _logger.info(id+"*****update package pickupId****"+pickupId);
-                }
-
-                if (currentPickupCount+1>=pickupCount){
-                    _logger.info("****pickupCount reach max****");
+            for (String id : packageList)
+            {
+                if (currentPickupCount+pickupList.size()>=pickupCount){
+                    _logger.info("****auto pickup exit when reach max*****");
                     break;
                 }
+                // 只能拣配初始态的
+                PackageBean bean = packageDAO.find(id);
+
+                if (null == bean)
+                {
+                    throw new MYException("出库单[%s]不存在", id);
+                }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
+                {
+                    throw new MYException("[%s]已被拣配", id);
+                }
+
+                PackageBean pickup = this.getPickupId(bean, pickupList);
+
+                bean.setIndex_pos(pickup.getIndex_pos());
+
+                bean.setPickupId(pickup.getPickupId());
+
+                bean.setStatus(ShipConstant.SHIP_STATUS_PICKUP);
+
+                packageDAO.updateEntityBean(bean);
+                _logger.info(id+"*****update package pickupId****"+pickup.getPickupId());
             }
+
+
+//            for (int i=0;i<batchCount;i++){
+//                List<String> soList = new ArrayList<String>();
+//                if (i== batchCount-1){
+//                    soList = packageList.subList(i*LIMIT,packageList.size());
+//                }   else{
+//                    soList = packageList.subList(i*LIMIT,(i+1)*LIMIT);
+//                }
+//                String pickupId = commonDAO.getSquenceString20("PC");
+//                _logger.info("*******create pickupId********"+pickupId);
+//                pickupIdList.add(pickupId);
+//
+//                for (String id : soList)
+//                {
+//                    // 只能拣配初始态的
+//                    PackageBean bean = packageDAO.find(id);
+//
+//                    if (null == bean)
+//                    {
+//                        throw new MYException("出库单[%s]不存在", id);
+//                    }else if (bean.getStatus() != ShipConstant.SHIP_STATUS_INIT)
+//                    {
+//                        throw new MYException("[%s]已被拣配", id);
+//                    }
+//
+//                    bean.setIndex_pos(i++);
+//
+//                    bean.setPickupId(pickupId);
+//
+//                    bean.setStatus(ShipConstant.SHIP_STATUS_PICKUP);
+//
+//                    packageDAO.updateEntityBean(bean);
+//                    _logger.info(id+"*****update package pickupId****"+pickupId);
+//                }
+//
+//                if (currentPickupCount+1>=pickupCount){
+//                    _logger.info("****pickupCount reach max****");
+//                    break;
+//                }
+//            }
 
         }
 
-        _logger.info("***exit package pickup count****"+pickupIdList.size());
+        _logger.info("***exit package pickup count****"+pickupList.size());
+        for (PackageBean packBean : pickupList){
+            pickupIdList.add(packBean.getPickupId());
+        }
         return pickupIdList;
+    }
+
+    /** 一个批次里的商品总数量不能大于50，如一张CK单的数量超过50，单独为一个批次
+     * 2015/3/12
+     * @param bean
+     * @param pickupList
+     * @return
+     */
+    private PackageBean getPickupId(PackageBean bean,List<PackageBean> pickupList){
+        PackageBean packBean = null;
+        if (pickupList.size() == 0){
+            packBean = new PackageBean();
+            packBean.setAmount(bean.getAmount());
+            String pickupId = commonDAO.getSquenceString20("PC");
+            _logger.info("*******create pickupId********"+pickupId);
+            packBean.setPickupId(pickupId);
+
+            pickupList.add(packBean);
+        } else{
+            packBean = pickupList.get(pickupList.size()-1);
+            int amount = packBean.getAmount()+bean.getAmount();
+            //一个批次里的商品总数量不能大于50，如一张CK单的数量超过50，单独为一个批次
+            final int LIMIT = 2;
+            if (amount>LIMIT){
+               _logger.info("****product amount reach MAX****");
+                packBean = new PackageBean();
+                packBean.setAmount(bean.getAmount());
+                String pickupId = commonDAO.getSquenceString20("PC");
+                _logger.info("*******create pickupId********"+pickupId);
+                packBean.setPickupId(pickupId);
+
+                pickupList.add(packBean);
+            } else{
+                packBean.setIndex_pos(packBean.getIndex_pos()+1);
+                packBean.setAmount(amount);
+            }
+        }
+
+        return packBean;
     }
 
     @Override
@@ -1549,7 +1618,7 @@ public class ShipManagerImpl implements ShipManager
 
 
         String temp = condtion.toString();
-        _logger.info("****************temp************"+temp);
+//        _logger.info("****************temp************"+temp);
         if (!StringTools.isNullOrNone(productName)){
             StringBuilder sb = new StringBuilder();
             sb.append(temp)
@@ -1579,7 +1648,7 @@ public class ShipManagerImpl implements ShipManager
                 }
             }
             String emergencyPackages = sb1.toString();
-            _logger.info("****packages size remove emergency****"+packages.size());
+            _logger.info("****packages size after remove emergency****"+packages.size());
             if (!StringTools.isNullOrNone(emergencyPackages)){
                 List<String> pickupList = this.addPickup(emergencyPackages, pickupCount, pickupIdList.size());
                 pickupIdList.addAll(pickupList);
@@ -1599,7 +1668,7 @@ public class ShipManagerImpl implements ShipManager
                     sb2.append(ck).append("~");
                 }
             }
-            _logger.info("****packages size remove selfTakePackages****"+packages.size());
+            _logger.info("****packages size after remove selfTakePackages****"+packages.size());
             String selfTakePackages = sb2.toString();
             if (!StringTools.isNullOrNone(selfTakePackages)){
                 List<String> pickupList = this.addPickup(selfTakePackages, pickupCount, pickupIdList.size());

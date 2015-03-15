@@ -2114,14 +2114,14 @@ public class ShipAction extends DispatchAction
         }
         String transport1Str = request.getParameter("transport1");
         int transport1 = 0;
-        if (StringTools.isNullOrNone(transport1Str)){
+        if (!StringTools.isNullOrNone(transport1Str)){
             try{
                 transport1 = Integer.valueOf(transport1Str);
             }catch(Exception e){}
         }
         String transport2Str = request.getParameter("transport2");
         int transport2 = -1;
-        if (StringTools.isNullOrNone(transport2Str)){
+        if (!StringTools.isNullOrNone(transport2Str)){
             try{
                 transport2 = Integer.valueOf(transport2Str);
             }catch(Exception e){}
@@ -2129,7 +2129,7 @@ public class ShipAction extends DispatchAction
 
         String expressPayStr = request.getParameter("expressPay");
         int expressPay = -1;
-        if (StringTools.isNullOrNone(expressPayStr)){
+        if (!StringTools.isNullOrNone(expressPayStr)){
             try{
                 expressPay = Integer.valueOf(expressPayStr);
             }catch(Exception e){}
@@ -2137,24 +2137,18 @@ public class ShipAction extends DispatchAction
 
         String transportPayStr = request.getParameter("transportPay");
         int transportPay = -1;
-        if (StringTools.isNullOrNone(transportPayStr)){
+        if (!StringTools.isNullOrNone(transportPayStr)){
             try{
                 transportPay = Integer.valueOf(transportPayStr);
             }catch(Exception e){}
         }
 
-//        String provinceId = request.getParameter("provinceId");
-//        if (StringTools.isNullOrNone(provinceId)){
-//            bean.setProvinceId(provinceId);
-//        }
-
         String cityId = request.getParameter("cityId");
         String address = request.getParameter("address");
         String receiver = request.getParameter("receiver");
         String phone = request.getParameter("phone");
-//        String packageIds = request.getParameter("packageIds");
         String packageIds = (String)request.getSession().getAttribute("packageIds");
-        _logger.info("*****mergePickups****************"+address+";"+receiver+":"+phone+":"+packageIds);
+        _logger.info("***mergePickups with param***"+shipping+":"+transport1+":"+transport2+":"+expressPay+":"+transportPay+":"+address+";"+receiver+":"+phone+":"+packageIds);
         try
         {
             this.shipManager.mergePackages(null,packageIds, shipping, transport1, transport2, expressPay, transportPay,cityId, address, receiver, phone );
