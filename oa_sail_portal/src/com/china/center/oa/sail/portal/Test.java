@@ -13,10 +13,7 @@ import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -27,9 +24,27 @@ import java.util.List;
  */
 public class Test {
     public static void main(String[] args){
-        String desc = "紫金农商订单转OA订单. ZJ1502242118017451319.发货备注：.发票抬头：，发票明细:,发票备注:.销售单备注：";
+        String desc = "紫金农商订单转OA订单'. ZJ1502242118017451319'.发货备注：.发票抬头：，发票明细:,发票备注:.销售单备注：";
+        String desc1 = desc;
+        desc1 = "haha";
+        System.out.println(desc);
+        System.out.println(desc1);
+        System.out.println(desc);
         String[] temp1 = desc.split("\\.");
+        int limit = 2;
+        List<String> packageList = Arrays.asList(temp1);
+        int batchCount = temp1.length/limit+1;
+        System.out.println(batchCount);
+        for (int i=0;i<batchCount;i++){
+            List<String> soList = new ArrayList<String>();
+            if (i== batchCount-1){
+                soList = packageList.subList(i*limit,packageList.size());
+            }   else{
+                soList = packageList.subList(i*limit,(i+1)*limit);
+            }
+        }
         System.out.println(temp1.length);
+        System.out.println(11/2+1);
         System.out.println(temp1[1].trim());
 
         String test = "a1~a2~a3~";

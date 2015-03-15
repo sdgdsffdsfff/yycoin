@@ -2577,6 +2577,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                 condition.addCondition("insId", "=", insId);
                 List<InsVSOutBean> insVSOutBeans = insVSOutDAO.queryEntityBeansByCondition(condition);
                 if (!ListTools.isEmptyOrNull(insVSOutBeans)){
+                    _logger.info(insId+"****with InsVSOutBean size****"+insVSOutBeans.size());
                     for (InsVSOutBean vs : insVSOutBeans){
                        String outId = vs.getOutId();
                        boolean result = this.passOut(outId);
@@ -2633,6 +2634,14 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     private boolean passOut(String outId){
         boolean result = false;
         OutBean out = this.outDAO.find(outId);
+
+        if (out == null){
+            _logger.warn("****no SO found****"+outId);
+            return false;
+        } else{
+            _logger.info(outId+"****try to passOut with status****"+out.getStatus());
+        }
+
         if (out!= null && out.getStatus() == OutConstant.STATUS_FLOW_PASS){
             _logger.info("****自动库管审批通过*****"+outId);
 
@@ -2657,6 +2666,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
                     catch (MYException e)
                     {
                         _logger.error(outId+"****自动库管审批出错****",e);
+                        return result;
                     }
 
                     OutBean newOut = outDAO.find(outId);

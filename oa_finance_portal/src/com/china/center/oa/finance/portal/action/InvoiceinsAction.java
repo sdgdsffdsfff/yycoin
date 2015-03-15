@@ -2261,7 +2261,6 @@ public class InvoiceinsAction extends DispatchAction
 
     /**
      * 申请开票新导航 最后一步
-     * @param request
      * @param bean
      * @return
      * @throws MYException
@@ -3357,7 +3356,7 @@ public class InvoiceinsAction extends DispatchAction
                     if ( !StringTools.isNullOrNone(obj[17]))
                     {
                         String invoiceFollowOut = obj[17].trim();
-                        _logger.info("*****invoiceFollowOut*****"+invoiceFollowOut);
+                        _logger.info(bean.getInvoiceNum()+"*****invoiceFollowOut*****"+invoiceFollowOut);
                         bean.setInvoiceFollowOut(invoiceFollowOut);
                     } else {
                         builder
