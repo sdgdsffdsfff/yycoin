@@ -69,7 +69,7 @@ function check()
 
 		return false;
 	 }
-	 
+
 	 for (var i = 0; i < stafferRoleArr.length - 1; i++)
 	 {
 
@@ -96,7 +96,6 @@ function check()
 			arr1.push(each.value);
 	 }
 
-	 
 	 return true;
 
 }
@@ -230,8 +229,8 @@ function load()
 						
 			<p:cell title="事业部" end="true">
 				<textarea name='industryIdsName'
-					head='事业部' id='industryIdsName' rows=2 cols=80 readonly=true
-					oncheck="notNone;"></textarea> <font color='#FF0000'>*</font> <input
+					head='事业部' id='industryIdsName' rows=2 cols=80 readonly=true></textarea>
+                <input
 					type="button" value="&nbsp;...&nbsp;" name="qout" id="qout"
 					class="button_class" onclick="selectPrincipalship()">&nbsp;&nbsp;
 			</p:cell>
@@ -286,14 +285,15 @@ function load()
 	
 	<tr class="content1" id="trCopy1" style="display: none;">
 		<td width="20%" align="center">
-			<select name="stafferRole" class="select_class" oncheck="notNone" style="width: 100%;">
+			<select name="stafferRole" class="select_class" style="width: 100%;">
 				<p:option type="stafferRole" empty="true"></p:option>
 			</select>
 		</td>
-		<td width="20%" align="center"><input type="text"
-			style="width: 100%" name="commissionRatio"></td>
-		<td width="50%" align="center"><input type="text"
-			style="width: 100%" oncheck="notNone" name="stafferName" readonly="readonly" onclick="selectStaffer1(this)">
+		<td width="20%" align="center">
+            <input type="text" style="width: 100%" name="commissionRatio">
+        </td>
+		<td width="50%" align="center">
+            <input type="text" style="width: 100%" name="stafferName" readonly="readonly" onclick="selectStaffer1(this)">
 			<input type="hidden" name="stafferId" value=""></td>
 		<td width="5%" align="center"><input type=button
 			value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>

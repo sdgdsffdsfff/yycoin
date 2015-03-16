@@ -91,44 +91,44 @@ public class ProductApplyBean implements Serializable {
     /**
      * 文化类型 type = 204
      */
-    @Html(title = "文化类型", must = true, type = Element.SELECT)
+    @Html(title = "文化类型",type = Element.SELECT)
     private int cultrueType = -1;
     
     /**
      * 折现率 type = 205
      */
-    @Html(title = "折现率", must = true, type = Element.SELECT)
+    @Html(title = "折现率", type = Element.SELECT)
     private int discountRate = -1;
     
     /**
      * 价格区间 type = 206
      */
-    @Html(title = "价格区间", must = true, type = Element.SELECT)
+    @Html(title = "价格区间", type = Element.SELECT)
     private int priceRange = -1;
     
     /**
      * 销售周期 type = 207
      */
-    @Html(title = "销售周期", must = true, type = Element.SELECT)
+    @Html(title = "销售周期", type = Element.SELECT)
     private int salePeriod = -1;
     
     /**
      * 销售对象 type = 208
      */
-    @Html(title = "销售对象", must = true, type = Element.SELECT)
+    @Html(title = "销售对象",  type = Element.SELECT)
     private int saleTarget = -1;
     
     /**
      * 产品性质 - 0:单元产品，1：合成产品
      */
-    @Html(title = "产品性质", must = true, type = Element.SELECT)
+    @Html(title = "产品性质", type = Element.SELECT, must = true)
     private int nature = ProductApplyConstant.NATURE_SINGLE;
     
     /**
      * 产品经理
      */
     @Join(tagClass = StafferBean.class, type = JoinType.LEFT, alias = "s1")
-    @Html(name = "productManagerName", title = "产品经理", readonly = true, must = true)
+    @Html(name = "productManagerName", title = "产品经理", readonly = true)
     private String productManagerId = "";
     
     /**
@@ -146,13 +146,13 @@ public class ProductApplyBean implements Serializable {
     /**
      * 外型 type = 211
      */
-    @Html(title = "外型", must = true, type = Element.SELECT)
+    @Html(title = "外型", type = Element.SELECT)
     private int style = -1;
     
      /**
       * 国家 type = 212
       */
-    @Html(title = "国家", must = true, type = Element.SELECT)
+    @Html(title = "国家", type = Element.SELECT)
     private int country = -1;
     
     /**
