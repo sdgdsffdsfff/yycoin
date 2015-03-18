@@ -574,6 +574,11 @@ public abstract class OutHelper
     		{
     			head = "XZ";
     		}
+            else if (outType == OutConstant.OUTTYPE_OUT_BANK_SWATCH)
+            {
+                //2015/3/17 新增银行领样 （与银行铺货类拟）
+                head = "YL";
+            }
     		else
     		{
     			head = "SO";

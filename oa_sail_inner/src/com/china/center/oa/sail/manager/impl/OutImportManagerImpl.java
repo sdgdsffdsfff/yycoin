@@ -1542,6 +1542,8 @@ public class OutImportManagerImpl implements OutImportManager
 			
 			if (out.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH 
 					&& out.getOutType() != OutConstant.OUTTYPE_OUT_SHOW
+                    //2015/3/17 新增银行领样 （与银行铺货类拟）
+                    && out.getOutType() != OutConstant.OUTTYPE_OUT_BANK_SWATCH
 					&& out.getOutType() != OutConstant.OUTTYPE_OUT_SHOWSWATCH)
 			{
 				each.setRet(1);
@@ -1979,7 +1981,9 @@ public class OutImportManagerImpl implements OutImportManager
         newOut.setStafferId(bean.getStafferId());
         newOut.setStafferName(bean.getStafferName());
         
-        if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW)
+        if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+                //2015/3/17 新增银行领样 （与银行铺货类拟）
+                ||bean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH)
         {
         	newOut.setCustomerId(bean.getCustomerId());
         	newOut.setCustomerName(bean.getCustomerName());
@@ -2025,7 +2029,9 @@ public class OutImportManagerImpl implements OutImportManager
 
 		out.setDepartment("采购部");
 
-		if (oldOut.getOutType() == OutConstant.OUTTYPE_OUT_SHOW)
+		if (oldOut.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+                //2015/3/17 新增银行领样 （与银行铺货类拟）
+                || oldOut.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH)
 		{
 			out.setCustomerId(oldOut.getCustomerId());
 

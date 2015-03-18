@@ -3516,6 +3516,8 @@ public class OutImportAction extends DispatchAction
             			if (out.getType() == OutConstant.OUT_TYPE_OUTBILL && 
             					(out.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH 
             					|| out.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+                                //2015/3/17 新增银行领样 （与银行铺货类拟）
+                                || out.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
             					|| out.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH) )
             			{
             				if (out.getStatus() == OutConstant.STATUS_SEC_PASS || out.getStatus() == OutConstant.STATUS_PASS)

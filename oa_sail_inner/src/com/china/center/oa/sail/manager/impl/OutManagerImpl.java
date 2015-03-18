@@ -5460,7 +5460,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (src.getType() == OutConstant.OUT_TYPE_OUTBILL
             && (src.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH 
             		|| src.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
-            		|| src.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH))
+            		|| src.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH
+                //2015/3/17 新增银行领样 （与银行铺货类拟）
+                || src.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH))
         {
             return true;
         }

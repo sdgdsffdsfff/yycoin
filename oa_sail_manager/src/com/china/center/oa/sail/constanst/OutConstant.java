@@ -215,6 +215,12 @@ public interface OutConstant
      */
     @Defined(key = "outType_out", value = "巡展领样")
     int OUTTYPE_OUT_SHOWSWATCH = 6;
+
+    /**
+     * 银行领样 （与银行铺货类拟）
+     */
+    @Defined(key = "outType_out", value = "银行领样")
+    int OUTTYPE_OUT_BANK_SWATCH = 7;
     
     /**
      * 采购入库

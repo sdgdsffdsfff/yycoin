@@ -2208,7 +2208,9 @@ public class OutAction extends ParentOutAction
             newOut.setStafferId(bean.getStafferId());
             newOut.setStafferName(bean.getStafferName());
             
-            if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW)
+            if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+                    //2015/3/17 新增银行领样 （与银行铺货类拟）
+                    || bean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH)
             {
             	newOut.setCustomerId(bean.getCustomerId());
             	newOut.setCustomerName(bean.getCustomerName());
@@ -2949,6 +2951,8 @@ public class OutAction extends ParentOutAction
             // 个人领样
             if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
             		|| bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+                    //2015/3/17 新增银行领样 （与银行铺货类拟）
+                    || bean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
             		|| bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH)
             {
                 queryRefOut(request, outId);
@@ -5274,7 +5278,9 @@ public class OutAction extends ParentOutAction
         newOut.setStafferId(bean.getStafferId());
         newOut.setStafferName(bean.getStafferName());
         
-        if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW)
+        if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+                //2015/3/17 新增银行领样 （与银行铺货类拟）
+                || bean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH)
         {
         	newOut.setCustomerId(bean.getCustomerId());
         	newOut.setCustomerName(bean.getCustomerName());

@@ -3471,6 +3471,8 @@ public class ParentOutAction extends DispatchAction
 		if (oldOut.getType() != OutConstant.OUT_TYPE_OUTBILL
 				&& (oldOut.getOutType() != OutConstant.OUTTYPE_OUT_SWATCH
 						|| oldOut.getOutType() != OutConstant.OUTTYPE_OUT_SHOW
+                        //2015/3/17 新增银行领样 （与银行铺货类拟）
+                        || oldOut.getOutType() != OutConstant.OUTTYPE_OUT_BANK_SWATCH
 						|| oldOut.getOutType() != OutConstant.OUTTYPE_OUT_SHOWSWATCH))
 		{
 			request.setAttribute(KeyConstant.ERROR_MESSAGE, "数据错误");
@@ -3492,7 +3494,9 @@ public class ParentOutAction extends DispatchAction
 
 		out.setDepartment("采购部");
 
-		if (oldOut.getOutType() == OutConstant.OUTTYPE_OUT_SHOW)
+		if (oldOut.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+            //2015/3/17 新增银行领样 （与银行铺货类拟）
+            || oldOut.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH)
 		{
 			out.setCustomerId(oldOut.getCustomerId());
 

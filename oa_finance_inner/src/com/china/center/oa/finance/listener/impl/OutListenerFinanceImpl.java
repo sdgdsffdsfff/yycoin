@@ -224,7 +224,9 @@ public class OutListenerFinanceImpl extends AbstractListenerManager<BillListener
         // 个人领样 与  巡展 按个人领样处理
         if (bean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
         		|| bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
-        		|| bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH)
+        		|| bean.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH
+                //2015/3/17 新增银行领样 （与银行铺货类拟）
+                || bean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH)
         {
             return processSwithPay(bean.getFullId());
         }

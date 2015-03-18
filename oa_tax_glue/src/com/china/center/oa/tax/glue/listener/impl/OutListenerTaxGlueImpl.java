@@ -265,6 +265,8 @@ public class OutListenerTaxGlueImpl implements OutListener
             if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL
                 && (outBean.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
                 		|| outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+                        //2015/3/17 新增银行领样 （与银行铺货类拟）
+                        || outBean.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
                 		|| outBean.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH))
             {
                 processOutSwatch(user, outBean);
@@ -503,6 +505,8 @@ public class OutListenerTaxGlueImpl implements OutListener
         if (src.getType() == OutConstant.OUT_TYPE_OUTBILL
             && (src.getOutType() == OutConstant.OUTTYPE_OUT_SWATCH
             		|| src.getOutType() == OutConstant.OUTTYPE_OUT_SHOW
+                    //2015/3/17 新增银行领样 （与银行铺货类拟）
+                    || src.getOutType() == OutConstant.OUTTYPE_OUT_BANK_SWATCH
             		|| src.getOutType() == OutConstant.OUTTYPE_OUT_SHOWSWATCH))
         {
             return true;
@@ -5840,7 +5844,6 @@ public class OutListenerTaxGlueImpl implements OutListener
      * 
      * @param user
      * @param outBean
-     * @param bad
      * @throws MYException
      */
     private void mainFinanceInBadPay(User user, OutBean outBean)
