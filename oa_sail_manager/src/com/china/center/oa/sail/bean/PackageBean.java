@@ -137,6 +137,11 @@ public class PackageBean implements Serializable
      *发送邮件标识 1:已发送
      */
     private int sendMailFlag = 0;
+
+    /**2015/3/18 取CK单中距当前时间最长的单据创建时间
+     *单据时间
+     */
+    private String billsTime = "";
 	
 	@Ignore
 	List<PackageItemBean> itemList = null;
@@ -453,6 +458,22 @@ public class PackageBean implements Serializable
      */
     public void setSendMailFlag(int sendMailFlag) {
         this.sendMailFlag = sendMailFlag;
+    }
+
+
+    /**
+     * @return the billsTime
+     */
+    public String getBillsTime() {
+        return billsTime;
+    }
+
+
+    /**
+     * @param billsTime the billsTime to set
+     */
+    public void setBillsTime(String billsTime) {
+        this.billsTime = billsTime;
     }
 
     @Override

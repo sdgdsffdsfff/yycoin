@@ -1759,9 +1759,9 @@ public class ShipManagerImpl implements ShipManager
     }
 
     @Override
+    @Transactional(rollbackFor = MYException.class)
     public void sortPackagesJob() throws MYException {
         _logger.info("**********sortPackagesJob running*************");
-        //TODO
         ConditionParse con1 = new ConditionParse();
         con1.addWhereStr();
         con1.addIntCondition("status","=", ShipConstant.SHIP_STATUS_INIT);
@@ -1769,6 +1769,22 @@ public class ShipManagerImpl implements ShipManager
 
         if (!ListTools.isEmptyOrNull(packages)){
             _logger.info("****sortPackagesJob with packages size****"+packages.size());
+            for (PackageBean packBean : packages){
+                List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(packBean.getId());
+                if (!ListTools.isEmptyOrNull(items)){
+                    Collections.sort(items, new Comparator<PackageItemBean>() {
+                        public int compare(PackageItemBean o1, PackageItemBean o2) {
+                            return o2.getOutTime().compareTo(o1.getOutTime());
+                        }
+                    });
+                    _logger.info(packBean.getId()+" the last item********"+items.get(0).getOutTime());
+                    _logger.info(packBean.getId()+" the first item********"+items.get(items.size()-1).getOutTime());
+                    packBean.setBillsTime(items.get(items.size()-1).getOutTime());
+                    this.packageDAO.updateEntityBean(packBean);
+                    _logger.info(packBean.getId()+" update billsTime ************");
+                }
+            }
+
         }
     }
 
