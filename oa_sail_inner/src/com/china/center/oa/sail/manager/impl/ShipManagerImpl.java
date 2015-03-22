@@ -1772,6 +1772,7 @@ public class ShipManagerImpl implements ShipManager
             for (PackageBean packBean : packages){
                 List<PackageItemBean> items = this.packageItemDAO.queryEntityBeansByFK(packBean.getId());
                 if (!ListTools.isEmptyOrNull(items)){
+                    //取CK单中距当前时间最长的单据创建时间
                     Collections.sort(items, new Comparator<PackageItemBean>() {
                         public int compare(PackageItemBean o1, PackageItemBean o2) {
                             return o2.getOutTime().compareTo(o1.getOutTime());
@@ -1780,6 +1781,21 @@ public class ShipManagerImpl implements ShipManager
                     _logger.info(packBean.getId()+" the last item********"+items.get(0).getOutTime());
                     _logger.info(packBean.getId()+" the first item********"+items.get(items.size()-1).getOutTime());
                     packBean.setBillsTime(items.get(items.size()-1).getOutTime());
+
+                    //2015/3/22 发票单发指CK单中只有A或FP开头的单号，没有其他类型的订单
+                    int count = 0;
+                    for (PackageItemBean item : items){
+                          String outId = item.getOutId();
+                          if (outId.startsWith("A") || outId.startsWith("FP")){
+                              count++;
+                          }else{
+                              break;
+                          }
+                    }
+                    if (count == items.size()){
+                        _logger.info(packBean.getId()+" set to INVOICE_SHIP_ALONE****");
+                        packBean.setInsFollowOut(ShipConstant.INVOICE_SHIP_ALONE);
+                    }
                     this.packageDAO.updateEntityBean(packBean);
                     _logger.info(packBean.getId()+" update billsTime ************");
                 }

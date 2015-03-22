@@ -142,6 +142,12 @@ public class PackageBean implements Serializable
      *单据时间
      */
     private String billsTime = "";
+
+    /**
+     * 2015/3/22 发票单发指CK单中只有A或FP开头的单号，没有其他类型的订单
+     * 此字段由后台Job生成
+     */
+    private int insFollowOut = ShipConstant.INVOICE_SHIP_FOLLOW_OUT;
 	
 	@Ignore
 	List<PackageItemBean> itemList = null;
@@ -474,6 +480,21 @@ public class PackageBean implements Serializable
      */
     public void setBillsTime(String billsTime) {
         this.billsTime = billsTime;
+    }
+
+    /**
+     * @return the insFollowOut
+     */
+    public int getInsFollowOut() {
+        return insFollowOut;
+    }
+
+
+    /**
+     * @param insFollowOut the insFollowOut to set
+     */
+    public void setInsFollowOut(int insFollowOut) {
+        this.insFollowOut = insFollowOut;
     }
 
     @Override

@@ -104,6 +104,20 @@
         <property name="cronExpression" value="0 0 10 * * ?" />
     </bean>
 
+    <!--job to 统计CK单中距当前时间最长的单据创建时间 -->
+    <bean id="sortPackages"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="shipManager" />
+        <property name="targetMethod" value="sortPackagesJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="sortPackagesTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="sortPackages" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
+
     <bean
         class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -115,6 +129,7 @@
                 <ref bean="statsPersonalSwatchTrigger" />
                 <ref bean="createOAOrderFromAppTrigger"/>
                 <ref bean="sendMailForShippingTrigger"/>
+                <ref bean="sortPackagesTrigger"/>
             </list>
         </property>
     </bean>

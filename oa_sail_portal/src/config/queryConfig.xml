@@ -307,6 +307,12 @@
             <type>select</type>
             <option>$outEmergency</option>
         </condtion>
+        <condtion name="insFollowOut" caption="发票单发">
+            <opr>=</opr>
+            <datatype>1</datatype>
+            <type>select</type>
+            <option>$invoiceShipStatus</option>
+        </condtion>
     </item>	
     
      <item name="queryOutBack" deaultpfix="OutBackBean">

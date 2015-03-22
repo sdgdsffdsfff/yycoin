@@ -24,6 +24,14 @@ import java.util.*;
  */
 public class Test {
     public static void main(String[] args){
+        String sql1 = "<= '2015-03-19 23:59:59' AND PackageBean.status =0 AND PackageBean.insFollowOut =1 AND PackageBean.logTime >= '2015-03-12" ;
+        String placeholder = "AND PackageBean.insFollowOut =";
+        int index3 = sql1.indexOf(placeholder);
+        System.out.println(index3);
+        sql1 = sql1.substring(0, index3)+sql1.substring(index3+placeholder.length()+1);
+        System.out.println(sql1);
+//        sql1 = "hello";
+//        System.out.println(sql1);
         String desc = "紫金农商订单转OA订单'. ZJ1502242118017451319'.发货备注：.发票抬头：，发票明细:,发票备注:.销售单备注：";
         String desc1 = desc;
         desc1 = "haha";

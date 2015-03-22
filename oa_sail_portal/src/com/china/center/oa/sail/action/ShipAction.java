@@ -143,23 +143,9 @@ public class ShipAction extends DispatchAction
         String customerName = request.getParameter("customerName");
         String productName = request.getParameter("productName");
         String stafferName = request.getParameter("stafferName");
-        System.out.println("***************customer:"+customerName+"*****stafferName****"+stafferName+"****productName****"+productName);
+        String insFollowOut = request.getParameter("insFollowOut");
+        _logger.info("***queryPackage with parameter customer:"+customerName+"***stafferName***"+stafferName+"***productName***"+productName+"***insFollowOut**"+insFollowOut);
         User user = Helper.getUser(request);
-
-
-//        StringBuilder sb = new StringBuilder();
-//        sb.append("select PackageBean.id from t_center_package PackageBean ")
-//                .append("left join t_center_package_item PackageItemBean on (PackageItemBean.packageId=PackageBean.id)");
-//        ConditionParse newConditionParse = new ConditionParse();
-//        newConditionParse.removeWhereStr();
-//        newConditionParse.addCondition("left outer join t_center_package_item PackageItemBean on (PackageItemBean.packageId=PackageBean.id)");
-//        newConditionParse.addWhereStr();
-//        newConditionParse.addCondition("PackageItemBean.productName","like",productName);
-//        System.out.println("***************1111111111111111*****************"+newConditionParse.toString());
-//        newConditionParse.setCondition(sb.toString());
-//        this.packageDAO.queryVOsByCondition(newConditionParse);
-
-//        condtion.addCondition(" LEFT OUTER JOIN T_CENTER_PACKAGE_ITEM PackageItemBean on (PackageBean.id=PackageItemBean.packageId)");
 
         ConditionParse condtion = new ConditionParse();
         condtion.addWhereStr();
@@ -176,18 +162,53 @@ public class ShipAction extends DispatchAction
 //        System.out.println("**************condition222222222222222222"+condtion);
 
         String temp = condtion.toString();
+        _logger.info("***SQL generated*************"+temp);
         if (!StringTools.isNullOrNone(productName) && temp.indexOf("PackageItemBean") !=-1){
-//            System.out.println("**************condition3333333333333333"+temp);
             int index2 = temp.lastIndexOf("AND");
             String prefix = temp.substring(0,index2);
             String sql = prefix+"and exists (select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%"+productName+"%')";
             condtion.setCondition(sql);
-//            System.out.println("**************condition44444444444444444"+condtion.toString());
         }
 
-//        condtion.addCondition("order by CustomerBean.name");
-        //2015/3/1 暂时按照时间排序，时间最老的最先显示
-        condtion.addCondition("order by PackageBean.logTime asc");
+//        if (!StringTools.isNullOrNone(insFollowOut)){
+//            String placeholder = "AND PackageBean.insFollowOut =";
+//            int index3 = temp.indexOf(placeholder);
+//            temp = temp.substring(0, index3)+temp.substring(index3+placeholder.length()+1);
+//        }
+//        _logger.info("***SQL converted*************"+temp);
+
+//        if (!StringTools.isNullOrNone(productName) && temp.indexOf("PackageItemBean") !=-1){
+//            int index2 = temp.lastIndexOf("AND");
+//            String prefix = temp.substring(0,index2);
+//            StringBuilder sb = new StringBuilder();
+//            sb.append(prefix)
+//               .append(" and exists ")
+//               .append("(select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id and PackageItemBean.productName like '%")
+//               .append(productName)
+//               .append("%'");
+//            //2015/3/19 “发票单发”则选择CK单中只有A或FP开头的单号
+//            if (!StringTools.isNullOrNone(insFollowOut) && "0".equals(insFollowOut)){
+//                sb.append(" and (PackageItemBean.outId like 'A%' or PackageItemBean.outId like 'FP%')");
+//            }
+//            sb.append(")");
+//            condtion.setCondition(sb.toString());
+//        } else {
+//            //2015/3/19 “发票单发”则选择CK单中只有A或FP开头的单号
+//            if (!StringTools.isNullOrNone(insFollowOut) && "0".equals(insFollowOut)){
+//                StringBuilder sb = new StringBuilder();
+//                sb.append(temp)
+//                  .append(" and exists ")
+//                  .append("(select PackageItemBean.id from t_center_package_item PackageItemBean where PackageItemBean.packageId=PackageBean.id")
+//                  .append(" and (PackageItemBean.outId like 'A%' or PackageItemBean.outId like 'FP%')")
+//                  .append(")");
+//                condtion.setCondition(sb.toString());
+//            }
+//        }
+
+        _logger.info("**************SQL to be executed***"+condtion.toString());
+
+        //2015/3/22 按照单据时间排序，时间最老的最先显示
+        condtion.addCondition("order by PackageBean.billsTime asc");
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYPACKAGE, request, condtion, this.packageDAO,
                 new HandleResult<PackageVO>()
                 {
@@ -198,7 +219,7 @@ public class ShipAction extends DispatchAction
 
                 });
 
-        System.out.println("**************jsonstr****************"+jsonstr);
+        _logger.info("**************jsonstr****************"+jsonstr);
 
         return JSONTools.writeResponse(response, jsonstr);
     }
