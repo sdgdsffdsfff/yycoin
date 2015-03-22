@@ -22,9 +22,21 @@ function pagePrint()
 	var subindex_pos = $O('subindex_pos').value;
 
 	var compose = $O('compose').value;
-	
-	// 链到客户出库单打印界面
-	$l("../sail/ship.do?method=findOutForReceipt&pickupId="+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos + "&compose=" + compose);
+
+//    console.log("printMode:"+$$('printMode'));
+//    console.log("stafferName:"+$$('stafferName'));
+    if ($$('printMode') == '0' && $$('stafferName') == '叶百韬')
+    {
+        var pickupId = $O('pickupId').value;
+        var index_pos = $O('index_pos').value;
+        var compose = $O('compose').value;
+
+        // 链到交接清单打印界面
+        $l("../sail/ship.do?method=printHandover&pickupId="+pickupId+"&index_pos="+index_pos + "&compose=" + compose);
+    } else{
+        // 链到客户出库单打印界面
+        $l("../sail/ship.do?method=findOutForReceipt&pickupId="+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos + "&compose=" + compose);
+    }
 }
 
 function callBackPrintFun()
@@ -40,6 +52,9 @@ function callBackPrintFun()
 <input type="hidden" name="packageId" value="${packageId}">
 <input type="hidden" name="subindex_pos" value="${subindex_pos}">
 <input type="hidden" name="compose" value="${compose}">
+<input type="hidden" name="printMode" value="${printMode}">
+<input type="hidden" name="printSmode" value="${printSmode}">
+<input type="hidden" name="stafferName" value="${stafferName}">
 
 <table width="90%" border="0" cellpadding="0" cellspacing="0"
 	align="center">

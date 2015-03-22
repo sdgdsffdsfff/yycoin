@@ -810,6 +810,7 @@ public class ShipManagerImpl implements ShipManager
     			packageBean.setStatus(ShipConstant.SHIP_STATUS_PRINT);
         		
         		packageDAO.updateEntityBean(packageBean);
+                _logger.info(packageBean.getId()+" status updated to "+ShipConstant.SHIP_STATUS_PRINT);
     		}
     	}
 		

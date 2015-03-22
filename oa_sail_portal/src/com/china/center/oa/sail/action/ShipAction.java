@@ -1062,7 +1062,11 @@ public class ShipAction extends DispatchAction
         condtion.addCondition("PackageBean.pickupId", "=", pickupId);
         condtion.addIntCondition("PackageBean.index_pos", "=", index_pos);
 
+        _logger.info("**********findNextPackage with pickupId:"+pickupId+" index_pos:"+index_pos);
+
         List<PackageVO> packageList = packageDAO.queryVOsByCondition(condtion);
+
+        _logger.info("****findNextPackage packageList size***"+packageList.size());
 
         if (ListTools.isEmptyOrNull(packageList) || packageList.size() > 1)
         {
@@ -1074,10 +1078,19 @@ public class ShipAction extends DispatchAction
                 request.setAttribute("pickupId2", pickupId);
 
                 request.setAttribute("compose1", compose);
+                request.setAttribute("hello", "world");
 
+                //连打模式
+                request.setAttribute("printMode", "0");
+                request.setAttribute("printSmode", "0");
+                request.getSession().setAttribute("printMode", "0");
+                request.getSession().setAttribute("printSmode", "0");
+
+                _logger.info("****redirect to findOutForReceipt print**********");
                 return findOutForReceipt(mapping, form, request, response);
             }else
             {
+                _logger.info("**** print finished*****");
                 request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印完毕");
 
                 return mapping.findForward("error");
@@ -1206,8 +1219,17 @@ public class ShipAction extends DispatchAction
 
         String packageId =  RequestTools.getValueFromRequest(request, "packageId");
 
-        String msg1 = "**********pickupId****"+pickupId+"****packageId*****"+packageId;
+        String printMode =  (String)request.getAttribute("printMode");
+        String printSmode =  (String)request.getAttribute("printSmode");
+
+        String hello =  RequestTools.getValueFromRequest(request, "hello");
+        String print2 = (String)request.getSession().getAttribute("printMode");
+        _logger.info("**************hello******"+hello+"****print2****"+print2);
+
+        String msg1 = "**********pickupId****"+pickupId+"****packageId*****"+packageId+"***index_pos***"+index_pos+"***printMode***"+printMode+"***printSmode***"+printSmode;
         _logger.info(msg1);
+        request.setAttribute("printMode", printMode);
+        request.setAttribute("printSmode", printSmode);
 
         // 第一次打印时，找出第一个出库单，一个出库单对应多个客户 1:n
         if (index_pos == 0)
@@ -1252,7 +1274,7 @@ public class ShipAction extends DispatchAction
 
         con.addCondition("PackageVSCustomerBean.packageId", "=", packageId);
         con.addIntCondition("PackageVSCustomerBean.indexPos", "=", subindexpos);
-        //System.out.println("=======con========" + con.toString());
+        _logger.info("=======con========" + con.toString());
         List<PackageVSCustomerBean> vsList = packageVSCustomerDAO.queryEntityBeansByCondition(con);
 
         if (!ListTools.isEmptyOrNull(vsList))
@@ -2030,6 +2052,14 @@ public class ShipAction extends DispatchAction
         CommonTools.saveParamers(request);
 
         String pickupId = request.getParameter("pickupId");
+        String printMode = request.getParameter("printMode");
+        _logger.info("printHandover with pickupId***"+pickupId+"***printMode***"+printMode);
+        if ("0".equals(printMode)){
+            _logger.info("**** print finished*****");
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印完毕");
+
+            return mapping.findForward("error");
+        }
 
         // 根据拣配单(批次单) 生成一张批次出库单
         List<PackageVO> packageList = packageDAO.queryEntityVOsByFK(pickupId);

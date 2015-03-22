@@ -23,11 +23,8 @@
 
             var compose = $O('compose').value;
 
-            // 更新打印次数
-            //$ajax('../sail/ship.do?method=updateStatus&pickupId=' + pickupId, callBackPrintFun);
-
-            // 链到客户出库单打印界面
-            $l("../sail/ship.do?method=findOutForReceipt&pickupId="+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos + "&compose=" + compose);
+            // 链到打印完毕页面
+            $l("../sail/ship.do?method=printHandover&pickupId="+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos + "&compose=" + compose+ "&printMode=0");
         }
 
         function callBackPrintFun()
