@@ -32,7 +32,7 @@ function pagePrint()
         var compose = $O('compose').value;
 
         // 链到交接清单打印界面
-        $l("../sail/ship.do?method=printHandover&pickupId="+pickupId+"&index_pos="+index_pos + "&compose=" + compose);
+        $l("../sail/ship.do?method=printHandover&pickupId="+pickupId+"&index_pos=0" + "&compose=" + compose);
     } else{
         // 链到客户出库单打印界面
         $l("../sail/ship.do?method=findOutForReceipt&pickupId="+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos + "&compose=" + compose);

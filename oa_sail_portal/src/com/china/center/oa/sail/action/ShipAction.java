@@ -2053,16 +2053,38 @@ public class ShipAction extends DispatchAction
 
         String pickupId = request.getParameter("pickupId");
         String printMode = request.getParameter("printMode");
-        _logger.info("printHandover with pickupId***"+pickupId+"***printMode***"+printMode);
-        if ("0".equals(printMode)){
-            _logger.info("**** print finished*****");
+        String sindex_pos = request.getParameter("index_pos");
+
+        _logger.info("printHandover with pickupId***"+pickupId+"***printMode***"+printMode+"***sindex_pos***"+sindex_pos);
+
+        int index_pos = 0;
+
+        if (!StringTools.isNullOrNone(sindex_pos))
+        {
+            index_pos = MathTools.parseInt(sindex_pos);
+        }
+
+        index_pos += 1;
+
+        // 先找出该批次下所有index大于index_pos的CK单
+        ConditionParse condtion = new ConditionParse();
+        condtion.addWhereStr();
+        condtion.addCondition("PackageBean.pickupId", "=", pickupId);
+        condtion.addIntCondition("PackageBean.index_pos", ">=", index_pos);
+        condtion.addCondition("order by PackageBean.index_pos asc");
+
+        List<PackageVO> packageList = this.packageDAO.queryVOsByCondition(condtion);
+
+        if (ListTools.isEmptyOrNull(packageList))
+        {
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印完毕");
 
             return mapping.findForward("error");
         }
 
-        // 根据拣配单(批次单) 生成一张批次出库单
-        List<PackageVO> packageList = packageDAO.queryEntityVOsByFK(pickupId);
+        _logger.info("****printHandover packageList size***"+packageList.size());
+
+//        List<PackageVO> packageList = packageDAO.queryEntityVOsByFK(pickupId);
 
         StringBuilder sb = new StringBuilder();
 
@@ -2071,31 +2093,53 @@ public class ShipAction extends DispatchAction
 
         //<key,value> as <productId,PackageItemBean>
         Map<String, PackageItemBean> map = new HashMap<String, PackageItemBean>();
+        boolean printFlag = false;
         for (PackageVO each : packageList)
         {
-            sb.append(each.getId()).append("<br>");
+            //2015/3/23 判断业务员为“叶百韬”且 销售单上的客户名称为“中信银行XXXX”类型的才打印
+            String stafferName = each.getStafferName();
+            String customerName = each.getCustomerName();
+            _logger.info("****stafferName***"+stafferName+"***customerName***"+customerName);
+            if ("叶百韬".equals(stafferName) && customerName.indexOf("中信银行")!= -1){
+                _logger.info(each.getId()+" print handover for CK with index:"+index_pos);
 
-            List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
+                index_pos = each.getIndex_pos();
 
-            // 根据产品分组: 1.判断是否为合成,如是,则要找出子产品;2.数量合并
-            for (PackageItemBean eachItem : itemList)
-            {
-                if (map.containsKey(eachItem.getProductId()))
+                sb.append(each.getId()).append("<br>");
+
+                List<PackageItemBean> itemList = packageItemDAO.queryEntityBeansByFK(each.getId());
+
+                // 根据产品分组: 1.判断是否为合成,如是,则要找出子产品;2.数量合并
+                for (PackageItemBean eachItem : itemList)
                 {
-                    PackageItemBean itemBean = map.get(eachItem.getProductId());
+                    if (map.containsKey(eachItem.getProductId()))
+                    {
+                        PackageItemBean itemBean = map.get(eachItem.getProductId());
 
-                    itemBean.setAmount(itemBean.getAmount() + eachItem.getAmount());
-                }else{
-                    PackageItemBean itemBean = new PackageItemBean();
+                        itemBean.setAmount(itemBean.getAmount() + eachItem.getAmount());
+                    }else{
+                        PackageItemBean itemBean = new PackageItemBean();
 
-                    itemBean.setProductId(eachItem.getProductId());
-                    itemBean.setProductName(eachItem.getProductName());
-                    itemBean.setAmount(eachItem.getAmount());
-                    //itemBean.setShowSubProductName(showSubProductName);
+                        itemBean.setProductId(eachItem.getProductId());
+                        itemBean.setProductName(eachItem.getProductName());
+                        itemBean.setAmount(eachItem.getAmount());
+                        //itemBean.setShowSubProductName(showSubProductName);
 
-                    map.put(eachItem.getProductId(), itemBean);
+                        map.put(eachItem.getProductId(), itemBean);
+                    }
                 }
+
+                printFlag = true;
+                break;
+            } else{
+                continue;
             }
+        }
+
+        if (!printFlag){
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印完毕");
+
+            return mapping.findForward("error");
         }
 
         PackageVO batchVO = new PackageVO();
@@ -2129,8 +2173,7 @@ public class ShipAction extends DispatchAction
         request.setAttribute("month", TimeTools.now("MM"));
         request.setAttribute("day", TimeTools.now("dd"));
 
-        request.setAttribute("index_pos", 0);
-
+        request.setAttribute("index_pos", index_pos);
         request.setAttribute("pickupCount", pickupCount);
 
         return mapping.findForward("printHandover");
