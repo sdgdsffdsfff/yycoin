@@ -394,7 +394,7 @@ public class ShipManagerImpl implements ShipManager
 
             PackageBean packBean = new PackageBean();
             List<PackageItemBean> itemList = new ArrayList<PackageItemBean>();
-            PackageBean firstPack = null;
+            PackageVO firstPack = null;
 
             int allAmount = 0;
             double total = 0;
@@ -415,7 +415,7 @@ public class ShipManagerImpl implements ShipManager
                 }
 
                 if (i == 1){
-                    firstPack = bean;
+                    firstPack = this.packageDAO.findVO(id);
                     stafferName = firstPack.getStafferName();
                 }
 
@@ -479,8 +479,11 @@ public class ShipManagerImpl implements ShipManager
             packBean.setProductCount(pmap.values().size());
 
             String id = commonDAO.getSquenceString20("CK");
+            String customerId = firstPack.getCustomerId();
+            String customerName = firstPack.getCustomerName();
+
             packBean.setId(id);
-            packBean.setCustomerId(firstPack.getCustomerId());
+            packBean.setCustomerId(customerId);
             packBean.setShipping(shipping);
             packBean.setTransport1(transport1);
             packBean.setTransport2(transport2);
@@ -491,13 +494,28 @@ public class ShipManagerImpl implements ShipManager
             packBean.setMobile(phone);
             packBean.setLocationId(firstPack.getLocationId());
             packBean.setCityId(cityId);
-
             packBean.setStafferName(firstPack.getStafferName());
             packBean.setIndustryName(firstPack.getIndustryName());
             packBean.setDepartName(firstPack.getDepartName());
-
             packBean.setStatus(0);
             packBean.setLogTime(TimeTools.now());
+
+
+            // 包与客户关系
+            PackageVSCustomerBean vsBean = packageVSCustomerDAO.findByUnique(id, customerId);
+
+            if (null == vsBean)
+            {
+                PackageVSCustomerBean newvsBean = new PackageVSCustomerBean();
+
+                newvsBean.setPackageId(id);
+                newvsBean.setCustomerId(customerId);
+                newvsBean.setCustomerName(customerName);
+                newvsBean.setIndexPos(1);
+
+                packageVSCustomerDAO.saveEntityBean(newvsBean);
+                _logger.info("***create PackageVSCustomerBean for package***"+id);
+            }
             packageDAO.saveEntityBean(packBean);
             _logger.info("****new package created manually***"+packBean);
 
