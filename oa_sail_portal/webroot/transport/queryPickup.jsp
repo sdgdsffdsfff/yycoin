@@ -421,12 +421,12 @@ function clears()
 			<input type="button" 
 			class="button_class" onclick="receiptPagePrint(1)"
 			value="&nbsp;&nbsp;打印回执单(含配件)&nbsp;&nbsp;">&nbsp;&nbsp;
-			<input type="button" 
-			class="button_class" onclick="batchPagePrint()"
-			value="&nbsp;&nbsp;批量打印&nbsp;&nbsp;">&nbsp;&nbsp;
             <input type="button"
                    class="button_class" onclick="printHandover()"
                    value="&nbsp;&nbsp;打印交接清单&nbsp;&nbsp;">&nbsp;&nbsp;
+            <input type="button"
+                   class="button_class" onclick="batchPagePrint()"
+                   value="&nbsp;&nbsp;批量打印&nbsp;&nbsp;">&nbsp;&nbsp;
 			<input type="button" 
 			class="button_class" onclick="sub()"
 			value="&nbsp;&nbsp;确认发货&nbsp;&nbsp;">&nbsp;&nbsp;

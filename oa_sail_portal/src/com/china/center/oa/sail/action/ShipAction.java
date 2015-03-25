@@ -1078,13 +1078,15 @@ public class ShipAction extends DispatchAction
                 request.setAttribute("pickupId2", pickupId);
 
                 request.setAttribute("compose1", compose);
-                request.setAttribute("hello", "world");
+
+                //连打模式
+                request.setAttribute("batchPrint", "0");
 
                 //连打模式
                 request.setAttribute("printMode", "0");
                 request.setAttribute("printSmode", "0");
-                request.getSession().setAttribute("printMode", "0");
-                request.getSession().setAttribute("printSmode", "0");
+//                request.getSession().setAttribute("printMode", "0");
+//                request.getSession().setAttribute("printSmode", "0");
 
                 _logger.info("****redirect to findOutForReceipt print**********");
                 return findOutForReceipt(mapping, form, request, response);
@@ -1222,12 +1224,16 @@ public class ShipAction extends DispatchAction
         String printMode =  (String)request.getAttribute("printMode");
         String printSmode =  (String)request.getAttribute("printSmode");
 
-        String hello =  RequestTools.getValueFromRequest(request, "hello");
+        String batchPrint =  RequestTools.getValueFromRequest(request, "batchPrint");
         String print2 = (String)request.getSession().getAttribute("printMode");
-        _logger.info("**************hello******"+hello+"****print2****"+print2);
+        _logger.info("**************batchPrint******"+batchPrint+"****print2****"+print2);
 
         String msg1 = "**********pickupId****"+pickupId+"****packageId*****"+packageId+"***index_pos***"+index_pos+"***printMode***"+printMode+"***printSmode***"+printSmode;
         _logger.info(msg1);
+        //2015/3/25 批量打印标志
+        request.setAttribute("batchPrint", batchPrint);
+
+        //可去掉？很奇怪在页面上读不到printMode参数
         request.setAttribute("printMode", printMode);
         request.setAttribute("printSmode", printSmode);
 
@@ -1422,6 +1428,16 @@ public class ShipAction extends DispatchAction
             request.setAttribute("packageId", vo.getId());
 
             request.setAttribute("title", "永银文化创意产业发展有限责任公司产品发货清单");
+
+            ConditionParse con2 = new ConditionParse();
+            con2.addWhereStr();
+            con2.addCondition("PackageBean.pickupId", "=", pickupId);
+
+            List<PackageVO> allPackages = packageDAO.queryVOsByCondition(con2);
+            if (!ListTools.isEmptyOrNull(allPackages)){
+                _logger.info("****allPackages size****"+allPackages.size());
+                request.setAttribute("allPackages", allPackages.size());
+            }
 
             try{
                 String msg5 = "**********before prepareForBankPrint****";

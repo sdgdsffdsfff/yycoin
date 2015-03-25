@@ -22,10 +22,14 @@ function pagePrint()
 	var subindex_pos = $O('subindex_pos').value;
 
 	var compose = $O('compose').value;
+    var batchPrint = $O('batchPrint').value;
 
-//    console.log("printMode:"+$$('printMode'));
+//    console.log("batchPrint:"+batchPrint);
 //    console.log("stafferName:"+$$('stafferName'));
-    if ($$('printMode') == '0' && $$('stafferName') == '叶百韬')
+//    console.log("index_pos:"+index_pos);
+//    console.log("allPackages:"+$$('allPackages'));
+    //连打模式下，并且回执单都已经打印完毕就跳转到交接单打印
+    if ($$('allPackages') == index_pos && batchPrint == '0' && $$('stafferName') == '叶百韬')
     {
         var pickupId = $O('pickupId').value;
         var index_pos = $O('index_pos').value;
@@ -35,7 +39,9 @@ function pagePrint()
         $l("../sail/ship.do?method=printHandover&pickupId="+pickupId+"&index_pos=0" + "&compose=" + compose);
     } else{
         // 链到客户出库单打印界面
-        $l("../sail/ship.do?method=findOutForReceipt&pickupId="+pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos + "&compose=" + compose);
+        $l("../sail/ship.do?method=findOutForReceipt&pickupId="
+                +pickupId+"&index_pos="+index_pos +"&packageId=" + packageId + "&subindex_pos=" + subindex_pos
+                + "&compose=" + compose+ "&batchPrint=" + batchPrint);
     }
 }
 
@@ -52,6 +58,8 @@ function callBackPrintFun()
 <input type="hidden" name="packageId" value="${packageId}">
 <input type="hidden" name="subindex_pos" value="${subindex_pos}">
 <input type="hidden" name="compose" value="${compose}">
+<input type="hidden" name="batchPrint" value="${batchPrint}">
+<input type="hidden" name="allPackages" value="${allPackages}">
 <input type="hidden" name="printMode" value="${printMode}">
 <input type="hidden" name="printSmode" value="${printSmode}">
 <input type="hidden" name="stafferName" value="${stafferName}">
