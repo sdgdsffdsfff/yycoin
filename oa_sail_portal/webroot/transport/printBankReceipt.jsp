@@ -29,7 +29,9 @@ function pagePrint()
 //    console.log("index_pos:"+index_pos);
 //    console.log("allPackages:"+$$('allPackages'));
     //连打模式下，并且回执单都已经打印完毕就跳转到交接单打印
-    if ($$('allPackages') == index_pos && batchPrint == '0' && $$('stafferName') == '叶百韬')
+//    if ($$('allPackages') == index_pos && batchPrint == '0' && $$('stafferName') == '叶百韬')
+    //2015/3/26 最后打印的回执单可能不是叶百韬的单子，这个判断到打印交接单时做
+    if ($$('allPackages') == index_pos && batchPrint == '0')
     {
         var pickupId = $O('pickupId').value;
         var index_pos = $O('index_pos').value;
