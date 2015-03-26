@@ -1814,6 +1814,9 @@ public class ShipManagerImpl implements ShipManager
                     if (count == items.size()){
                         _logger.info(packBean.getId()+" set to INVOICE_SHIP_ALONE****");
                         packBean.setInsFollowOut(ShipConstant.INVOICE_SHIP_ALONE);
+                    } else{
+                        _logger.info(packBean.getId()+" set to INVOICE_SHIP_FOLLOW_OUT****");
+                        packBean.setInsFollowOut(ShipConstant.INVOICE_SHIP_FOLLOW_OUT);
                     }
                     this.packageDAO.updateEntityBean(packBean);
                     _logger.info(packBean.getId()+" update billsTime ************");
