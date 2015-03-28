@@ -921,8 +921,8 @@ public class OutAction extends ParentOutAction
                                 HttpServletResponse reponse)
             throws ServletException
     {
-        System.out.println("********************updateEmergency********************");
         String fullId = request.getParameter("outId");
+        _logger.info("********************updateEmergency with outId "+fullId);
 
 //        OutBean out = outDAO.find(fullId);
 //        out.setEmergency(1);

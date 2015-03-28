@@ -628,21 +628,30 @@ function reject()
 
 function updateEmergency()
 {
-    if (getRadio('fullId').statuss == 1 || getRadio('fullId').statuss == 7)
+    //2015/3/28  紧急订单标识将关联的CK单也置为紧急，不管在什么状态
+    if (window.confirm("确定此销售单设置为紧急?"))
     {
-        if (window.confirm("确定此销售单设置为紧急?"))
-        {
-            getObj('method').value = 'updateEmergency';
+        getObj('method').value = 'updateEmergency';
 
-            getObj('outId').value = getRadioValue("fullId");
+        getObj('outId').value = getRadioValue("fullId");
 
-            adminForm.submit();
-        }
+        adminForm.submit();
     }
-    else
-    {
-        alert('只有待商务审批与待库管审批状态的订单才能操作');
-    }
+//    if (getRadio('fullId').statuss == 1 || getRadio('fullId').statuss == 7)
+//    {
+//        if (window.confirm("确定此销售单设置为紧急?"))
+//        {
+//            getObj('method').value = 'updateEmergency';
+//
+//            getObj('outId').value = getRadioValue("fullId");
+//
+//            adminForm.submit();
+//        }
+//    }
+//    else
+//    {
+//        alert('只有待商务审批与待库管审批状态的订单才能操作');
+//    }
 
 }
 

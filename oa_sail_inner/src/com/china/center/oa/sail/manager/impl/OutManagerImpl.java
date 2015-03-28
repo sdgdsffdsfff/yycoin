@@ -28,6 +28,8 @@ import java.util.Set;
 import com.china.center.oa.client.dao.CustomerIndividualDAO;
 import com.china.center.oa.extsail.bean.ZJRCOutBean;
 import com.china.center.oa.extsail.dao.ZJRCOutDAO;
+import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.dao.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
@@ -120,53 +122,10 @@ import com.china.center.oa.publics.manager.NotifyManager;
 import com.china.center.oa.publics.vo.InvoiceCreditVO;
 import com.china.center.oa.publics.vo.UserVO;
 import com.china.center.oa.publics.wrap.ResultBean;
-import com.china.center.oa.sail.bean.AppOutVSOutBean;
-import com.china.center.oa.sail.bean.AuditRuleItemBean;
-import com.china.center.oa.sail.bean.BaseBalanceBean;
-import com.china.center.oa.sail.bean.BaseBean;
-import com.china.center.oa.sail.bean.BaseRepaireBean;
-import com.china.center.oa.sail.bean.BatchReturnLog;
-import com.china.center.oa.sail.bean.ConsignBean;
-import com.china.center.oa.sail.bean.DeliveryRankVSOutBean;
-import com.china.center.oa.sail.bean.DistributionBaseBean;
-import com.china.center.oa.sail.bean.DistributionBean;
-import com.china.center.oa.sail.bean.OutBalanceBean;
-import com.china.center.oa.sail.bean.OutBean;
-import com.china.center.oa.sail.bean.OutPayTagBean;
-import com.china.center.oa.sail.bean.OutRepaireBean;
-import com.china.center.oa.sail.bean.OutUniqueBean;
-import com.china.center.oa.sail.bean.PreConsignBean;
-import com.china.center.oa.sail.bean.PromotionBean;
-import com.china.center.oa.sail.bean.SailConfBean;
-import com.china.center.oa.sail.bean.SailTranApplyBean;
-import com.china.center.oa.sail.bean.StatsDeliveryRankBean;
-import com.china.center.oa.sail.bean.SwatchStatsBean;
-import com.china.center.oa.sail.bean.SwatchStatsItemBean;
 import com.china.center.oa.sail.constanst.AuditRuleConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
 import com.china.center.oa.sail.constanst.SailConstant;
-import com.china.center.oa.sail.dao.AppOutVSOutDAO;
-import com.china.center.oa.sail.dao.BaseBalanceDAO;
-import com.china.center.oa.sail.dao.BaseDAO;
-import com.china.center.oa.sail.dao.BaseRepaireDAO;
-import com.china.center.oa.sail.dao.BatchReturnLogDAO;
-import com.china.center.oa.sail.dao.ConsignDAO;
-import com.china.center.oa.sail.dao.DeliveryRankVSOutDAO;
-import com.china.center.oa.sail.dao.DistributionBaseDAO;
-import com.china.center.oa.sail.dao.DistributionDAO;
-import com.china.center.oa.sail.dao.OutBalanceDAO;
-import com.china.center.oa.sail.dao.OutDAO;
-import com.china.center.oa.sail.dao.OutPayTagDAO;
-import com.china.center.oa.sail.dao.OutRepaireDAO;
-import com.china.center.oa.sail.dao.OutUniqueDAO;
-import com.china.center.oa.sail.dao.PreConsignDAO;
-import com.china.center.oa.sail.dao.PromotionDAO;
-import com.china.center.oa.sail.dao.SailConfigDAO;
-import com.china.center.oa.sail.dao.SailTranApplyDAO;
-import com.china.center.oa.sail.dao.StatsDeliveryRankDAO;
-import com.china.center.oa.sail.dao.SwatchStatsDAO;
-import com.china.center.oa.sail.dao.SwatchStatsItemDAO;
 import com.china.center.oa.sail.helper.OutHelper;
 import com.china.center.oa.sail.helper.YYTools;
 import com.china.center.oa.sail.listener.OutListener;
@@ -322,6 +281,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     private CustomerIndividualDAO  customerIndividualDAO = null;
 
     private ZJRCOutDAO zjrcOutDAO = null;
+
+    private PackageDAO packageDAO = null;
     
     /**
      * 短信最大停留时间
@@ -11210,6 +11171,23 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         if (out!= null){
             out.setEmergency(1);
             this.outDAO.updateEntityBean(out);
+
+            try{
+                ConditionParse condtion = new ConditionParse();
+                condtion.addWhereStr();
+                condtion.addCondition(" and exists (select PackageItemBean.id from T_CENTER_PACKAGE_ITEM PackageItemBean where PackageBean.id = PackageItemBean.packageId and PackageItemBean.outId = '"+fullId+"')");
+                List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(condtion);
+                if (!ListTools.isEmptyOrNull(packages)){
+                    for (PackageBean pack: packages){
+                        pack.setEmergency(1);
+                        this.packageDAO.updateEntityBean(pack);
+                        _logger.info(pack.getId()+" CK updated to emergency****");
+                    }
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+                _logger.error("***CK update emergency fail:",e);
+            }
             return true;
         }
         return false;  //To change body of implemented methods use File | Settings | File Templates.
@@ -11680,5 +11658,21 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     public void setCustomerIndividualDAO(CustomerIndividualDAO customerIndividualDAO) {
         this.customerIndividualDAO = customerIndividualDAO;
+    }
+
+
+    /**
+     * @return the packageDAO
+     */
+    public PackageDAO getPackageDAO() {
+        return packageDAO;
+    }
+
+
+    /**
+     * @param packageDAO the packageDAO to set
+     */
+    public void setPackageDAO(PackageDAO packageDAO) {
+        this.packageDAO = packageDAO;
     }
 }
