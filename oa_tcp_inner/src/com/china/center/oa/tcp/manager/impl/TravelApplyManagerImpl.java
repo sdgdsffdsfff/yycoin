@@ -288,6 +288,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         // 获取flowKey
         //TCPHelper.setFlowKey(bean);
+        _logger.info(bean.getId()+" set to EXTRA_WORK_AND_LEAVE_CEO**********");
         bean.setFlowKey(TcpFlowConstant.EXTRA_WORK_AND_LEAVE_CEO);
         
 //         合法性校验
@@ -2487,8 +2488,15 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         // 获取flowKey
 //        if (!bean.getFlowKey().equals(TcpFlowConstant.EXTRA_WORK_AND_LEAVE_CEO))
 //        	TCPHelper.setFlowKey(bean);
-        
-        bean.setFlowKey(TcpFlowConstant.EXTRA_WORK_AND_LEAVE_CEO);
+
+        _logger.info(bean.getId()+" change to EXTRA_WORK_AND_LEAVE_CEO from "+old.getFlowKey());
+//        bean.setFlowKey(TcpFlowConstant.EXTRA_WORK_AND_LEAVE_CEO);
+        //2015/3/28 不能设置为TcpFlowConstant.EXTRA_WORK_AND_LEAVE_CEO，退回重新提交后都变成请假流程了
+        if (StringTools.isNullOrNone(old.getFlowKey())){
+            bean.setFlowKey(TcpFlowConstant.EXTRA_WORK_AND_LEAVE_CEO);
+        } else{
+            bean.setFlowKey(old.getFlowKey());
+        }
 
         // 先清理
         travelApplyItemDAO.deleteEntityBeansByFK(bean.getId());
