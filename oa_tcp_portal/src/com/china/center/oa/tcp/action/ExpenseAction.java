@@ -1332,6 +1332,7 @@ public class ExpenseAction extends DispatchAction
     private void fillWrap(HttpServletRequest request, TcpParamWrap param)
         throws MYException
     {
+        _logger.info("****fillWrap ********");
         String[] ppid = request.getParameterValues("p_cid");
 
         // 稽核处理
@@ -1439,6 +1440,8 @@ public class ExpenseAction extends DispatchAction
                     continue;
                 }
                 taxList.add(taxIds[i]);
+
+                _logger.info("****moneys from request****"+moneys[i]);
 
                 // 万单位
                 longList.add(MathTools.doubleToLong2(moneys[i]) * 100);

@@ -780,6 +780,8 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
                                 List<FinanceItemBean> itemList, List<String> stafferIdList)
         throws MYException
     {
+
+        _logger.info("****************createAddItem4*************");
         // 收款人
         StafferBean staffer = stafferDAO.find(bean.getBorrowStafferId());
 
@@ -837,6 +839,7 @@ public class TcpPayListenerTaxGlueImpl implements TcpPayListener
             FinanceHelper.copyTax(inTax, itemIn);
 
             itemIn.setInmoney(moneyList.get(i));
+            _logger.info("****itemIn inMoney****"+moneyList.get(i));
 
             total += moneyList.get(i);
 

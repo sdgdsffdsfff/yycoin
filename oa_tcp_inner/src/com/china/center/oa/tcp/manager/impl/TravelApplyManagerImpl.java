@@ -632,7 +632,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	    {
 	        throw new MYException("数据错误,请确认操作");
 	    }
-	
+
+        _logger.info("**************token.getNextPlugin "+token.getNextPlugin());
 	    // 群组模式
 	    if (token.getNextPlugin().startsWith("group"))
 	    {

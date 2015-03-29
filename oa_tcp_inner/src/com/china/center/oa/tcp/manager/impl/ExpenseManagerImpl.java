@@ -530,6 +530,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
             throw new MYException("数据错误,请确认操作");
         }
 
+        _logger.info("*****passExpenseBean token.getNextPlugin() "+token.getNextPlugin());
         // 群组模式
         if (token.getNextPlugin().startsWith("group")) {
             int newStatus = saveApprove(user, processId, bean, token.getNextStatus(), 0);
@@ -640,6 +641,7 @@ public class ExpenseManagerImpl extends AbstractListenerManager<TcpPayListener> 
     private void logicProcess(User user, TcpParamWrap param, ExpenseApplyVO bean, int oldStatus)
             throws MYException {
         // 这里需要特殊处理的(稽核修改金额)
+        _logger.info("*****logicProcess with status:"+oldStatus);
         if (oldStatus == TcpConstanst.TCP_STATUS_WAIT_CHECK) {
             // 稽核需要重新整理pay和重新预算
             if (bean.getPayType() == TcpConstanst.PAYTYPE_PAY_YES) {
