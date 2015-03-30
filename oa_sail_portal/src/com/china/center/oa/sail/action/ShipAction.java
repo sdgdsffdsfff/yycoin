@@ -1297,8 +1297,7 @@ public class ShipAction extends DispatchAction
             try
             {
                 shipManager.updatePrintStatus(pickupId, index_pos);
-                String msg3 = "**********updatePrintStatus****";
-                _logger.info(msg3);
+                _logger.info(pickupId+":"+index_pos+" print finished***");
             }
             catch (MYException e)
             {
@@ -1437,6 +1436,22 @@ public class ShipAction extends DispatchAction
             if (!ListTools.isEmptyOrNull(allPackages)){
                 _logger.info("****allPackages size****"+allPackages.size());
                 request.setAttribute("allPackages", allPackages.size());
+
+                //2015/3/30 批量打印最后一张回执单时，因定向到交接单打印，需要此时把最后一张CK单状态设置为“已打印"
+                if ("0".equals(batchPrint) && allPackages.size() == index_pos){
+                    // 更新状态
+                    try
+                    {
+                        shipManager.updatePrintStatus(pickupId, index_pos);
+                        _logger.info(pickupId+":"+index_pos+" print finished***");
+                    }
+                    catch (MYException e)
+                    {
+                        request.setAttribute(KeyConstant.ERROR_MESSAGE, "已打印出错." + e.getErrorContent());
+
+                        return mapping.findForward("error");
+                    }
+                }
             }
 
             try{
