@@ -766,12 +766,14 @@ public class ExpenseAction extends DispatchAction
                 }
                 else
                 {
-                    // 这里根据分担比例
+                      // 这里根据分担比例
                     List<TcpShareVO> shareVOList = bean.getShareVOList();
+                    _logger.info("*****tcp share size****"+shareVOList.size()+"****itemVOList size***"+itemVOList.size());
                     TCPHelper.ratioShare(shareVOList);
 
                     for (TcpShareVO tcpShareVO : shareVOList)
                     {
+                        _logger.info(tcpShareVO.getId()+"****share money***"+tcpShareVO.getRealMonery());
 //                        String approverId = tcpShareVO.getApproverId();
                         //更改按承担人
                         String approverId = tcpShareVO.getBearId();
@@ -782,11 +784,12 @@ public class ExpenseAction extends DispatchAction
                         {
                             TravelApplyItemVO travelApplyItemVO = (TravelApplyItemVO)iterator
                                 .next();
-
+                            _logger.info(travelApplyItemVO.getId()+"****travelApplyItemVO money***"+travelApplyItemVO.getMoneys());
                             FeeItemVO feeItem = feeItemDAO.findVO(travelApplyItemVO.getFeeItemId());
 
                             if (feeItem == null)
                             {
+                                _logger.info("empty feeItem:"+travelApplyItemVO.getFeeItemId());
                                 continue;
                             }
 
@@ -803,53 +806,59 @@ public class ExpenseAction extends DispatchAction
                                 wrap.setTaxName(feeItem.getTaxName2());
                             }
 
-                            long val = TCPHelper.ratioValue(travelApplyItemVO.getMoneys(),
-                                tcpShareVO.getRatio());
+                            //2013/3/30 按照实际分担金额生成财务凭证
+                            wrap.setShowMoney(TCPHelper.formatNum2(Long.valueOf(tcpShareVO.getRealMonery())/ 100.0d));
 
-                            taxAll = taxAll - val;
+//                            long val = TCPHelper.ratioValue(travelApplyItemVO.getMoneys(),
+//                                tcpShareVO.getRatio());
+//
+//                            _logger.info("taxAll:"+taxAll+"***submit val***"+val);
+//                            taxAll = taxAll - val;
 
-                            if (taxAll >= 0)
-                            {
-                                wrap.setShowMoney(TCPHelper.formatNum2(val / 100.0d));
-                            }
-                            else
-                            {
-                                wrap.setShowMoney(TCPHelper.formatNum2(taxAll / 100.0d));
-
-                                taxAll = 0;
-                            }
+//                            if (taxAll >= 0)
+//                            {
+//                                wrap.setShowMoney(TCPHelper.formatNum2(val / 100.0d));
+//                            }
+//                            else
+//                            {
+//                                wrap.setShowMoney(TCPHelper.formatNum2(taxAll / 100.0d));
+//
+//                                taxAll = 0;
+//                            }
                             if(null != approverBean)
                             {
 	                            wrap.setStafferId(approverBean.getId());
 	                            wrap.setStafferName(approverBean.getName());
                             }
 
+                            _logger.info(wrap.getStafferName()+" with money "+wrap.getShowMoney());
                             wapList.add(wrap);
 
-                            // 退出
-                            if (taxAll <= 0)
-                            {
-                                break;
-                            }
+//                            // 退出
+//                            if (taxAll <= 0)
+//                            {
+//                                break;
+//                            }
                         }
                     }
 
-                    if (taxAll < 0)
-                    {
-                        request.setAttribute(KeyConstant.ERROR_MESSAGE, "存在尾差请联系管理员修复");
-
-                        return mapping.findForward("error");
-                    }
-
-                    if (taxAll > 0)
-                    {
-                        String showMoney = wapList.get(0).getShowMoney();
-                        long newVal = TCPHelper.doubleToLong2(showMoney) + taxAll;
-
-                        wapList.get(0).setShowMoney(TCPHelper.formatNum2(newVal / 100.0d));
-                    }
+//                    if (taxAll < 0)
+//                    {
+//                        request.setAttribute(KeyConstant.ERROR_MESSAGE, "存在尾差请联系管理员修复");
+//
+//                        return mapping.findForward("error");
+//                    }
+//
+//                    if (taxAll > 0)
+//                    {
+//                        String showMoney = wapList.get(0).getShowMoney();
+//                        long newVal = TCPHelper.doubleToLong2(showMoney) + taxAll;
+//
+//                        wapList.get(0).setShowMoney(TCPHelper.formatNum2(newVal / 100.0d));
+//                    }
                 }
 
+                _logger.info("***wrapList size*****"+wapList.size());
                 request.setAttribute("wapList", wapList);
             }
 
@@ -1752,7 +1761,6 @@ public class ExpenseAction extends DispatchAction
      * @param mapping
      * @param request
      * @param rds
-     * @param bean
      * @return
      */
     private ActionForward parserAttachment(ActionMapping mapping, HttpServletRequest request,

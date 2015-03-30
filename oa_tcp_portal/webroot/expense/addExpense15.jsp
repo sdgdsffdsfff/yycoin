@@ -232,7 +232,7 @@ function getTravelApply(oos)
                         <td width="30%" align="center">部门</td>
                         <td width="15%" align="center">权签人</td>
                         <td width="15%" align="center">承担人</td>
-                        <td width="15%" align="center">分担比例(%)/金额</td>
+                        <td width="15%" align="center">分担金额</td>
                         <td width="5%" align="left"><input type="button" accesskey="B"
                             value="增加" class="button_class" onclick="addShareTr()"></td>
                     </tr>
