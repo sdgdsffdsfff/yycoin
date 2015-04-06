@@ -89,9 +89,9 @@ public interface OutImportConstant
 	@Defined(key = "citic_enoughStock", value = "是")
 	int ENOUGHSTOCK_YES = 1;
 	
-	String outTypesArr [] = new String[]{"销售出库","个人领样","零售","委托代销","赠送","客户铺货","巡展领样"};
+	String outTypesArr [] = new String[]{"销售出库","个人领样","零售","委托代销","赠送","客户铺货","巡展领样","银行领样"};
 	
-	int outTypeiArr [] = new int []{0,1,2,3,4,5,6}; 
+	int outTypeiArr [] = new int []{0,1,2,3,4,5,6,7};
 	
 	String shipping [] = new String []{"自提","公司","第三方快递","第三方货运","第三方快递+货运","空发"};
 	int ishipping [] = new int []{0,1,2,3,4,99};
