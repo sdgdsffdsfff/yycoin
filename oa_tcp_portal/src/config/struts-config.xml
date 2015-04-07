@@ -52,6 +52,7 @@
 			<forward name="rptQueryTravelApply" path="/tcp/rptQueryTravelApply.jsp" />
 			
 			<forward name="importShare" path="/tcp/importShare.jsp" />
+            <forward name="importIb" path="/tcp/importIb.jsp" />
 		</action>
 		
 		<action path="/tcp/expense" parameter="method"

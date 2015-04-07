@@ -2690,6 +2690,259 @@ public class TravelApplyAction extends DispatchAction
         
         return mapping.findForward("addExpense" + type);
 	}
+
+
+    /**
+     * 导入银行中收激励数据
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward importIb(ActionMapping mapping, ActionForm form,
+                                     HttpServletRequest request,
+                                     HttpServletResponse response)
+            throws ServletException
+    {
+        RequestDataStream rds = new RequestDataStream(request);
+
+        boolean importError = false;
+
+        List<TcpShareVO> importItemList = new ArrayList<TcpShareVO>();
+
+        StringBuilder builder = new StringBuilder();
+
+        try
+        {
+            rds.parser();
+        }
+        catch (Exception e1)
+        {
+            _logger.error(e1, e1);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importShare");
+        }
+
+        if ( !rds.haveStream())
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
+
+            return mapping.findForward("importShare");
+        }
+
+        String type = rds.getParameter("type");
+
+        request.setAttribute("type", type);
+
+        ReaderFile reader = ReadeFileFactory.getXLSReader();
+
+        try
+        {
+            reader.readFile(rds.getUniqueInputStream());
+
+            while (reader.hasNext())
+            {
+                String[] obj = fillObj((String[])reader.next());
+
+                // 第一行忽略
+                if (reader.getCurrentLineNumber() == 1)
+                {
+                    continue;
+                }
+
+                if (StringTools.isNullOrNone(obj[0]))
+                {
+                    continue;
+                }
+
+                int currentNumber = reader.getCurrentLineNumber();
+
+                if (obj.length >= 2 )
+                {
+                    TcpShareVO item = new TcpShareVO();
+
+                    // 预算
+                    if ( !StringTools.isNullOrNone(obj[0]))
+                    {
+                        String name = obj[0];
+
+                        BudgetBean bean = budgetDAO.findByUnique(name);
+
+                        if (null == bean)
+                        {
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("预算不存在")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
+                        else
+                        {
+                            //有效性检查
+                            if (bean.getCarryStatus() != 1)
+                            {
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("不是执行中的预算")
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
+
+                            if (bean.getType() != 2)
+                            {
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("不是部门预算")
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
+
+                            if (bean.getLevel() != 2)
+                            {
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("不是月度预算")
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
+
+                            if (bean.getStatus() != 3)
+                            {
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("不存在通过状态预算")
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
+
+                        }
+
+                        if (!importError)
+                        {
+                            item.setBudgetId(bean.getId());
+                            item.setBudgetName(bean.getName());
+                            item.setDepartmentId(bean.getBudgetDepartment());
+
+                            PrincipalshipBean prin = principalshipDAO.find(bean.getBudgetDepartment());
+
+                            if (null != prin)
+                                item.setDepartmentName(prin.getName());
+
+                            item.setApproverId(bean.getSigner());
+
+                            StafferBean staffer = stafferDAO.find(bean.getSigner());
+
+                            if (null != staffer)
+                                item.setApproverName(staffer.getName());
+                        }
+
+                    }
+
+                    // 承担人
+                    if ( !StringTools.isNullOrNone(obj[1]))
+                    {
+                        String name = obj[1];
+
+                        StafferBean staff = stafferDAO.findByUnique(name);
+
+                        if (null == staff)
+                        {
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("承担人不存在")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
+                        else
+                        {
+                            item.setBearId(staff.getId());
+                            item.setBearName(staff.getName());
+                        }
+                    }
+
+                    // 分摊比例/金额
+                    if ( !StringTools.isNullOrNone(obj[2]))
+                    {
+                        String showRealMonery = obj[2];
+
+                        item.setShowRealMonery(showRealMonery);
+
+                    }
+
+                    importItemList.add(item);
+
+                }
+                else
+                {
+                    builder
+                            .append("第[" + currentNumber + "]错误:")
+                            .append("数据长度不足2格错误")
+                            .append("<br>");
+
+                    importError = true;
+                }
+            }
+
+
+        }
+        catch (Exception e)
+        {
+            _logger.error(e, e);
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
+
+            return mapping.findForward("importIb");
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch (IOException e)
+            {
+                _logger.error(e, e);
+            }
+        }
+
+        rds.close();
+
+        if (importError){
+
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+            return mapping.findForward("importIb");
+        }
+
+        request.setAttribute("imp", true);
+
+        TravelApplyVO bean = new TravelApplyVO();
+
+        bean.setShareVOList(importItemList);
+
+        request.setAttribute("bean", bean);
+
+        prepareInner(request);
+
+        int itype = MathTools.parseInt(type);
+
+        if (itype <= 10)
+        {
+            return mapping.findForward("addTravelApply" + type);
+        }
+
+        return mapping.findForward("addExpense" + type);
+    }
     
     public BudgetDAO getBudgetDAO()
 	{
