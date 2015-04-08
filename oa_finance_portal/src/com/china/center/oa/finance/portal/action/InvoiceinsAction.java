@@ -2779,6 +2779,40 @@ public class InvoiceinsAction extends DispatchAction
     	
     	return mapping.findForward("queryInvoiceins");
 	}
+
+    /**  2015/4/8
+     * 确认为紧急发票
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward confirmEmergency(ActionMapping mapping, ActionForm form,
+                                        HttpServletRequest request, HttpServletResponse response)
+            throws ServletException
+    {
+        AjaxResult ajax = new AjaxResult();
+
+        String id = request.getParameter("id");
+
+        try
+        {
+            User user = Helper.getUser(request);
+            this.invoiceinsManager.updateEmergency(user,id);
+
+            ajax.setSuccess("操作成功");
+        }
+        catch (MYException e)
+        {
+            _logger.warn(e, e);
+
+            ajax.setError("操作失败:" + e.getMessage());
+        }
+
+        return JSONTools.writeResponse(response, ajax);
+    }
     
     /**
      * 导入式 批量开具发票

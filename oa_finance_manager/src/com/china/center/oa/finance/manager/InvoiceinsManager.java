@@ -47,7 +47,6 @@ public interface InvoiceinsManager extends ListenerManager<InvoiceinsListener>
     /**
      * 总部核对
      * 
-     * @param stafferId
      * @param id
      * @return
      * @throws MYException
@@ -96,4 +95,7 @@ public interface InvoiceinsManager extends ListenerManager<InvoiceinsListener>
 
     //2015/1/28 票随货发Job 5分钟运行一次
     void insFollowOutJob() throws MYException;
+
+    //2015/4/8 设置发票号A开头对应的CK单为紧急
+    public boolean updateEmergency(User user, String fullId) throws MYException;
 }

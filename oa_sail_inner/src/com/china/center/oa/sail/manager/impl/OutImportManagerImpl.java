@@ -2285,16 +2285,18 @@ public class OutImportManagerImpl implements OutImportManager
 		
 		for(ConsignBean each : list)
 		{
-			OutBean out = outDAO.find(each.getFullId());
+            String outId = each.getFullId();
+			OutBean out = outDAO.find(outId);
 			
 			if (out == null)
 			{
-				throw new MYException("导入异常，请退出重新登陆");
+//				throw new MYException("导入异常，请退出重新登陆");
+                _logger.info("OutBean does not found:"+outId);
 			}
 
-            _logger.info("紧急状态更新，销售单：" + each.getFullId());
+            _logger.info("紧急状态更新，销售单：" + outId);
 
-            String outId = each.getFullId();
+
 			outDAO.updateEmergency(outId, 1);
 
             try{
@@ -2307,7 +2309,7 @@ public class OutImportManagerImpl implements OutImportManager
                      for (PackageBean pack: packages){
                          pack.setEmergency(1);
                          this.packageDAO.updateEntityBean(pack);
-                         _logger.info("CK updated to emergency****"+pack.getId());
+                         _logger.info("CK updated to emergency****"+pack.getId()+" for fullId:"+outId);
                     }
                 }
             }catch(Exception e){

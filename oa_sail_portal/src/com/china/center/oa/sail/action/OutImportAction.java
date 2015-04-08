@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.china.center.oa.client.vo.StafferVSCustomerVO;
+import com.china.center.oa.finance.bean.InvoiceinsBean;
+import com.china.center.oa.finance.dao.InvoiceinsDAO;
 import com.china.center.oa.product.bean.*;
 import com.china.center.oa.product.constant.ProductConstant;
 import com.china.center.oa.product.dao.*;
@@ -148,6 +150,8 @@ public class OutImportAction extends DispatchAction
 	private EstimateProfitDAO estimateProfitDAO = null;
 
     private PriceConfigDAO priceConfigDAO = null;
+
+    private InvoiceinsDAO invoiceinsDAO = null;
 
     private PriceConfigManager priceConfigManager = null;
 
@@ -4172,10 +4176,18 @@ public class OutImportAction extends DispatchAction
                         {
                             builder
                                     .append("第[" + currentNumber + "]错误:")
-                                    .append("销售单"+ outId +"不存在")
+                                    .append("销售单或发票号"+ outId +"不存在")
                                     .append("<br>");
 
-                            importError = true;
+//                            importError = true;
+
+                            //2015/4/8 允许导入发票号
+                            _logger.info("OutBean Does not exist:"+outId);
+                            InvoiceinsBean insBean = invoiceinsDAO.find(outId);
+                            if (insBean == null){
+                                importError = true;
+                            }
+                            bean.setFullId(outId);
                         } else {
                             if (out.getType() == OutConstant.OUT_TYPE_OUTBILL) {
                                 if (out.getStatus() == OutConstant.STATUS_SEC_PASS || out.getStatus() == OutConstant.STATUS_PASS)
@@ -5500,6 +5512,14 @@ public class OutImportAction extends DispatchAction
 
     public void setPriceConfigDAO(PriceConfigDAO priceConfigDAO) {
         this.priceConfigDAO = priceConfigDAO;
+    }
+
+    public InvoiceinsDAO getInvoiceinsDAO() {
+        return invoiceinsDAO;
+    }
+
+    public void setInvoiceinsDAO(InvoiceinsDAO invoiceinsDAO) {
+        this.invoiceinsDAO = invoiceinsDAO;
     }
 
     public PriceConfigManager getPriceConfigManager() {

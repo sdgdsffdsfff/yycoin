@@ -42,13 +42,14 @@ function load()
          url: gurl + 'query' + ukey + '&mode=' + mode,
          colModel : [
              {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id} lstatus={status} lotype={otype}>', width : 40, align: 'center'},
-             {display: '类型', name : 'otype', width : '8%', cc:'invoiceinsOtype'},
+             {display: '标识(A)', name : 'id', width : '10%'},
+             {display: '类型', name : 'otype', width : '6%', cc:'invoiceinsOtype'},
              {display: '开票抬头', name : 'headContent', width : '10%'},
              {display: '纳税实体', name : 'dutyName', width : '10%'},
              {display: '客户', name : 'customerName', width : '18%'},
-             {display: '发票类型', name : 'invoiceName', cc: 'bankType', width : '15%'},
-             {display: '状态', name : 'status', cc: 'invoiceinsStatus', width : '10%'},
-             {display: '类型', name : 'type', cc: 'invoiceinsType', width : '10%'},
+             {display: '发票类型', name : 'invoiceName', cc: 'bankType', width : '10%'},
+             {display: '状态', name : 'status', cc: 'invoiceinsStatus', width : '8%'},
+             {display: '类型', name : 'type', cc: 'invoiceinsType', width : '8%'},
              {display: '金额', name : 'moneys', width : '10%', toFixed: 2},
              {display: '开票人', name : 'stafferName', width : '8%'},
              {display: '时间', name : 'logTime', width : 'auto', sortable : true}
@@ -75,6 +76,7 @@ function load()
              {id: 'export', bclass: 'replied', caption: '导出查询结果2', onpress : exports2, auth: '1604'},
              {id: 'confirmInvoice', bclass: 'pass', caption: '确认开票', onpress : confirmInvoice, auth: '1604'},
              {id: 'confirmPay', bclass: 'pass', caption: '确认付款', onpress : confirmPay, auth: '1604'},
+             {id: 'confirmEmergency', bclass: 'pass', caption: '紧急处理', onpress : confirmEmergency, auth: '1604'},
              </c:if>
              <c:if test="${mode == 3}">
              {id: 'pass', bclass: 'pass', caption: '处理', onpress : doProcess2, auth: '1610'},
@@ -297,6 +299,20 @@ function confirmPay()
 	}
 	else
 	$error('不能操作');
+}
+
+//2015/4/8 设置为紧急发票
+function confirmEmergency()
+{
+    if (getRadio('checkb') && getRadioValue('checkb'))
+    {
+        if (window.confirm("确定此发票设置为紧急?"))
+        {
+            $ajax('../finance/invoiceins.do?method=confirmEmergency&id=' + getRadioValue('checkb'), callBackFun);
+        }
+    }
+    else
+        $error('不能操作');
 }
 
 function autoadd1(opr, grid)

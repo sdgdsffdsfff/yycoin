@@ -23,6 +23,7 @@ import com.china.center.oa.publics.bean.StafferBean;
 import com.china.center.oa.publics.constant.SysConfigConstant;
 import com.china.center.oa.publics.dao.*;
 import com.china.center.oa.sail.bean.*;
+import com.china.center.oa.sail.dao.*;
 import com.china.center.oa.sail.manager.OutManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,12 +80,6 @@ import com.china.center.oa.publics.constant.PublicConstant;
 import com.china.center.oa.publics.constant.StafferConstant;
 import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.constanst.OutImportConstant;
-import com.china.center.oa.sail.dao.BaseBalanceDAO;
-import com.china.center.oa.sail.dao.BaseDAO;
-import com.china.center.oa.sail.dao.DistributionDAO;
-import com.china.center.oa.sail.dao.OutBalanceDAO;
-import com.china.center.oa.sail.dao.OutDAO;
-import com.china.center.oa.sail.dao.PreConsignDAO;
 import com.china.center.tools.BeanUtil;
 import com.china.center.tools.JudgeTools;
 import com.china.center.tools.ListTools;
@@ -159,6 +154,8 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
     private ParameterDAO parameterDAO = null;
 
     private OutManager outManager = null;
+
+    private PackageDAO packageDAO = null;
 
     /*
      * (non-Javadoc)
@@ -351,7 +348,7 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
      *  // 普通+旧货=增值税普通发票（旧货）90000000000000000007
      *  // 普通+非旧货=增值税专用发票17 90000000000000000003
      *  // 普通+零税率=增值普通发票(0.00%) 90000000000000000004
-     * @param itemList
+     * @param bean
      * @throws MYException
      */
     private void checkProductAndInvoiceAttr(InvoiceinsBean bean) throws MYException {
@@ -2701,6 +2698,29 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
         return result;
     }
 
+    @Transactional(rollbackFor = {MYException.class})
+    @Override
+    public boolean updateEmergency(User user, String fullId) throws MYException {
+        try{
+            ConditionParse condtion = new ConditionParse();
+            condtion.addWhereStr();
+            condtion.addCondition(" and exists (select PackageItemBean.id from T_CENTER_PACKAGE_ITEM PackageItemBean where PackageBean.id = PackageItemBean.packageId and PackageItemBean.outId = '"+fullId+"')");
+            List<PackageBean> packages = this.packageDAO.queryEntityBeansByCondition(condtion);
+            if (!ListTools.isEmptyOrNull(packages)){
+                for (PackageBean pack: packages){
+                    pack.setEmergency(1);
+                    this.packageDAO.updateEntityBean(pack);
+                    _logger.info(pack.getId()+" CK updated to emergency****"+" for InvoiceinsBean id:"+fullId);
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            _logger.error("***CK update emergency fail:",e);
+            return false;
+        }
+        return true;
+    }
+
     /**
      * @return the commonDAO
      */
@@ -3089,5 +3109,13 @@ public class InvoiceinsManagerImpl extends AbstractListenerManager<InvoiceinsLis
 
     public void setOutManager(OutManager outManager) {
         this.outManager = outManager;
+    }
+
+    public PackageDAO getPackageDAO() {
+        return packageDAO;
+    }
+
+    public void setPackageDAO(PackageDAO packageDAO) {
+        this.packageDAO = packageDAO;
     }
 }
