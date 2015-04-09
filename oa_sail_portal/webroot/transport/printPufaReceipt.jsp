@@ -3,7 +3,7 @@
 <%@include file="../common/common.jsp"%>
 <html>
 <head>
-<p:link title="打印中信回执单" link="false" guid="true" cal="true" dialog="true" />
+<%--<p:link title="打印中信回执单" link="false" guid="true" cal="true" dialog="true" />--%>
 <script language="JavaScript" src="../js/common.js"></script>
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/public.js"></script>
