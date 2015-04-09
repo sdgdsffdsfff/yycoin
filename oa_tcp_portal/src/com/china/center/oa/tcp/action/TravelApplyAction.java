@@ -26,6 +26,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.tcp.bean.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -74,13 +75,6 @@ import com.china.center.oa.publics.vo.FlowLogVO;
 import com.china.center.oa.publics.vo.StafferVO;
 import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
-import com.china.center.oa.tcp.bean.ExpenseApplyBean;
-import com.china.center.oa.tcp.bean.TcpApproveBean;
-import com.china.center.oa.tcp.bean.TcpFlowBean;
-import com.china.center.oa.tcp.bean.TcpShareBean;
-import com.china.center.oa.tcp.bean.TravelApplyBean;
-import com.china.center.oa.tcp.bean.TravelApplyItemBean;
-import com.china.center.oa.tcp.bean.TravelApplyPayBean;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
 import com.china.center.oa.tcp.dao.ExpenseApplyDAO;
@@ -2316,7 +2310,7 @@ public class TravelApplyAction extends DispatchAction
      * @param mapping
      * @param request
      * @param rds
-     * @param bean
+     * @param travelApply
      * @return
      */
     private ActionForward parserAttachment(ActionMapping mapping, HttpServletRequest request,
@@ -2710,7 +2704,7 @@ public class TravelApplyAction extends DispatchAction
 
         boolean importError = false;
 
-        List<TcpShareVO> importItemList = new ArrayList<TcpShareVO>();
+        List<IbApplyBean> importItemList = new ArrayList<IbApplyBean>();
 
         StringBuilder builder = new StringBuilder();
 
@@ -2763,121 +2757,58 @@ public class TravelApplyAction extends DispatchAction
 
                 if (obj.length >= 2 )
                 {
-                    TcpShareVO item = new TcpShareVO();
+                    IbApplyBean item = new IbApplyBean();
+//                    TcpShareVO item = new TcpShareVO();
 
-                    // 预算
+                    // 申请类型
                     if ( !StringTools.isNullOrNone(obj[0]))
                     {
                         String name = obj[0];
 
-                        BudgetBean bean = budgetDAO.findByUnique(name);
-
-                        if (null == bean)
-                        {
+                        if (TcpConstanst.IB_TYPE_STR.equals(name)){
+                            item.setType(TcpConstanst.IB_TYPE);
+                        } else if (TcpConstanst.MOTIVATION_TYPE_STR.equals(name)){
+                            item.setType(TcpConstanst.MOTIVATION_TYPE);
+                        } else{
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                    .append("预算不存在")
+                                    .append("申请类型只能为中收或激励")
                                     .append("</font><br>");
 
                             importError = true;
                         }
-                        else
-                        {
-                            //有效性检查
-                            if (bean.getCarryStatus() != 1)
-                            {
-                                builder
-                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                        .append("不是执行中的预算")
-                                        .append("</font><br>");
 
-                                importError = true;
-                            }
-
-                            if (bean.getType() != 2)
-                            {
-                                builder
-                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                        .append("不是部门预算")
-                                        .append("</font><br>");
-
-                                importError = true;
-                            }
-
-                            if (bean.getLevel() != 2)
-                            {
-                                builder
-                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                        .append("不是月度预算")
-                                        .append("</font><br>");
-
-                                importError = true;
-                            }
-
-                            if (bean.getStatus() != 3)
-                            {
-                                builder
-                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                        .append("不存在通过状态预算")
-                                        .append("</font><br>");
-
-                                importError = true;
-                            }
-
-                        }
-
-                        if (!importError)
-                        {
-                            item.setBudgetId(bean.getId());
-                            item.setBudgetName(bean.getName());
-                            item.setDepartmentId(bean.getBudgetDepartment());
-
-                            PrincipalshipBean prin = principalshipDAO.find(bean.getBudgetDepartment());
-
-                            if (null != prin)
-                                item.setDepartmentName(prin.getName());
-
-                            item.setApproverId(bean.getSigner());
-
-                            StafferBean staffer = stafferDAO.find(bean.getSigner());
-
-                            if (null != staffer)
-                                item.setApproverName(staffer.getName());
-                        }
 
                     }
 
-                    // 承担人
+                    // 客户名
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
                         String name = obj[1];
+                        //TODO  check customer exist
 
-                        StafferBean staff = stafferDAO.findByUnique(name);
+                        item.setCustomerName(name);
 
-                        if (null == staff)
-                        {
-                            builder
-                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                    .append("承担人不存在")
-                                    .append("</font><br>");
 
-                            importError = true;
-                        }
-                        else
-                        {
-                            item.setBearId(staff.getId());
-                            item.setBearName(staff.getName());
-                        }
-                    }
-
-                    // 分摊比例/金额
+                    // 订单号
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
                         String showRealMonery = obj[2];
 
-                        item.setShowRealMonery(showRealMonery);
+//                        item.setShowRealMonery(showRealMonery);
 
                     }
+
+                    //商品名
+
+
+                    //数量
+
+
+                    //中收金额
+
+
+                    //激励金额
 
                     importItemList.add(item);
 
@@ -2894,6 +2825,7 @@ public class TravelApplyAction extends DispatchAction
             }
 
 
+        }
         }
         catch (Exception e)
         {
@@ -2928,7 +2860,9 @@ public class TravelApplyAction extends DispatchAction
 
         TravelApplyVO bean = new TravelApplyVO();
 
-        bean.setShareVOList(importItemList);
+//        bean.setShareVOList(importItemList);
+        //TODO
+        bean.setIbList(null);
 
         request.setAttribute("bean", bean);
 

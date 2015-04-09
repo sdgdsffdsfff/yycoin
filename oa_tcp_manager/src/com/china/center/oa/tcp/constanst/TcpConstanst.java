@@ -599,4 +599,19 @@ public interface TcpConstanst
      */
     @Defined(key = "preInvoiceType", value = "普通6%")
     int PREINVOICE_TAX6 = 4;
+
+    /**
+     * 中收
+     */
+    @Defined(key = "type", value = "中收")
+    int IB_TYPE = 0;
+
+    /**
+     * 激励
+     */
+    @Defined(key = "type", value = "激励")
+    int MOTIVATION_TYPE = 1;
+
+    String IB_TYPE_STR = "中收";
+    String MOTIVATION_TYPE_STR = "激励";
 }
