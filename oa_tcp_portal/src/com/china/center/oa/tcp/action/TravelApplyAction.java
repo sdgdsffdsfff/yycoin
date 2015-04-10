@@ -26,6 +26,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.tcp.bean.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
@@ -166,6 +168,8 @@ public class TravelApplyAction extends DispatchAction
     private PrincipalshipDAO principalshipDAO = null;
     
     private AttachmentDAO attachmentDAO = null;
+
+    private OutDAO outDAO = null;
 
     private static String QUERYSELFTRAVELAPPLY = "tcp.querySelfTravelApply";
     
@@ -2758,7 +2762,6 @@ public class TravelApplyAction extends DispatchAction
                 if (obj.length >= 2 )
                 {
                     IbApplyBean item = new IbApplyBean();
-//                    TcpShareVO item = new TcpShareVO();
 
                     // 申请类型
                     if ( !StringTools.isNullOrNone(obj[0]))
@@ -2793,22 +2796,49 @@ public class TravelApplyAction extends DispatchAction
                     // 订单号
                     if ( !StringTools.isNullOrNone(obj[2]))
                     {
-                        String showRealMonery = obj[2];
+                        String outId = obj[2];
+                        OutBean out = this.outDAO.find(outId);
+                        if (out == null){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("订单号不存在")
+                                    .append("</font><br>");
 
-//                        item.setShowRealMonery(showRealMonery);
-
+                            importError = true;
+                        }else{
+                            item.setFullId(outId);
+                        }
                     }
 
                     //商品名
-
+                    if ( !StringTools.isNullOrNone(obj[3]))
+                    {
+                        String productName = obj[3];
+                        item.setProductName(productName);
+                    }
 
                     //数量
-
+                    if ( !StringTools.isNullOrNone(obj[4]))
+                    {
+                        String amount = obj[4];
+                        item.setAmount(Integer.valueOf(amount));
+                    }
 
                     //中收金额
-
+                    if ( !StringTools.isNullOrNone(obj[5]))
+                    {
+                        String ibMoney = obj[5];
+                        //TODO
+                        item.setIbMoney(Long.valueOf(ibMoney));
+                    }
 
                     //激励金额
+                    if ( !StringTools.isNullOrNone(obj[6]))
+                    {
+                        String motivationMoney = obj[6];
+                        //TODO
+                        item.setIbMoney(Long.valueOf(motivationMoney));
+                    }
 
                     importItemList.add(item);
 
@@ -2859,10 +2889,7 @@ public class TravelApplyAction extends DispatchAction
         request.setAttribute("imp", true);
 
         TravelApplyVO bean = new TravelApplyVO();
-
-//        bean.setShareVOList(importItemList);
-        //TODO
-        bean.setIbList(null);
+        bean.setIbList(importItemList);
 
         request.setAttribute("bean", bean);
 
@@ -3258,7 +3285,12 @@ public class TravelApplyAction extends DispatchAction
 	public void setProductDAO(ProductDAO productDAO) {
 		this.productDAO = productDAO;
 	}
-    
-    
 
+    public OutDAO getOutDAO() {
+        return outDAO;
+    }
+
+    public void setOutDAO(OutDAO outDAO) {
+        this.outDAO = outDAO;
+    }
 }
