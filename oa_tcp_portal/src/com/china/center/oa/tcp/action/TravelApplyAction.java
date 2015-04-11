@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.tcp.bean.*;
+import com.china.center.tools.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -99,16 +100,6 @@ import com.china.center.oa.tcp.vo.TravelApplyItemVO;
 import com.china.center.oa.tcp.vo.TravelApplyVO;
 import com.china.center.oa.tcp.wrap.TcpParamWrap;
 import com.china.center.osgi.jsp.ElTools;
-import com.china.center.tools.BeanUtil;
-import com.china.center.tools.CommonTools;
-import com.china.center.tools.FileTools;
-import com.china.center.tools.MathTools;
-import com.china.center.tools.RequestDataStream;
-import com.china.center.tools.SequenceTools;
-import com.china.center.tools.StringTools;
-import com.china.center.tools.TimeTools;
-import com.china.center.tools.UtilStream;
-import com.china.center.tools.WriteFileBuffer;
 
 
 /**
@@ -517,18 +508,15 @@ public class TravelApplyAction extends DispatchAction
         condtion.addCondition("order by TcpApproveBean.logTime desc");
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(cacheKey, request, condtion,
-            this.tcpApproveDAO, new HandleResult<TcpApproveVO>()
-            {
-                public void handle(TcpApproveVO vo)
-                {
-                    TCPHelper.getTcpApproveVO(vo);
-                    
-                    if (mode.equals("98"))
-                    {
-                    	vo.setUrl(TcpConstanst.PREINVOICE_DETAIL_URL + vo.getApplyId());
-                    }
+                this.tcpApproveDAO, new HandleResult<TcpApproveVO>() {
+            public void handle(TcpApproveVO vo) {
+                TCPHelper.getTcpApproveVO(vo);
+
+                if (mode.equals("98")) {
+                    vo.setUrl(TcpConstanst.PREINVOICE_DETAIL_URL + vo.getApplyId());
                 }
-            });
+            }
+        });
 
         return JSONTools.writeResponse(response, jsonstr);
     }
@@ -2305,7 +2293,46 @@ public class TravelApplyAction extends DispatchAction
 	
 	            shareList.add(share);
 	        }
-        }    
+        }
+
+        // 中收激励明细
+        _logger.info("********read ib parameters***********");
+        List<TcpIbBean> ibList = new ArrayList<TcpIbBean>();
+        bean.setIbList(ibList);
+
+        List<String> typeList = rds.getParameters("ib_type");
+        List<String> customerNameList = rds.getParameters("customerName");
+        List<String> fullIdList = rds.getParameters("fullId");
+        List<String> productNameList2 = rds.getParameters("productName");
+        List<String> amountList2 = rds.getParameters("amount");
+        List<String> ibMoneyList = rds.getParameters("ibMoney");
+        List<String> motivationMoneyList = rds.getParameters("motivationMoney");
+
+        if(!ListTools.isEmptyOrNull(typeList))
+        {
+            for (int i = 0; i < typeList.size(); i++ )
+            {
+                String type = typeList.get(i);
+
+                if (StringTools.isNullOrNone(type))
+                {
+                    continue;
+                }
+
+                TcpIbBean ib = new TcpIbBean();
+
+                ib.setType(Integer.valueOf(type));
+                ib.setCustomerName(customerNameList.get(i));
+                ib.setFullId(fullIdList.get(i));
+                ib.setProductName(productNameList2.get(i));
+                ib.setAmount(Integer.valueOf(amountList2.get(i)));
+                ib.setIbMoney(Long.valueOf(ibMoneyList.get(i)));
+                ib.setMotivationMoney(Long.valueOf(motivationMoneyList.get(i)));
+
+                ibList.add(ib);
+            }
+        }
+        _logger.info("*********ibList size****"+ibList.size());
     }
 
     /**
@@ -2708,10 +2735,11 @@ public class TravelApplyAction extends DispatchAction
 
         boolean importError = false;
 
-        List<IbApplyBean> importItemList = new ArrayList<IbApplyBean>();
+        List<TcpIbBean> importItemList = new ArrayList<TcpIbBean>();
 
         StringBuilder builder = new StringBuilder();
 
+        _logger.info("1111111111111111111111111111111111");
         try
         {
             rds.parser();
@@ -2724,17 +2752,17 @@ public class TravelApplyAction extends DispatchAction
 
             return mapping.findForward("importShare");
         }
-
+        _logger.info("222222222222222222");
         if ( !rds.haveStream())
         {
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
 
             return mapping.findForward("importShare");
         }
-
-        String type = rds.getParameter("type");
-
-        request.setAttribute("type", type);
+        _logger.info("33333333333333333333333333");
+//        String type = rds.getParameter("type");
+//
+//        request.setAttribute("type", type);
 
         ReaderFile reader = ReadeFileFactory.getXLSReader();
 
@@ -2744,7 +2772,7 @@ public class TravelApplyAction extends DispatchAction
 
             while (reader.hasNext())
             {
-                String[] obj = fillObj((String[])reader.next());
+                String[] obj = fillObj2((String[])reader.next());
 
                 // 第一行忽略
                 if (reader.getCurrentLineNumber() == 1)
@@ -2761,7 +2789,7 @@ public class TravelApplyAction extends DispatchAction
 
                 if (obj.length >= 2 )
                 {
-                    IbApplyBean item = new IbApplyBean();
+                    TcpIbBean item = new TcpIbBean();
 
                     // 申请类型
                     if ( !StringTools.isNullOrNone(obj[0]))
@@ -2859,6 +2887,7 @@ public class TravelApplyAction extends DispatchAction
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             _logger.error(e, e);
 
             request.setAttribute(KeyConstant.ERROR_MESSAGE, e.toString());
@@ -2886,7 +2915,8 @@ public class TravelApplyAction extends DispatchAction
             return mapping.findForward("importIb");
         }
 
-        request.setAttribute("imp", true);
+//        request.setAttribute("imp", true);
+        request.setAttribute("import", true);
 
         TravelApplyVO bean = new TravelApplyVO();
         bean.setIbList(importItemList);
@@ -2895,14 +2925,16 @@ public class TravelApplyAction extends DispatchAction
 
         prepareInner(request);
 
-        int itype = MathTools.parseInt(type);
+//        int itype = MathTools.parseInt(type);
+//
+//        if (itype <= 10)
+//        {
+//            return mapping.findForward("addTravelApply" + type);
+//        }
+//
+//        return mapping.findForward("addExpense" + type);
 
-        if (itype <= 10)
-        {
-            return mapping.findForward("addTravelApply" + type);
-        }
-
-        return mapping.findForward("addExpense" + type);
+        return mapping.findForward("addTravelApply7");
     }
     
     public BudgetDAO getBudgetDAO()
@@ -2923,6 +2955,25 @@ public class TravelApplyAction extends DispatchAction
     private String[] fillObj(String[] obj)
     {
         String[] result = new String[3];
+
+        for (int i = 0; i < result.length; i++ )
+        {
+            if (i < obj.length)
+            {
+                result[i] = obj[i];
+            }
+            else
+            {
+                result[i] = "";
+            }
+        }
+
+        return result;
+    }
+
+    private String[] fillObj2(String[] obj)
+    {
+        String[] result = new String[7];
 
         for (int i = 0; i < result.length; i++ )
         {

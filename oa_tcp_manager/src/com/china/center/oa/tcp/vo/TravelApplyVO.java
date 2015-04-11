@@ -16,7 +16,6 @@ import com.china.center.jdbc.annotation.Html;
 import com.china.center.jdbc.annotation.Ignore;
 import com.china.center.jdbc.annotation.Relationship;
 import com.china.center.jdbc.annotation.enums.Element;
-import com.china.center.oa.tcp.bean.IbApplyBean;
 import com.china.center.oa.tcp.bean.TravelApplyBean;
 
 
@@ -64,11 +63,6 @@ public class TravelApplyVO extends TravelApplyBean
     @Ignore
     private List<TcpShareVO> shareVOList = null;
 
-    /**
-     * 中收激励申请表
-     */
-    @Ignore
-    private List<IbApplyBean> ibList = null;
 
     /**
      * 准确到分
@@ -427,14 +421,6 @@ public class TravelApplyVO extends TravelApplyBean
     public void setDutyName(String dutyName)
     {
         this.dutyName = dutyName;
-    }
-
-    public List<IbApplyBean> getIbList() {
-        return ibList;
-    }
-
-    public void setIbList(List<IbApplyBean> ibList) {
-        this.ibList = ibList;
     }
 
     /**

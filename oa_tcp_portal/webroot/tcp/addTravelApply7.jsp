@@ -38,6 +38,10 @@ function load()
 	<c:if test="${!imp}">
 	addShareTr();
 	</c:if>
+
+    <c:if test="${import}">
+    addIbTr();
+    </c:if>
 	
 	$v('tr_att_more', false);
 	
@@ -222,6 +226,121 @@ function load()
         </td>
     </tr>
     </c:if>
+
+    <c:if test="${import}">
+        <p:title>
+            <td class="caption">
+                <strong>中收激励明细</strong>
+            </td>
+        </p:title>
+
+        <p:line flag="0" />
+
+        <tr>
+            <td colspan='2' align='center'>
+                <table width="98%" border="0" cellpadding="0" cellspacing="0"
+                       class="border">
+                    <tr>
+                        <td>
+                            <table width="100%" border="0" cellspacing='1' id="tables_ib">
+                                <tr align="center" class="content0">
+                                    <td width="30%" align="center">申请类型</td>
+                                    <td width="30%" align="center">客户名</td>
+                                    <td width="15%" align="center">订单号</td>
+                                    <td width="15%" align="center">商品名</td>
+                                    <td width="15%" align="center">数量</td>
+                                    <td width="15%" align="center">中收金额</td>
+                                    <td width="15%" align="center">激励金额</td>
+                                    <td width="5%" align="left"><input type="button" accesskey="B"
+                                                                       value="增加" class="button_class" onclick="addIbTr()"></td>
+                                </tr>
+
+                                <c:forEach items="${bean.ibList}" var="itemEach" varStatus="vs">
+                                    <tr class="content1">
+                                    <td align="left">
+                                        <select name="ib_type" class="select_class" style="width: 100%;">
+                                            <c:if test="${itemEach.type ==0}">
+                                                <option value="0" selected>中收</option>
+                                                <option value="1">激励</option>
+                                            </c:if>
+                                            <c:if test="${itemEach.type ==1}">
+                                                <option value="0">中收</option>
+                                                <option value="1" selected>激励</option>
+                                            </c:if>
+                                        </select>
+                                    </td>
+
+                                    <td align="left">
+                                        <input type="text" style="width: 100%" name="customerName" value="${itemEach.customerName}" required>
+                                    </td>
+
+                                    <td align="left">
+                                        <input type="text" style="width: 100%" name="fullId" value="${itemEach.fullId}" required>
+                                    </td>
+
+                                    <td align="left">
+                                        <input type="text" style="width: 100%" name="productName" value="${itemEach.productName}" required>
+                                    </td>
+
+                                    <td align="left">
+                                        <input type="number" style="width: 100%" name="amount" value="${itemEach.amount}" required>
+                                    </td>
+
+                                    <td align="left">
+                                        <input type="number" style="width: 100%" name="ibMoney" value="${itemEach.ibMoney}" required>
+                                    </td>
+
+                                    <td align="left">
+                                        <input type="number" style="width: 100%" name="motivationMoney" value="${itemEach.motivationMoney}" required>
+                                    </td>
+
+                                    <td width="5%" align="center">
+                                        <input type=button name="ib_del_bu" value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)">
+                                    </td>
+
+                                    </tr>
+
+                                    <%--<tr class="content1">--%>
+                                        <%--<td align="left"><input type="text" style="width: 100%;cursor: pointer;"--%>
+                                                                <%--name="s_budgetName" value="${itemEach.budgetName}" oncheck="notNone;" readonly="readonly" onclick="selectBudget(this)">--%>
+                                            <%--<input type="hidden" name="s_budgetId" value="${itemEach.budgetId}">--%>
+                                        <%--</td>--%>
+
+                                        <%--<td align="left">--%>
+                                            <%--<input type="text" style="width: 100%"--%>
+                                                   <%--name="s_departmentName" value="${itemEach.departmentName}" oncheck="notNone;" readonly="readonly">--%>
+                                            <%--<input type="hidden" name="s_departmentId" value="${itemEach.departmentId}">--%>
+                                        <%--</td>--%>
+
+                                        <%--<td align="left">--%>
+                                            <%--<input type="text" style="width: 100%"--%>
+                                                   <%--name="s_approverName" value="${itemEach.approverName}" oncheck="notNone;" readonly="readonly">--%>
+                                            <%--<input type="hidden" name="s_approverId" value="${itemEach.approverId}">--%>
+                                        <%--</td>--%>
+
+                                        <%--<td align="left">--%>
+                                            <%--<input type="text" style="width: 100%;cursor: pointer;"--%>
+                                                   <%--name="s_bearName" value="${itemEach.bearName}" oncheck="notNone;" readonly="readonly" onclick="selectStaffer2(this)">--%>
+                                            <%--<input type="hidden" name="s_bearId" value="${itemEach.bearId}">--%>
+                                        <%--</td>--%>
+
+                                        <%--<td align="left">--%>
+                                            <%--<input type="text" style="width: 100%"--%>
+                                                   <%--name="s_ratio" value="${itemEach.showRealMonery}" oncheck="notNone;isFloat2">--%>
+                                        <%--</td>--%>
+
+                                        <%--<td width="5%" align="center"><input type=button--%>
+                                                                             <%--value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>--%>
+                                    <%--</tr>--%>
+                                </c:forEach>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </c:if>
     
     <c:if test="${imp}">
     <%@include file="share_update.jsp"%>
@@ -342,6 +461,43 @@ function load()
          </td>
         <td width="5%" align="center"><input type=button name="pay_del_bu"
             value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>
+    </tr>
+
+    <tr class="content1" id="trCopy_ib" style="display: none;">
+        <td align="left">
+            <select name="ib_type" class="select_class" style="width: 100%;" oncheck="notNone">
+                <option value="0">中收</option>
+                <option value="1">激励</option>
+            </select>
+        </td>
+
+        <td align="left">
+            <input type="text" style="width: 100%" name="customerName" value="" required>
+        </td>
+
+        <td align="left">
+            <input type="text" style="width: 100%" name="fullId" value="" required>
+        </td>
+
+        <td align="left">
+            <input type="text" style="width: 100%" name="productName" value="" required>
+        </td>
+
+        <td align="left">
+            <input type="number" style="width: 100%" name="amount" value="" required>
+        </td>
+
+        <td align="left">
+            <input type="number" style="width: 100%" name="ibMoney" value="" required>
+        </td>
+
+        <td align="left">
+            <input type="number" style="width: 100%" name="motivationMoney" value="" required>
+        </td>
+
+        <td width="5%" align="center">
+            <input type=button name="ib_del_bu" value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)">
+        </td>
     </tr>
     
     <%@include file="share_tr.jsp"%>

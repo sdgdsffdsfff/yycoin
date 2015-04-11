@@ -321,6 +321,8 @@ function blackForbid()
 						<td width="5%" align="center">税额</td>
 						<td width="8%" align="center">毛利</td>
 						<td width="8%" align="center">毛利率</td>
+                        <td width="8%" align="center">中收金额</td>
+                        <td width="8%" align="center">激励金额</td>
 						<td width="5%" align="center"><input type="button" accesskey="A"
 							value="增加" class="button_class" onclick="addTr()"></td>
 					</tr>
@@ -379,6 +381,12 @@ function blackForbid()
 							
 						<td align="center"><input type="text" readonly="readonly" value="0.00%"
 							style="width: 100%" name="profitRatio"></td>
+
+                        <td align="center"><input type="number" readonly="readonly" value="0.00"
+                                                  style="width: 100%" name="ibMoney"></td>
+
+                        <td align="center"><input type="number" readonly="readonly" value="0.00"
+                                                  style="width: 100%" name="motivationMoney"></td>
 							
 						<td align="center"></td>
 					</tr>

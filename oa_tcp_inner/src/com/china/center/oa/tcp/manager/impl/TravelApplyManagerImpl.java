@@ -18,6 +18,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.china.center.oa.tcp.bean.*;
+import com.china.center.oa.tcp.dao.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.iaop.annotation.IntegrationAOP;
@@ -58,25 +60,8 @@ import com.china.center.oa.publics.helper.UserHelper;
 import com.china.center.oa.publics.manager.NotifyManager;
 import com.china.center.oa.publics.manager.OrgManager;
 import com.china.center.oa.publics.vo.StafferVO;
-import com.china.center.oa.tcp.bean.TcpApplyBean;
-import com.china.center.oa.tcp.bean.TcpApproveBean;
-import com.china.center.oa.tcp.bean.TcpFlowBean;
-import com.china.center.oa.tcp.bean.TcpHandleHisBean;
-import com.china.center.oa.tcp.bean.TcpShareBean;
-import com.china.center.oa.tcp.bean.TravelApplyBean;
-import com.china.center.oa.tcp.bean.TravelApplyItemBean;
-import com.china.center.oa.tcp.bean.TravelApplyPayBean;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
-import com.china.center.oa.tcp.dao.TcpApplyDAO;
-import com.china.center.oa.tcp.dao.TcpApproveDAO;
-import com.china.center.oa.tcp.dao.TcpFlowDAO;
-import com.china.center.oa.tcp.dao.TcpHandleHisDAO;
-import com.china.center.oa.tcp.dao.TcpPrepaymentDAO;
-import com.china.center.oa.tcp.dao.TcpShareDAO;
-import com.china.center.oa.tcp.dao.TravelApplyDAO;
-import com.china.center.oa.tcp.dao.TravelApplyItemDAO;
-import com.china.center.oa.tcp.dao.TravelApplyPayDAO;
 import com.china.center.oa.tcp.helper.TCPHelper;
 import com.china.center.oa.tcp.listener.TcpPayListener;
 import com.china.center.oa.tcp.manager.TravelApplyManager;
@@ -121,6 +106,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     private TcpPrepaymentDAO tcpPrepaymentDAO = null;
 
     private TcpShareDAO tcpShareDAO = null;
+
+    private TcpIbDAO tcpIbDAO = null;
 
     private TravelApplyDAO travelApplyDAO = null;
 
@@ -237,6 +224,18 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 	            tcpShareBean.setRefId(bean.getId());
 	        }
 	        tcpShareDAO.saveAllEntityBeans(shareList);
+        }
+
+        //2015/4/11 中收激励
+        List<TcpIbBean> ibList = bean.getIbList();
+
+        if(!ListTools.isEmptyOrNull(ibList))
+        {
+            for (TcpIbBean ib : ibList)
+            {
+                ib.setId(commonDAO.getSquenceString20());
+            }
+            this.tcpIbDAO.saveAllEntityBeans(ibList);
         }
 
         List<AttachmentBean> attachmentList = bean.getAttachmentList();
@@ -3119,5 +3118,11 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 		this.stafferDAO = stafferDAO;
 	}
 
-    
+    public TcpIbDAO getTcpIbDAO() {
+        return tcpIbDAO;
+    }
+
+    public void setTcpIbDAO(TcpIbDAO tcpIbDAO) {
+        this.tcpIbDAO = tcpIbDAO;
+    }
 }

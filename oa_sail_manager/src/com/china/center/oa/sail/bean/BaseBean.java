@@ -135,6 +135,17 @@ public class BaseBean implements Serializable
 	  * 毛利率
 	  */
 	private double profitRatio = 0.0d;
+
+
+    /**2015/04/11 中收激励功能
+     * 中收金额
+     */
+    private double ibMoney = 0.0d;
+
+    /**2015/04/11 中收激励功能
+     * 激励金额
+     */
+    private double motivationMoney = 0.0d;
     
     /**
      * 配送方式 deliverType
@@ -819,7 +830,23 @@ public class BaseBean implements Serializable
 		this.productType = productType;
 	}
 
-	/**
+    public double getIbMoney() {
+        return ibMoney;
+    }
+
+    public void setIbMoney(double ibMoney) {
+        this.ibMoney = ibMoney;
+    }
+
+    public double getMotivationMoney() {
+        return motivationMoney;
+    }
+
+    public void setMotivationMoney(double motivationMoney) {
+        this.motivationMoney = motivationMoney;
+    }
+
+    /**
 	 * @return the refId
 	 */
 	public String getRefId()

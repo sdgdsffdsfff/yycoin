@@ -11,9 +11,7 @@ package com.china.center.oa.tcp.bean;
 
 import com.china.center.jdbc.annotation.Entity;
 import com.china.center.jdbc.annotation.Id;
-import com.china.center.jdbc.annotation.Join;
 import com.china.center.jdbc.annotation.Table;
-import com.china.center.jdbc.annotation.enums.JoinType;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 
 import java.io.Serializable;
@@ -24,12 +22,12 @@ import java.io.Serializable;
  * 
  * @author ZHUZHU
  * @version 2015-04-09
- * @see com.china.center.oa.tcp.bean.IbApplyBean
+ * @see TcpIbBean
  * @since 3.0
  */
 @Entity
-@Table(name = "T_CENTER_IBAPPLY")
-public class IbApplyBean implements Serializable
+@Table(name = "T_CENTER_TCPIB")
+public class TcpIbBean implements Serializable
 {
     @Id
     private String id = "";
@@ -62,7 +60,7 @@ public class IbApplyBean implements Serializable
     /**
      * default constructor
      */
-    public IbApplyBean()
+    public TcpIbBean()
     {
     }
 
@@ -152,7 +150,7 @@ public class IbApplyBean implements Serializable
 
     @Override
     public String toString() {
-        return "IbApplyBean{" +
+        return "TcpIbBean{" +
                 "id='" + id + '\'' +
                 ", type=" + type +
                 ", customerName='" + customerName + '\'' +
