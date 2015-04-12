@@ -26,9 +26,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.china.center.oa.client.bean.CustomerBean;
+import com.china.center.oa.client.dao.CustomerMainDAO;
+import com.china.center.oa.product.bean.ProductBean;
 import com.china.center.oa.sail.bean.OutBean;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.tcp.bean.*;
+import com.china.center.oa.tcp.dao.*;
 import com.china.center.tools.*;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.logging.Log;
@@ -80,16 +84,6 @@ import com.china.center.oa.tax.bean.FinanceBean;
 import com.china.center.oa.tax.dao.FinanceDAO;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
 import com.china.center.oa.tcp.constanst.TcpFlowConstant;
-import com.china.center.oa.tcp.dao.ExpenseApplyDAO;
-import com.china.center.oa.tcp.dao.TcpApplyDAO;
-import com.china.center.oa.tcp.dao.TcpApproveDAO;
-import com.china.center.oa.tcp.dao.TcpFlowDAO;
-import com.china.center.oa.tcp.dao.TcpHandleHisDAO;
-import com.china.center.oa.tcp.dao.TcpPrepaymentDAO;
-import com.china.center.oa.tcp.dao.TcpShareDAO;
-import com.china.center.oa.tcp.dao.TravelApplyDAO;
-import com.china.center.oa.tcp.dao.TravelApplyItemDAO;
-import com.china.center.oa.tcp.dao.TravelApplyPayDAO;
 import com.china.center.oa.tcp.helper.TCPHelper;
 import com.china.center.oa.tcp.manager.TcpFlowManager;
 import com.china.center.oa.tcp.manager.TravelApplyManager;
@@ -128,6 +122,8 @@ public class TravelApplyAction extends DispatchAction
 
     private TcpShareDAO tcpShareDAO = null;
 
+    private TcpIbDAO tcpIbDAO = null;
+
     private TcpFlowManager tcpFlowManager = null;
 
     private TravelApplyDAO travelApplyDAO = null;
@@ -161,6 +157,8 @@ public class TravelApplyAction extends DispatchAction
     private AttachmentDAO attachmentDAO = null;
 
     private OutDAO outDAO = null;
+
+    private CustomerMainDAO customerMainDAO = null;
 
     private static String QUERYSELFTRAVELAPPLY = "tcp.querySelfTravelApply";
     
@@ -684,6 +682,13 @@ public class TravelApplyAction extends DispatchAction
         if (bean == null)
         {
             return ActionTools.toError("数据异常,请重新操作", mapping, request);
+        } else{
+            //2015/4/12 中收激励导入功能
+            if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID && bean.isImportFlag()){
+                List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+                 _logger.info("************TcpIbBean list size:"+ibList.size());
+                bean.setIbList(ibList);
+            }
         }
         
         int purposeType = bean.getPurposeType();
@@ -937,6 +942,16 @@ public class TravelApplyAction extends DispatchAction
         String oprType = rds.getParameter("oprType");
 
         String processId = rds.getParameter("processId");
+
+        String importFlag = rds.getParameter("importFlag");
+
+        String ibType = rds.getParameter("ibType");
+
+        _logger.info("****importFlag:"+importFlag+"***ibType:"+ibType);
+
+//        if (!StringTools.isNullOrNone(importFlag)){
+//
+//        }
 
         // 出差申请的特殊处理
         if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_TRAVEL)
@@ -2765,10 +2780,12 @@ public class TravelApplyAction extends DispatchAction
 //        request.setAttribute("type", type);
 
         ReaderFile reader = ReadeFileFactory.getXLSReader();
+        int type = 0;
 
         try
         {
             reader.readFile(rds.getUniqueInputStream());
+            String ibType = "";
 
             while (reader.hasNext())
             {
@@ -2796,10 +2813,26 @@ public class TravelApplyAction extends DispatchAction
                     {
                         String name = obj[0];
 
+                        if (currentNumber == 2){
+                            ibType = name;
+                        }
+
+                        //导入模板中申请类型必须一致
+                        if (!ibType.equals(name)){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("申请类型必须一致")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
+
                         if (TcpConstanst.IB_TYPE_STR.equals(name)){
                             item.setType(TcpConstanst.IB_TYPE);
+                            type = TcpConstanst.IB_TYPE;
                         } else if (TcpConstanst.MOTIVATION_TYPE_STR.equals(name)){
                             item.setType(TcpConstanst.MOTIVATION_TYPE);
+                            type = TcpConstanst.MOTIVATION_TYPE;
                         } else{
                             builder
                                     .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -2808,15 +2841,31 @@ public class TravelApplyAction extends DispatchAction
 
                             importError = true;
                         }
+                    }else{
+                        builder
+                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                .append("申请类型必填")
+                                .append("</font><br>");
 
-
+                        importError = true;
                     }
 
                     // 客户名
                     if ( !StringTools.isNullOrNone(obj[1]))
                     {
                         String name = obj[1];
-                        //TODO  check customer exist
+                        ConditionParse con = new ConditionParse();
+                        con.addWhereStr();
+                        con.addCondition("name", "=",name);
+                        List<CustomerBean> cbeanList = customerMainDAO.queryEntityBeansByCondition(con);
+                        if (ListTools.isEmptyOrNull(cbeanList)){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("客户名不存在")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
 
                         item.setCustomerName(name);
 
@@ -2836,12 +2885,32 @@ public class TravelApplyAction extends DispatchAction
                         }else{
                             item.setFullId(outId);
                         }
+                    } else{
+                        builder
+                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                .append("订单号必填")
+                                .append("</font><br>");
+
+                        importError = true;
                     }
 
                     //商品名
                     if ( !StringTools.isNullOrNone(obj[3]))
                     {
                         String productName = obj[3];
+
+                        ConditionParse con2 = new ConditionParse();
+                        con2.addWhereStr();
+                        con2.addCondition("name", "=",productName);
+                        List<ProductBean> productList = this.productDAO.queryEntityBeansByCondition(con2);
+                        if (ListTools.isEmptyOrNull(productList)){
+                            builder
+                                    .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                    .append("商品名不存在")
+                                    .append("</font><br>");
+
+                            importError = true;
+                        }
                         item.setProductName(productName);
                     }
 
@@ -2858,6 +2927,13 @@ public class TravelApplyAction extends DispatchAction
                         String ibMoney = obj[5];
                         //TODO
                         item.setIbMoney(Long.valueOf(ibMoney));
+                    } else{
+                        builder
+                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                .append("中收金额必填")
+                                .append("</font><br>");
+
+                        importError = true;
                     }
 
                     //激励金额
@@ -2865,7 +2941,14 @@ public class TravelApplyAction extends DispatchAction
                     {
                         String motivationMoney = obj[6];
                         //TODO
-                        item.setIbMoney(Long.valueOf(motivationMoney));
+                        item.setMotivationMoney(Long.valueOf(motivationMoney));
+                    } else{
+                        builder
+                                .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                .append("激励金额必填")
+                                .append("</font><br>");
+
+                        importError = true;
                     }
 
                     importItemList.add(item);
@@ -2882,7 +2965,9 @@ public class TravelApplyAction extends DispatchAction
                 }
             }
 
+        //TODO 每个客户的申请金额不得大于统计的可申请的中收或激励金额
 
+         //TODO 每张订单的中收与激励的申请必须一次性完成，不得分批进行，如申请金额与订单记录金额不符，报错提示
         }
         }
         catch (Exception e)
@@ -2920,19 +3005,12 @@ public class TravelApplyAction extends DispatchAction
 
         TravelApplyVO bean = new TravelApplyVO();
         bean.setIbList(importItemList);
+        bean.setImportFlag(true);
+        bean.setIbType(type);
 
         request.setAttribute("bean", bean);
 
         prepareInner(request);
-
-//        int itype = MathTools.parseInt(type);
-//
-//        if (itype <= 10)
-//        {
-//            return mapping.findForward("addTravelApply" + type);
-//        }
-//
-//        return mapping.findForward("addExpense" + type);
 
         return mapping.findForward("addTravelApply7");
     }
@@ -3343,5 +3421,21 @@ public class TravelApplyAction extends DispatchAction
 
     public void setOutDAO(OutDAO outDAO) {
         this.outDAO = outDAO;
+    }
+
+    public CustomerMainDAO getCustomerMainDAO() {
+        return customerMainDAO;
+    }
+
+    public void setCustomerMainDAO(CustomerMainDAO customerMainDAO) {
+        this.customerMainDAO = customerMainDAO;
+    }
+
+    public TcpIbDAO getTcpIbDAO() {
+        return tcpIbDAO;
+    }
+
+    public void setTcpIbDAO(TcpIbDAO tcpIbDAO) {
+        this.tcpIbDAO = tcpIbDAO;
     }
 }

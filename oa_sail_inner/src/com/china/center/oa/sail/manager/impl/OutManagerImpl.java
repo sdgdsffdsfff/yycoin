@@ -1503,8 +1503,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 提交(包括领样退库和销售退库)
      * 
-     * @param outBean
+     * @param fullId
      * @param user
+     * @param storageType
      * @return
      * @throws Exception
      */

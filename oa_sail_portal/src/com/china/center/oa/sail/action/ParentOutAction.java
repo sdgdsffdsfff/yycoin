@@ -1586,7 +1586,7 @@ public class ParentOutAction extends DispatchAction
 	 * @param request
 	 * @param check
 	 *            是否检查事业部
-	 * @param detailQuery
+	 * @param needDeepQuery
 	 * 
 	 * @throws MYException
 	 */
@@ -3697,7 +3697,7 @@ public class ParentOutAction extends DispatchAction
 	 * 
 	 * @param outId
 	 * @param request
-	 * @param bean
+	 * @param baseList
 	 */
 	private List<OutBean> makeLingYang(String outId,
 			HttpServletRequest request, List<BaseBean> baseList)
@@ -4133,7 +4133,6 @@ public class ParentOutAction extends DispatchAction
 
 	/**
 	 * 
-	 * @param eventId
 	 * @param oldOut
 	 * @param out
 	 * @param newBaseList
@@ -4780,8 +4779,7 @@ public class ParentOutAction extends DispatchAction
 	/**
 	 * 收集数据
 	 * 
-	 * @param pbean
-	 * @param item
+	 * @param bean
 	 * @param request
 	 * @throws MYException
 	 */
@@ -4958,7 +4956,6 @@ public class ParentOutAction extends DispatchAction
 	/**
 	 * 
 	 * @param list
-	 * @param type
 	 * @param request
 	 * @param bean
 	 * @throws MYException
@@ -5899,7 +5896,7 @@ public class ParentOutAction extends DispatchAction
 			HttpServletRequest request, HttpServletResponse reponse)
 			throws ServletException
 	{
-        System.out.println("addOutStep2111111111111111111");
+        _logger.info("*********addOutStep2111111111111111111");
 		// 是否锁定库存
 		if (storageRelationManager.isStorageRelationLock())
 		{
@@ -5907,7 +5904,7 @@ public class ParentOutAction extends DispatchAction
 
 			return mapping.findForward("error");
 		}
-        System.out.println("addOutStep211122222222222222222");
+        _logger.info("addOutStep211122222222222222222");
 
 		User user = (User) request.getSession().getAttribute("user");
 
@@ -5925,21 +5922,18 @@ public class ParentOutAction extends DispatchAction
 		}
 
 		ActionForward action = null;
-        System.out.println("addOutStep233333333333333333");
-		OutBean outBean = outDAO.find(fullId);
-        System.out.println("addOutStep2444444444444444");
-		if (null == outBean)
+        OutBean outBean = outDAO.find(fullId);
+        if (null == outBean)
 		{
 			request.setAttribute(KeyConstant.ERROR_MESSAGE, "库单不存在,请重新操作");
 
 			return mapping.findForward("error");
 		}
-        System.out.println("addOutStep255555555555555555");
+        _logger.info("addOutStep255555555555555555");
 		fillDistribution(request, outBean);
-        System.out.println("addOutStep21166666666666666666");
+        _logger.info("addOutStep21166666666666666666");
 		// 商务 - begin
 		ActionForward error = checkAuthForEcommerce(request, user, mapping);
-        System.out.println("addOutStep2177777777777777");
 		if (null != error)
 		{
 			return error;
@@ -5957,11 +5951,11 @@ public class ParentOutAction extends DispatchAction
 		}
 
 		// 商务 - end
-        System.out.println("addOutStep2188888888888888888");
+        _logger.info("addOutStep2188888888888888888");
 		// 销售单
 		action = processCommonOut(mapping, form, request, reponse, user, saves,
 				fullId, outBean, null, "2");
-        System.out.println("addOutStep211999999999999999999");
+        _logger.info("addOutStep211999999999999999999");
 		if (action != null)
 		{
 			return action;
@@ -5986,13 +5980,13 @@ public class ParentOutAction extends DispatchAction
             System.out.println("addOutStep2 sendOutMailsendOutMailsendOutMailsendOutMail");
 			//outManager.sendOutMail(outBean, "商务开单确认.");
 		}
-        System.out.println("addOutStep2aaaaaaaaaaaaaaaaaa");
+        _logger.info("addOutStep2 finished*****");
 		return querySelfOut(mapping, form, request, reponse);
 	}
 
 	/**
 	 * 
-	 * @param request
+	 * @param rds
 	 * @param out
 	 */
 	private void fillDistribution(HttpServletRequest rds, OutBean out)

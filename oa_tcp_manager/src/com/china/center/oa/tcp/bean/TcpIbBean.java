@@ -10,6 +10,7 @@ package com.china.center.oa.tcp.bean;
 
 
 import com.china.center.jdbc.annotation.Entity;
+import com.china.center.jdbc.annotation.FK;
 import com.china.center.jdbc.annotation.Id;
 import com.china.center.jdbc.annotation.Table;
 import com.china.center.oa.tcp.constanst.TcpConstanst;
@@ -31,6 +32,9 @@ public class TcpIbBean implements Serializable
 {
     @Id
     private String id = "";
+
+    @FK
+    private String refId = "";
 
     /**
      * 申请类型：中收: 0 激励：1
@@ -146,6 +150,14 @@ public class TcpIbBean implements Serializable
 
     public void setMotivationMoney(long motivationMoney) {
         this.motivationMoney = motivationMoney;
+    }
+
+    public String getRefId() {
+        return refId;
+    }
+
+    public void setRefId(String refId) {
+        this.refId = refId;
     }
 
     @Override

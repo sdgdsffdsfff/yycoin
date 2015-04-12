@@ -18,6 +18,8 @@
 
 	<bean id="tcpShareDAO" class="com.china.center.oa.tcp.dao.impl.TcpShareDAOImpl" />
 
+    <bean id="tcpIbDAO" class="com.china.center.oa.tcp.dao.impl.TcpIbDAOImpl" />
+
 	<bean id="travelApplyDAO" class="com.china.center.oa.tcp.dao.impl.TravelApplyDAOImpl" />
 
 	<bean id="travelApplyItemDAO" class="com.china.center.oa.tcp.dao.impl.TravelApplyItemDAOImpl" />

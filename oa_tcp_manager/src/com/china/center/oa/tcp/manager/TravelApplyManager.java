@@ -96,9 +96,7 @@ public interface TravelApplyManager extends ListenerManager<TcpPayListener>
      * 通过
      * 
      * @param user
-     * @param id
-     * @param processId
-     * @param reason
+     * @param param
      * @return
      * @throws MYException
      */
@@ -109,9 +107,7 @@ public interface TravelApplyManager extends ListenerManager<TcpPayListener>
      * rejectTravelApplyBean
      * 
      * @param user
-     * @param id
-     * @param processId
-     * @param reason
+     * @param param
      * @return
      * @throws MYException
      */
@@ -151,4 +147,10 @@ public interface TravelApplyManager extends ListenerManager<TcpPayListener>
     @Transactional(rollbackFor = MYException.class)
     public boolean rejectVocationAndWork(User user, TcpParamWrap param)
         throws MYException;
+
+    /**
+     * 2015/4/12 中收激励统计Job
+     * @throws MYException
+     */
+    public void ibReportJob() throws MYException;
 }

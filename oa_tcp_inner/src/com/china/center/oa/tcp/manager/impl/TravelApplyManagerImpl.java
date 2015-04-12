@@ -11,13 +11,13 @@ package com.china.center.oa.tcp.manager.impl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
+import com.china.center.oa.sail.bean.BaseBean;
+import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.dao.BaseDAO;
+import com.china.center.oa.sail.dao.OutDAO;
+import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.dao.*;
 import org.apache.commons.logging.Log;
@@ -139,6 +139,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
     private TcpApproveDAO tcpApproveDAO = null;
 
+    private OutDAO outDAO = null;
+
+    private BaseDAO baseDAO = null;
+
     /**
      * default constructor
      */
@@ -234,6 +238,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             for (TcpIbBean ib : ibList)
             {
                 ib.setId(commonDAO.getSquenceString20());
+                ib.setRefId(bean.getId());
             }
             this.tcpIbDAO.saveAllEntityBeans(ibList);
         }
@@ -319,7 +324,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     public boolean submitTravelApplyBean(User user, String id, String processId)
         throws MYException
     {
-        System.out.println("*******************submitTravelApplyBean*****************");
         _logger.info("*******************submitTravelApplyBean*****************");
         JudgeTools.judgeParameterIsNull(user, id);
 
@@ -355,12 +359,40 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         travelApplyDAO.updateStatus(bean.getId(), newStatus);
 
         // 中收在此产生凭证借：营业费用-中收 (5504-47)贷：预提费用 (2191)
-        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID) {
-        	Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
+        if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID ) {
+            if (bean.isImportFlag()){
+                //2015/4/12 中收激励设置对应SO标志位
+                List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+                Set<String> outIdSet = new HashSet<String>();
+                if (!ListTools.isEmptyOrNull(ibList)){
+                    _logger.info("TcpIbBean list size:"+ibList.size());
+                    for (TcpIbBean ib : ibList){
+                        String outId = ib.getFullId();
+                        outIdSet.add(outId);
+                    }
+                } else{
+                    _logger.info("***no TcpIbBean found for:"+bean.getId());
+                }
+
+                for (String outId: outIdSet){
+                    OutBean out = this.outDAO.find(outId);
+                    if (out!= null){
+                        _logger.info(outId+" OutBean set IB flag**********");
+                        if (bean.getIbType() == TcpConstanst.IB_TYPE){
+                            out.setIbFlag(1);
+                        } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+                            out.setMotivationFlag(1);
+                        }
+
+                        this.outDAO.updateEntityBean(out);
+                    }
+                }
+            }
+
+            Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
 
             for (TcpPayListener tcpPayListener : listenerMapValues)
             {
-                System.out.println("************tcpPayListener************"+tcpPayListener);
                 _logger.info("************tcpPayListener************"+tcpPayListener);
                 tcpPayListener.onSubmitMidTravelApply(user, bean);
             }
@@ -1687,6 +1719,32 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         
         // 中收申请，同时删除凭证。如果此时凭证所在的月份已经月结，要求反月结才能继续驳回操作
         if (bean.getType() == TcpConstanst.TCP_APPLYTYPE_MID) {
+            if (bean.isImportFlag()) {
+                //2015/4/12 中收激励设置SO单标志位
+                List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+                Set<String> outIdSet = new HashSet<String>();
+                if (!ListTools.isEmptyOrNull(ibList)){
+                    _logger.info("TcpIbBean list size:"+ibList.size());
+                    for (TcpIbBean ib : ibList){
+                        String outId = ib.getFullId();
+                        outIdSet.add(outId);
+                    }
+                }
+
+                for (String outId: outIdSet){
+                    OutBean out = this.outDAO.find(outId);
+                    if (out!= null){
+                        _logger.info(outId + " OutBean reset IB flag**********");
+                        if (bean.getIbType() == TcpConstanst.IB_TYPE){
+                            out.setIbFlag(0);
+                        } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+                            out.setMotivationFlag(0);
+                        }
+                        this.outDAO.updateEntityBean(out);
+                    }
+                }
+            }
+
         	Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
 
             for (TcpPayListener tcpPayListener : listenerMapValues)
@@ -2768,7 +2826,62 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         return bean;
     }
-    
+
+    @Override
+    @Transactional(rollbackFor = MYException.class)
+    public void ibReportJob() throws MYException {
+        //To change body of implemented methods use File | Settings | File Templates.
+        //TODO
+        //每天夜里跑JOB统计从15.4.1日到当天的未申请的中收和激励数据
+        //所有中收激励统计均为“已出库”、“已发货”状态的订单，退库订单的状态均为“待核对”状态
+        //销售退库订单的对应中收、激励金额为负数也列入统计及明细
+        _logger.info("*****ibReportJob running******");
+        ConditionParse con = new ConditionParse();
+        con.addWhereStr();
+        con.addCondition("ibFlag = 0 or motivationFlag = 0");
+        List<OutVO> outList = this.outDAO.queryEntityVOsByCondition(con);
+        if (!ListTools.isEmptyOrNull(outList)){
+            //先根据customerId分组
+            Map<String, List<OutVO>>  customerToOutMap = new HashMap<String,List<OutVO>>();
+             for (OutVO out: outList){
+                 String customerId = out.getCustomerId();
+                 if (customerToOutMap.containsKey(customerId)){
+                     List<OutVO> outVOs = customerToOutMap.get(customerId);
+                     outVOs.add(out);
+                 }else{
+                     List<OutVO> outVOList = new ArrayList<OutVO>();
+                     outVOList.add(out);
+                     customerToOutMap.put(customerId, outVOList);
+                 }
+             }
+
+            for (String customerId : customerToOutMap.keySet()){
+                TcpIbReportBean ibReport = new TcpIbReportBean();
+                ibReport.setId(null);
+                ibReport.setCustomerId(customerId);
+                List<OutVO> outVOs = customerToOutMap.get(customerId);
+                if (!ListTools.isEmptyOrNull(outVOs)){
+                    ibReport.setCustomerName(outVOs.get(0).getCustomerName());
+                    for (OutVO out: outVOs){
+                        List<BaseBean> baseList = out.getBaseList();
+                        if (!ListTools.isEmptyOrNull(baseList)){
+                            long ibTotal = 0;
+                            long moTotal = 0;
+                            for (BaseBean base : baseList){
+                                ibTotal += base.getIbMoney();
+                                moTotal += base.getMotivationMoney();
+                            }
+                            ibReport.setIbMoneyTotal(ibTotal);
+                            ibReport.setMotivationMoneyTotal(moTotal);
+                        } else{
+                            _logger.error("****no BaseBean list found:"+out.getId());
+                        }
+                    }
+                }
+
+            }
+        }
+    }
 
     /**
      * @return the tcpApplyDAO
@@ -3124,5 +3237,21 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
     public void setTcpIbDAO(TcpIbDAO tcpIbDAO) {
         this.tcpIbDAO = tcpIbDAO;
+    }
+
+    public OutDAO getOutDAO() {
+        return outDAO;
+    }
+
+    public void setOutDAO(OutDAO outDAO) {
+        this.outDAO = outDAO;
+    }
+
+    public BaseDAO getBaseDAO() {
+        return baseDAO;
+    }
+
+    public void setBaseDAO(BaseDAO baseDAO) {
+        this.baseDAO = baseDAO;
     }
 }

@@ -39,10 +39,6 @@ function load()
 	addShareTr();
 	</c:if>
 
-    <c:if test="${import}">
-    addIbTr();
-    </c:if>
-	
 	$v('tr_att_more', false);
 	
 	borrowChange();
@@ -56,7 +52,9 @@ function load()
 <input type="hidden" name="oprType" value="0"> 
 <input type="hidden" name="addOrUpdate" value="0"> 
 <input type="hidden" name="processId" value=""> 
-<input type="hidden" name="type" value="7"> 
+<input type="hidden" name="type" value="7">
+<input type="hidden" name="importFlag" value="${bean.importFlag}">
+<input type="hidden" name="ibType" value="${bean.ibType}">
 <input type="hidden" name="stafferId" value="${g_stafferBean.id}"> 
 <input type="hidden" name="departmentId" value="${g_stafferBean.principalshipId}"> 
 <input type="hidden" name="stype" value="${g_stafferBean.otype}">
@@ -244,13 +242,13 @@ function load()
                         <td>
                             <table width="100%" border="0" cellspacing='1' id="tables_ib">
                                 <tr align="center" class="content0">
-                                    <td width="30%" align="center">申请类型</td>
-                                    <td width="30%" align="center">客户名</td>
-                                    <td width="15%" align="center">订单号</td>
+                                    <td width="10%" align="center">申请类型</td>
+                                    <td width="20%" align="center">客户名</td>
+                                    <td width="20%" align="center">订单号</td>
                                     <td width="15%" align="center">商品名</td>
-                                    <td width="15%" align="center">数量</td>
-                                    <td width="15%" align="center">中收金额</td>
-                                    <td width="15%" align="center">激励金额</td>
+                                    <td width="10%" align="center">数量</td>
+                                    <td width="10%" align="center">中收金额</td>
+                                    <td width="10%" align="center">激励金额</td>
                                     <td width="5%" align="left"><input type="button" accesskey="B"
                                                                        value="增加" class="button_class" onclick="addIbTr()"></td>
                                 </tr>
@@ -300,38 +298,6 @@ function load()
 
                                     </tr>
 
-                                    <%--<tr class="content1">--%>
-                                        <%--<td align="left"><input type="text" style="width: 100%;cursor: pointer;"--%>
-                                                                <%--name="s_budgetName" value="${itemEach.budgetName}" oncheck="notNone;" readonly="readonly" onclick="selectBudget(this)">--%>
-                                            <%--<input type="hidden" name="s_budgetId" value="${itemEach.budgetId}">--%>
-                                        <%--</td>--%>
-
-                                        <%--<td align="left">--%>
-                                            <%--<input type="text" style="width: 100%"--%>
-                                                   <%--name="s_departmentName" value="${itemEach.departmentName}" oncheck="notNone;" readonly="readonly">--%>
-                                            <%--<input type="hidden" name="s_departmentId" value="${itemEach.departmentId}">--%>
-                                        <%--</td>--%>
-
-                                        <%--<td align="left">--%>
-                                            <%--<input type="text" style="width: 100%"--%>
-                                                   <%--name="s_approverName" value="${itemEach.approverName}" oncheck="notNone;" readonly="readonly">--%>
-                                            <%--<input type="hidden" name="s_approverId" value="${itemEach.approverId}">--%>
-                                        <%--</td>--%>
-
-                                        <%--<td align="left">--%>
-                                            <%--<input type="text" style="width: 100%;cursor: pointer;"--%>
-                                                   <%--name="s_bearName" value="${itemEach.bearName}" oncheck="notNone;" readonly="readonly" onclick="selectStaffer2(this)">--%>
-                                            <%--<input type="hidden" name="s_bearId" value="${itemEach.bearId}">--%>
-                                        <%--</td>--%>
-
-                                        <%--<td align="left">--%>
-                                            <%--<input type="text" style="width: 100%"--%>
-                                                   <%--name="s_ratio" value="${itemEach.showRealMonery}" oncheck="notNone;isFloat2">--%>
-                                        <%--</td>--%>
-
-                                        <%--<td width="5%" align="center"><input type=button--%>
-                                                                             <%--value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)"></td>--%>
-                                    <%--</tr>--%>
                                 </c:forEach>
                             </table>
                         </td>

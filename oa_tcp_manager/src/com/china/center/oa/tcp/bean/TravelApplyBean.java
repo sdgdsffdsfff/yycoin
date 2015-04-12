@@ -66,6 +66,17 @@ public class TravelApplyBean extends AbstractTcpBean implements Serializable
      */
     private int feedback = TcpConstanst.TCP_APPLY_FEEDBACK_NO;
 
+
+    /**
+     * 2015/4/12 中收激励导入功能
+     * 0: 非导入 1：导入
+     */
+    private boolean importFlag = false;
+    /**
+     * 中收申请类型：中收: 0 激励：1
+     */
+    private int ibType = -1;
+
     /**
      * default constructor
      */
@@ -197,6 +208,19 @@ public class TravelApplyBean extends AbstractTcpBean implements Serializable
 		this.qingJiapurpose = qingJiapurpose;
 	}
 
+    public boolean isImportFlag() {
+        return importFlag;
+    }
 
-	
+    public void setImportFlag(boolean importFlag) {
+        this.importFlag = importFlag;
+    }
+
+    public int getIbType() {
+        return ibType;
+    }
+
+    public void setIbType(int ibType) {
+        this.ibType = ibType;
+    }
 }

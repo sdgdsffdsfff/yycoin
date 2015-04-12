@@ -11,7 +11,27 @@
 	  http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd
 	  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd"
 	default-destroy-method="destroy">
-	
+    <bean id="ibReportJob"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="travelApplyManager" />
+        <property name="targetMethod" value="ibReportJob" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="ibReportJobTrigger"
+          class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="ibReportJob" />
+        <property name="cronExpression" value="0 0/1 * * * ?" />
+    </bean>
+
+    <bean
+            class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="ibReportJobTrigger" />
+            </list>
+        </property>
+    </bean>
 	
     
 </beans>
