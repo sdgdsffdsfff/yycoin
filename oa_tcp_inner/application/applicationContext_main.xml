@@ -20,6 +20,10 @@
 
     <bean id="tcpIbDAO" class="com.china.center.oa.tcp.dao.impl.TcpIbDAOImpl" />
 
+    <bean id="tcpIbReportDAO" class="com.china.center.oa.tcp.dao.impl.TcpIbReportDAOImpl" />
+
+    <bean id="tcpIbReportItemDAO" class="com.china.center.oa.tcp.dao.impl.TcpIbReportItemDAOImpl" />
+
 	<bean id="travelApplyDAO" class="com.china.center.oa.tcp.dao.impl.TravelApplyDAOImpl" />
 
 	<bean id="travelApplyItemDAO" class="com.china.center.oa.tcp.dao.impl.TravelApplyItemDAOImpl" />

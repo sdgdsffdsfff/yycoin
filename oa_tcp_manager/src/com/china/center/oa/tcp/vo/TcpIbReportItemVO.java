@@ -10,9 +10,7 @@ package com.china.center.oa.tcp.vo;
 
 
 import com.china.center.jdbc.annotation.Entity;
-import com.china.center.jdbc.annotation.Ignore;
-import com.china.center.jdbc.annotation.Relationship;
-import com.china.center.oa.tcp.bean.TcpIbBean;
+import com.china.center.oa.tcp.bean.TcpIbReportItemBean;
 
 
 /**
@@ -20,17 +18,17 @@ import com.china.center.oa.tcp.bean.TcpIbBean;
  * 
  * @author ZHUZHU
  * @version 2015-04-13
- * @see com.china.center.oa.tcp.vo.TcpIbVO
+ * @see com.china.center.oa.tcp.vo.TcpIbReportItemVO
  * @since 3.0
  */
 @Entity(inherit = true)
-public class TcpIbVO extends TcpIbBean
+public class TcpIbReportItemVO extends TcpIbReportItemBean
 {
 
     /**
      * default constructor
      */
-    public TcpIbVO()
+    public TcpIbReportItemVO()
     {
     }
 

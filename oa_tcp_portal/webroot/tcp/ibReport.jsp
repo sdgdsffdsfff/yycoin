@@ -23,183 +23,6 @@ function detail()
     document.location.href = '../sail/out.do?method=findOut&outId=' + getRadioValue("fullId");
 }
 
-function getCustomer(oos)
-{
-    var obj = oos;
-
-    $O("customerName").value = obj.pname;
-
-    $O("customerId").value = obj.value;
-}
-
-function selectCustomer()
-{
-    window.common.modal("../client/client.do?method=rptQuerySelfClient&stafferId=${user.stafferId}&load=1");
-}
-
-
-function pagePrint()
-{
-    window.open('../sail/out.do?method=findOut&fow=4&outId=' + getRadioValue("fullId"));
-}
-
-function exports()
-{
-    if (window.confirm("确定导出当前的全部查询的库单?"))
-        document.location.href = '../sail/out.do?method=export';
-}
-
-function comp()
-{
-    var now = '${now}';
-
-    var str1 = $O('outTime').value;
-
-    var str2 = $O('outTime1').value;
-
-    if (str1 != '' && str2 == '')
-    {
-        if (!coo(str1, now))
-        {
-            alert('查询日期跨度不能大于3个月(90天)!');
-            return false;
-        }
-
-        $O('outTime1').value = now;
-    }
-
-    if (str1 == '' && str2 != '')
-    {
-        if (!coo(now, str2))
-        {
-            alert('查询日期跨度不能大于3个月(90天)!');
-            return false;
-        }
-
-        $O('outTime').value = now;
-    }
-
-    if (str1 != '' && str2 != '')
-    {
-        if (!coo(str1, str2))
-        {
-            alert('查询日期跨度不能大于3个月(90天)!');
-            return false;
-        }
-    }
-
-
-
-    return true;
-}
-
-function comp2()
-{
-    var now = '${now}';
-
-    var str1 = $O('changeTime').value;
-
-    var str2 = $O('changeTime1').value;
-
-    if (str1 != '' && str2 == '')
-    {
-        if (!coo(str1, now))
-        {
-            alert('查询日期跨度不能大于3个月(90天)!');
-            return false;
-        }
-
-        $O('changeTime1').value = now;
-    }
-
-    if (str1 == '' && str2 != '')
-    {
-        if (!coo(now, str2))
-        {
-            alert('查询日期跨度不能大于3个月(90天)!');
-            return false;
-        }
-
-        $O('changeTime').value = now;
-    }
-
-    if (str1 != '' && str2 != '')
-    {
-        if (!coo(str1, str2))
-        {
-            alert('查询日期跨度不能大于3个月(90天)!');
-            return false;
-        }
-    }
-
-
-
-    return true;
-}
-
-function comp3()
-{
-    var now = '${now}';
-
-    var str1 = $O('redateB').value;
-
-    var str2 = $O('redateE').value;
-
-    if (str1 != '' && str2 == '')
-    {
-        if (!coo(str1, now))
-        {
-            alert('查询日期跨度不能大于3个月(90天)!');
-            return false;
-        }
-
-        $O('redateE').value = now;
-    }
-
-    if (str1 == '' && str2 != '')
-    {
-        if (!coo(now, str2))
-        {
-            alert('查询日期跨度不能大于3个月(90天)!');
-            return false;
-        }
-
-        $O('redateB').value = now;
-    }
-
-    if (str1 != '' && str2 != '')
-    {
-        if (!coo(str1, str2))
-        {
-            alert('查询日期跨度不能大于3个月(90天)!');
-            return false;
-        }
-    }
-
-
-
-    return true;
-}
-
-function coo(str1, str2)
-{
-    var s1 = str1.split('-');
-    var s2 = str2.split('-');
-
-    var year1 = parseInt(s1[0], 10);
-
-    var year2 = parseInt(s2[0], 10);
-
-    var month1 = parseInt(s1[1], 10);
-
-    var month2 = parseInt(s2[1], 10);
-
-    var day1 = parseInt(s1[2], 10);
-
-    var day2 = parseInt(s2[2], 10);
-
-    return Math.abs((year2 - year1) * 365 + (month2 - month1) * 30 + (day2 - day1)) <= 90;
-}
 
 function query()
 {
@@ -305,24 +128,6 @@ function load()
     $ESC('dlg1');
 }
 
-function payOut()
-{
-    if (getRadio('fullId').statuss == 1 && getRadio('fullId').pay == 1)
-    {
-        if (window.confirm("确定此销售单已经收到货款?"))
-        {
-            getObj('method').value = 'payOut';
-
-            getObj('outId').value = getRadioValue("fullId");
-
-            adminForm.submit();
-        }
-    }
-    else
-    {
-        alert('不能操作');
-    }
-}
 
 function isEnd()
 {
@@ -626,35 +431,6 @@ function reject()
     }
 }
 
-function updateEmergency()
-{
-    //2015/3/28  紧急订单标识将关联的CK单也置为紧急，不管在什么状态
-    if (window.confirm("确定此销售单设置为紧急?"))
-    {
-        getObj('method').value = 'updateEmergency';
-
-        getObj('outId').value = getRadioValue("fullId");
-
-        adminForm.submit();
-    }
-//    if (getRadio('fullId').statuss == 1 || getRadio('fullId').statuss == 7)
-//    {
-//        if (window.confirm("确定此销售单设置为紧急?"))
-//        {
-//            getObj('method').value = 'updateEmergency';
-//
-//            getObj('outId').value = getRadioValue("fullId");
-//
-//            adminForm.submit();
-//        }
-//    }
-//    else
-//    {
-//        alert('只有待商务审批与待库管审批状态的订单才能操作');
-//    }
-
-}
-
 function outBack()
 {
 
@@ -854,13 +630,6 @@ function checkCurrentUser()
     //}
 
     return true;
-}
-
-function printDist()
-{
-    var fullid = getRadio('fullId').value;
-
-    $ajax('../sail/out.do?method=queryDistributionByOut&outId=' + fullid, callBackFunPrint);
 }
 
 function callBackFunPrint(data)
@@ -1349,11 +1118,9 @@ function clears()
                     <input type="button" class="button_class"
                            value="&nbsp;&nbsp;空开空退&nbsp;&nbsp;" onClick="outRepaire()"/>&nbsp;&nbsp;
                 </c:if>
-                <c:if test="${my:auth(user, '1417') || queryType == '10'}">
-                    <input
-                            type="button" class="button_class"
-                            value="&nbsp;导出查询结果&nbsp;" onclick="exports()" />&nbsp;&nbsp;
-                </c:if>
+                <input
+                        type="button" class="button_class"
+                        value="&nbsp;导出查询结果&nbsp;" onclick="exports()" />&nbsp;&nbsp;
 
             </div>
         </td>

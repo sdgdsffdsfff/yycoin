@@ -10,19 +10,19 @@ package com.china.center.oa.tcp.dao.impl;
 
 
 import com.china.center.jdbc.inter.impl.BaseDAO;
-import com.china.center.oa.tcp.bean.TcpIbBean;
-import com.china.center.oa.tcp.dao.TcpIbDAO;
-import com.china.center.oa.tcp.vo.TcpIbVO;
+import com.china.center.oa.tcp.bean.TcpIbReportBean;
+import com.china.center.oa.tcp.dao.TcpIbReportDAO;
+import com.china.center.oa.tcp.vo.TcpIbReportVO;
 
 
 /**
- * TcpIbDAOImpl
+ * TcpIbReportDAOImpl
  * 
  * @author ZHUZHU
  * @version 2015-04-13
- * @see com.china.center.oa.tcp.dao.impl.TcpIbDAOImpl
+ * @see com.china.center.oa.tcp.dao.impl.TcpIbReportDAOImpl
  * @since 3.0
  */
-public class TcpIbDAOImpl extends BaseDAO<TcpIbBean, TcpIbVO> implements TcpIbDAO
+public class TcpIbReportDAOImpl extends BaseDAO<TcpIbReportBean, TcpIbReportVO> implements TcpIbReportDAO
 {
 }

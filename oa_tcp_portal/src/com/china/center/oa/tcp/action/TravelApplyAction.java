@@ -124,6 +124,10 @@ public class TravelApplyAction extends DispatchAction
 
     private TcpIbDAO tcpIbDAO = null;
 
+    private TcpIbReportDAO tcpIbReportDAO = null;
+
+    private TcpIbReportItemDAO tcpIbReportItemDAO = null;
+
     private TcpFlowManager tcpFlowManager = null;
 
     private TravelApplyDAO travelApplyDAO = null;
@@ -2753,8 +2757,6 @@ public class TravelApplyAction extends DispatchAction
         List<TcpIbBean> importItemList = new ArrayList<TcpIbBean>();
 
         StringBuilder builder = new StringBuilder();
-
-        _logger.info("1111111111111111111111111111111111");
         try
         {
             rds.parser();
@@ -2767,17 +2769,12 @@ public class TravelApplyAction extends DispatchAction
 
             return mapping.findForward("importShare");
         }
-        _logger.info("222222222222222222");
         if ( !rds.haveStream())
         {
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
 
             return mapping.findForward("importShare");
         }
-        _logger.info("33333333333333333333333333");
-//        String type = rds.getParameter("type");
-//
-//        request.setAttribute("type", type);
 
         ReaderFile reader = ReadeFileFactory.getXLSReader();
         int type = 0;
@@ -2921,31 +2918,20 @@ public class TravelApplyAction extends DispatchAction
                         item.setAmount(Integer.valueOf(amount));
                     }
 
-                    //中收金额
+                    //中收/激励金额
                     if ( !StringTools.isNullOrNone(obj[5]))
                     {
-                        String ibMoney = obj[5];
+                        String money = obj[5];
                         //TODO
-                        item.setIbMoney(Long.valueOf(ibMoney));
+                        if (type == TcpConstanst.IB_TYPE){
+                            item.setIbMoney(Long.valueOf(money));
+                        } else if (type == TcpConstanst.MOTIVATION_TYPE){
+                            item.setMotivationMoney(Long.valueOf(money));
+                        }
                     } else{
                         builder
                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("中收金额必填")
-                                .append("</font><br>");
-
-                        importError = true;
-                    }
-
-                    //激励金额
-                    if ( !StringTools.isNullOrNone(obj[6]))
-                    {
-                        String motivationMoney = obj[6];
-                        //TODO
-                        item.setMotivationMoney(Long.valueOf(motivationMoney));
-                    } else{
-                        builder
-                                .append("<font color=red>第[" + currentNumber + "]行错误:")
-                                .append("激励金额必填")
+                                .append("中收或激励金额必填")
                                 .append("</font><br>");
 
                         importError = true;
@@ -3029,8 +3015,14 @@ public class TravelApplyAction extends DispatchAction
                                   HttpServletResponse response)
             throws ServletException
     {
-        RequestDataStream rds = new RequestDataStream(request);
-
+        try{
+            ConditionParse con = new ConditionParse();
+            List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
+            request.setAttribute("ibReportList", ibReportList);
+        }catch (Exception e){
+            e.printStackTrace();
+            _logger.error("Exception:",e);
+        }
 
         return mapping.findForward("ibReport");
     }
@@ -3457,5 +3449,21 @@ public class TravelApplyAction extends DispatchAction
 
     public void setTcpIbDAO(TcpIbDAO tcpIbDAO) {
         this.tcpIbDAO = tcpIbDAO;
+    }
+
+    public TcpIbReportDAO getTcpIbReportDAO() {
+        return tcpIbReportDAO;
+    }
+
+    public void setTcpIbReportDAO(TcpIbReportDAO tcpIbReportDAO) {
+        this.tcpIbReportDAO = tcpIbReportDAO;
+    }
+
+    public TcpIbReportItemDAO getTcpIbReportItemDAO() {
+        return tcpIbReportItemDAO;
+    }
+
+    public void setTcpIbReportItemDAO(TcpIbReportItemDAO tcpIbReportItemDAO) {
+        this.tcpIbReportItemDAO = tcpIbReportItemDAO;
     }
 }
