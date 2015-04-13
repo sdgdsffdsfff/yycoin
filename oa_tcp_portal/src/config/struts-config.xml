@@ -53,6 +53,7 @@
 			
 			<forward name="importShare" path="/tcp/importShare.jsp" />
             <forward name="importIb" path="/tcp/importIb.jsp" />
+            <forward name="ibReport" path="/tcp/ibReport.jsp" />
 		</action>
 		
 		<action path="/tcp/expense" parameter="method"

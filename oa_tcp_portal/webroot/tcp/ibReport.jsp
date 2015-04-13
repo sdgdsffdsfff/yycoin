@@ -1370,22 +1370,6 @@ function clears()
 </table>
 
 </form>
-<div id="dlg" title="结算中心驳回" style="width:320px;height:300px;">
-    <div style="padding:20px;height:200px;display:none" id="dia_inner" title="" >
-        意见：<input type="text" name="passReason" id="passReason" value=""><br>
-        <input type="radio" name="reasonRadio" value="批价错误" onclick="rchange()">批价错误<br>
-        <input type="radio" name="reasonRadio" value="帐期错误" onclick="rchange()">帐期错误<br>
-        <input type="radio" name="reasonRadio" value="品名错误" onclick="rchange()">品名错误<br>
-        <input type="radio" name="reasonRadio" value="黑名单人员" onclick="rchange()">黑名单人员<br>
-        <input type="radio" name="reasonRadio" value="款到发货客户" onclick="rchange()">款到发货客户<br>
-        <input type="radio" name="reasonRadio" value="金质产品需要先款后货" onclick="rchange()">金质产品需要先款后货<br>
-    </div>
-</div>
 
-<div id="dlg1" title="配送单" style="width:320px;height:300px;">
-    <div style="padding:20px;height:200px;display:none" id="dia_inner1" title="" >
-
-    </div>
-</div>
 </body>
 </html>

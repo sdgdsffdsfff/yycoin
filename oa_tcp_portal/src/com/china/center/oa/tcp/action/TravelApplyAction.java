@@ -3014,6 +3014,26 @@ public class TravelApplyAction extends DispatchAction
 
         return mapping.findForward("addTravelApply7");
     }
+
+    /**
+     * 2015/4/13 中收激励统计
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward ibReport(ActionMapping mapping, ActionForm form,
+                                  HttpServletRequest request,
+                                  HttpServletResponse response)
+            throws ServletException
+    {
+        RequestDataStream rds = new RequestDataStream(request);
+
+
+        return mapping.findForward("ibReport");
+    }
     
     public BudgetDAO getBudgetDAO()
 	{
