@@ -3026,6 +3026,34 @@ public class TravelApplyAction extends DispatchAction
 
         return mapping.findForward("ibReport");
     }
+
+    /**
+     * 2015/4/13 中收激励统计明细
+     * @param mapping
+     * @param form
+     * @param request
+     * @param response
+     * @return
+     * @throws ServletException
+     */
+    public ActionForward ibReportDetail(ActionMapping mapping, ActionForm form,
+                                  HttpServletRequest request,
+                                  HttpServletResponse response)
+            throws ServletException
+    {
+        try{
+            ConditionParse con = new ConditionParse();
+            //TODO
+            String ibReportId = request.getParameter("ibReportId");
+            List<TcpIbReportItemBean> ibReportItems = this.getTcpIbReportItemDAO().queryEntityBeansByFK(ibReportId);
+            request.setAttribute("ibReportItems", ibReportItems);
+        }catch (Exception e){
+            e.printStackTrace();
+            _logger.error("Exception:",e);
+        }
+
+        return mapping.findForward("ibReportDetail");
+    }
     
     public BudgetDAO getBudgetDAO()
 	{

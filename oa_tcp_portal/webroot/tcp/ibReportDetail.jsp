@@ -3,7 +3,7 @@
 <%@include file="../../../oa_public_portal/webroot/common/common.jsp"%>
 <html>
 <head>
-<p:link title="中收激励统计"/>
+<p:link title="中收激励统计明细"/>
 <link href="../js/plugin/dialog/css/dialog.css" type="text/css" rel="stylesheet"/>
 <script src="../js/title_div.js"></script>
 <script src="../../../oa_public_portal/webroot/js/public.js"></script>
@@ -27,7 +27,7 @@
 
 <p:navigation
         height="22">
-    <td width="550" class="navigation">中收激励统计</td>
+    <td width="550" class="navigation">库单管理 &gt;&gt; 查询销售单${queryType}</td>
     <td width="85"></td>
 </p:navigation> <br>
 
@@ -47,20 +47,156 @@
             <tr>
                 <td>
                     <table width="100%" border="0" cellspacing='1'>
-
                         <tr class="content1">
-                            <td width="15%" align="center">客户：</td>
-                            <td align="center">
-                                <input type="text" name="customerName" maxlength="14" readonly="readonly">
+                            <td width="15%" align="center">开始时间</td>
+                            <td align="center" width="35%"><p:plugin name="outTime" size="20" value="${ppmap.outTime}"/></td>
+                            <td width="15%" align="center">结束时间</td>
+                            <td align="center"><p:plugin name="outTime1" size="20" value="${ppmap.outTime1}"/>
                             </td>
                         </tr>
 
+                        <tr class="content2">
+                            <td width="15%" align="center">发货时间从</td>
+                            <td align="center" width="35%"><p:plugin name="changeTime" type="0" size="20" value="${ppmap.changeTime}"/></td>
+                            <td width="15%" align="center">到</td>
+                            <td align="center"><p:plugin name="changeTime1" type="0" size="20" value="${ppmap.changeTime1}"/>
+                            </td>
+                        </tr>
+
+                        <tr class="content1">
+                            <td width="15%" align="center">回款时间从</td>
+                            <td align="center" width="35%"><p:plugin name="redateB" type="0" size="20" value="${ppmap.redateB}"/></td>
+                            <td width="15%" align="center">到</td>
+                            <td align="center"><p:plugin name="redateE" type="0" size="20" value="${ppmap.redateE}"/>
+                            </td>
+                        </tr>
 
                         <tr class="content2">
-                            <td colspan="4" align="right">
-                                <input type="button" id="query_b"
+                            <td width="15%" align="center">销售单状态</td>
+                            <td align="center">
+                                <select name="status" class="select_class" values="${ppmap.status}">
+                                    <option value="">--</option>
+                                    <p:option type="outStatus"/>
+                                    <option value="99">发货态</option>
+                                </select>
+                            </td>
+
+                            <c:if test="${queryType == '8'}">
+                                <td width="15%" align="center">客户：</td>
+                                <td align="center">
+                                    <input type="text" name="customerName" maxlength="14" value="${ppmap.customerName}"
+                                           onclick="selectCustomer()" style="cursor: pointer;"
+                                           readonly="readonly">
+                                </td>
+                            </c:if>
+
+                            <c:if test="${queryType != '8'}">
+                                <td width="15%" align="center">客户：</td>
+                                <td align="center"><input type="text" name="customerName" maxlength="14" value="${ppmap.customerName}"></td>
+                            </c:if>
+
+                        </tr>
+
+                        <tr class="content1">
+                            <td width="15%" align="center">销售类型</td>
+                            <td align="center">
+                                <select name="outType"
+                                        class="select_class" values=${ppmap.outType}>
+                                    <option value="">--</option>
+                                    <p:option type="outType_out"></p:option>
+                                </select>
+
+                            </td>
+                            <td width="15%" align="center">销售单号</td>
+                            <td align="center"><input type="text" name="id" value="${ppmap.id}"></td>
+                        </tr>
+
+                        <tr class="content2">
+                            <td width="15%" align="center">是否回款</td>
+                            <td align="center" colspan="1"><select name="pay" values="${ppmap.pay}"
+                                                                   class="select_class">
+                                <option value="">--</option>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                                <option value="2">超期</option>
+                            </select></td>
+
+                            <td width="15%" align="center">仓库</td>
+                            <td align="center">
+                                <select name="location"
+                                        class="select_class" values=${ppmap.location}>
+                                    <option value="">--</option>
+                                    <c:forEach items="${depotList}" var="item">
+                                        <option value="${item.id}">${item.name}</option>
+                                    </c:forEach>
+                                </select>
+                            </td>
+                        </tr>
+
+                        <tr class="content1">
+                            <td width="15%" align="center">纳税实体</td>
+                            <td align="center">
+                                <select name="duty"
+                                        class="select_class" values=${ppmap.duty}>
+                                    <option value="">--</option>
+                                    <c:forEach items='${dutyList}' var="item">
+                                        <option value="${item.id}">${item.name}</option>
+                                    </c:forEach>
+                                </select>
+                            </td>
+                            <td width="15%" align="center">销售人员</td>
+                            <td align="center"><input type="text" name="stafferName" value="${ppmap.stafferName}"></td>
+                        </tr>
+
+                        <tr class="content2">
+                            <td width="15%" align="center">开票状态</td>
+                            <td align="center" colspan="1"><select name="invoiceStatus" values="${ppmap.invoiceStatus}"
+                                                                   class="select_class">
+                                <option value="">--</option>
+                                <option value="0">可开票</option>
+                                <option value="1">全部开票</option>
+                            </select></td>
+
+                            <td width="15%" align="center">关注状态</td>
+                            <td align="center" colspan="1"><select name="vtype" values="${ppmap.vtype}"
+                                                                   class="select_class">
+                                <p:option type="outVtype" empty="true"></p:option>
+                            </select>
+                            </td>
+                        </tr>
+
+                        <tr class="content2">
+                            <td width="15%" align="center">经办人</td>
+                            <td align="center"><input type="text" name="operatorName" value="${ppmap.operatorName}"></td>
+
+                            <td width="15%" align="center">事业部</td>
+                            <td align="center">
+                                <input type="text" name="industryName" value="${ppmap.industryName}" readonly="readonly" onClick="selectPrincipalship()">
+                                <input
+                                        type="button" value="清空" name="qout" id="qout"
+                                        class="button_class" onclick="clears()">&nbsp;&nbsp;
+                            </td>
+                        </tr>
+
+                        <tr class="content2">
+                            <td width="15%" align="center">银行导入</td>
+                            <td align="center" colspan="1"><select name="isBank" values="${ppmap.isBank}"
+                                                                   class="select_class">
+                                <option value="">--</option>
+                                <option value="0">是</option>
+                                <option value="1">否</option>
+                            </select></td>
+
+                            <td width="15%" align="center">产品名称</td>
+                            <td align="center"><input type="text" name="product_name"></td>
+                        </tr>
+
+                        <tr class="content2">
+
+                            <td colspan="4" align="right"><input type="button" id="query_b"
                                                                  onclick="query()" class="button_class"
                                                                  value="&nbsp;&nbsp;查 询&nbsp;&nbsp;">&nbsp;&nbsp;
+                                <input type="button" onclick="res()" class="button_class" value="&nbsp;&nbsp;重 置&nbsp;&nbsp;">
                             </td>
                         </tr>
                     </table>
