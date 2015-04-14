@@ -3042,9 +3042,10 @@ public class TravelApplyAction extends DispatchAction
             throws ServletException
     {
         try{
-            ConditionParse con = new ConditionParse();
+//            ConditionParse con = new ConditionParse();
             //TODO
             String ibReportId = request.getParameter("ibReportId");
+            _logger.info("**********ibReportDetail with ibReportId:"+ibReportId);
             List<TcpIbReportItemBean> ibReportItems = this.getTcpIbReportItemDAO().queryEntityBeansByFK(ibReportId);
             request.setAttribute("ibReportItems", ibReportItems);
         }catch (Exception e){

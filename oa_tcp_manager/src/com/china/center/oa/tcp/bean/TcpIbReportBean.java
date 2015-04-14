@@ -37,12 +37,12 @@ public class TcpIbReportBean implements Serializable
     /**
      * 该客户的中收金额总数
      */
-    private long ibMoneyTotal = 0;
+    private double ibMoneyTotal = 0.0d;
 
     /**
      * 该客户的激励金额总数
      */
-    private long motivationMoneyTotal = 0;
+    private double motivationMoneyTotal = 0.0d;
 
 
 
@@ -78,19 +78,19 @@ public class TcpIbReportBean implements Serializable
         this.customerId = customerId;
     }
 
-    public long getIbMoneyTotal() {
+    public double getIbMoneyTotal() {
         return ibMoneyTotal;
     }
 
-    public void setIbMoneyTotal(long ibMoneyTotal) {
+    public void setIbMoneyTotal(double ibMoneyTotal) {
         this.ibMoneyTotal = ibMoneyTotal;
     }
 
-    public long getMotivationMoneyTotal() {
+    public double getMotivationMoneyTotal() {
         return motivationMoneyTotal;
     }
 
-    public void setMotivationMoneyTotal(long motivationMoneyTotal) {
+    public void setMotivationMoneyTotal(double motivationMoneyTotal) {
         this.motivationMoneyTotal = motivationMoneyTotal;
     }
 

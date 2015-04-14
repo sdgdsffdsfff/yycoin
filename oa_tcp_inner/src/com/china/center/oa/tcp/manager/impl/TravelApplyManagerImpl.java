@@ -15,6 +15,7 @@ import java.util.*;
 
 import com.china.center.oa.sail.bean.BaseBean;
 import com.china.center.oa.sail.bean.OutBean;
+import com.china.center.oa.sail.constanst.OutConstant;
 import com.china.center.oa.sail.dao.BaseDAO;
 import com.china.center.oa.sail.dao.OutDAO;
 import com.china.center.oa.sail.vo.OutVO;
@@ -108,6 +109,10 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     private TcpShareDAO tcpShareDAO = null;
 
     private TcpIbDAO tcpIbDAO = null;
+
+    private TcpIbReportDAO tcpIbReportDAO = null;
+
+    private TcpIbReportItemDAO tcpIbReportItemDAO = null;
 
     private TravelApplyDAO travelApplyDAO = null;
 
@@ -2836,13 +2841,17 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //所有中收激励统计均为“已出库”、“已发货”状态的订单，退库订单的状态均为“待核对”状态
         //销售退库订单的对应中收、激励金额为负数也列入统计及明细
         _logger.info("*****ibReportJob running******");
+        System.out.println("*****ibReportJob running******");
+        //根据customerId分组
+        Map<String, List<OutVO>>  customerToOutMap = new HashMap<String,List<OutVO>>();
+
+        //TODO 所有中收激励统计均为“已出库”、“已发货”状态的订单
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
-        con.addCondition("ibFlag = 0 or motivationFlag = 0");
+        con.addCondition("and (ibFlag = 0 or motivationFlag = 0) and (OutBean.status in (3,4))");
         List<OutVO> outList = this.outDAO.queryEntityVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(outList)){
-            //先根据customerId分组
-            Map<String, List<OutVO>>  customerToOutMap = new HashMap<String,List<OutVO>>();
+            _logger.info("ibReport outList1 size:"+outList.size());
              for (OutVO out: outList){
                  String customerId = out.getCustomerId();
                  if (customerToOutMap.containsKey(customerId)){
@@ -2855,31 +2864,114 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                  }
              }
 
-            for (String customerId : customerToOutMap.keySet()){
-                TcpIbReportBean ibReport = new TcpIbReportBean();
-                ibReport.setId(null);
-                ibReport.setCustomerId(customerId);
-                List<OutVO> outVOs = customerToOutMap.get(customerId);
-                if (!ListTools.isEmptyOrNull(outVOs)){
-                    ibReport.setCustomerName(outVOs.get(0).getCustomerName());
-                    for (OutVO out: outVOs){
-                        List<BaseBean> baseList = out.getBaseList();
-                        if (!ListTools.isEmptyOrNull(baseList)){
-                            long ibTotal = 0;
-                            long moTotal = 0;
-                            for (BaseBean base : baseList){
-                                ibTotal += base.getIbMoney();
-                                moTotal += base.getMotivationMoney();
+//            for (String customerId : customerToOutMap.keySet()){
+//                TcpIbReportBean ibReport = new TcpIbReportBean();
+//                ibReport.setId(null);
+//                ibReport.setCustomerId(customerId);
+//                List<OutVO> outVOs = customerToOutMap.get(customerId);
+//                if (!ListTools.isEmptyOrNull(outVOs)){
+//                    ibReport.setCustomerName(outVOs.get(0).getCustomerName());
+//                    for (OutVO out: outVOs){
+//                        List<BaseBean> baseList = out.getBaseList();
+//                        if (!ListTools.isEmptyOrNull(baseList)){
+//                            long ibTotal = 0;
+//                            long moTotal = 0;
+//                            for (BaseBean base : baseList){
+//                                if (out.getIbFlag() == 0){
+//                                    ibTotal += base.getIbMoney();
+//                                }
+//
+//                                if (out.getMotivationFlag() ==0){
+//                                    moTotal += base.getMotivationMoney();
+//                                }
+//                            }
+//                            ibReport.setIbMoneyTotal(ibTotal);
+//                            ibReport.setMotivationMoneyTotal(moTotal);
+//                        } else{
+//                            _logger.error("****no BaseBean list found:"+out.getId());
+//                        }
+//                    }
+//                }
+//
+//            }
+        }
+
+        //退库订单的状态均为“待核对”状态
+        ConditionParse con1 = new ConditionParse();
+        //领样和销售退库
+        //TODO add begin time
+        con1.addCondition("and OutBean.outType in (4,5)");
+        con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
+        List<OutVO> outList2 = this.outDAO.queryEntityVOsByCondition(con1);
+        if (!ListTools.isEmptyOrNull(outList2)){
+            _logger.info("ibReport outList2 size:"+outList2.size());
+            for (OutVO out: outList2){
+                String customerId = out.getCustomerId();
+                if (customerToOutMap.containsKey(customerId)){
+                    List<OutVO> outVOs = customerToOutMap.get(customerId);
+                    outVOs.add(out);
+                }else{
+                    List<OutVO> outVOList = new ArrayList<OutVO>();
+                    outVOList.add(out);
+                    customerToOutMap.put(customerId, outVOList);
+                }
+            }
+        }
+
+        List<TcpIbReportItemBean> itemList = new ArrayList<TcpIbReportItemBean>();
+        for (String customerId : customerToOutMap.keySet()){
+            TcpIbReportBean ibReport = new TcpIbReportBean();
+            ibReport.setId(commonDAO.getSquenceString20());
+            ibReport.setCustomerId(customerId);
+            List<OutVO> outVOs = customerToOutMap.get(customerId);
+            if (!ListTools.isEmptyOrNull(outVOs)){
+                ibReport.setCustomerName(outVOs.get(0).getCustomerName());
+                for (OutVO out: outVOs){
+                    List<BaseBean> baseList = out.getBaseList();
+                    if (!ListTools.isEmptyOrNull(baseList)){
+                        long ibTotal = 0;
+                        long moTotal = 0;
+                        for (BaseBean base : baseList){
+                            TcpIbReportItemBean item = new TcpIbReportItemBean();
+                            item.setCustomerName(out.getCustomerName());
+                            item.setFullId(out.getFullId());
+                            item.setProductName(base.getProductName());
+                            item.setAmount(base.getAmount());
+                            if (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
+                                    ||out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
+                                    ||out.getOutType() == OutConstant.OUTTYPE_IN_STOCK
+                                    ||out.getOutType() == OutConstant.OUTTYPE_IN_PRESENT) {
+                                //TODO
+
+                            } else{
+                                if (out.getIbFlag() == 0){
+                                    item.setType(TcpConstanst.IB_TYPE);
+                                    item.setIbMoney(base.getIbMoney());
+                                    ibTotal += base.getIbMoney();
+                                }
+
+                                if (out.getMotivationFlag() ==0){
+                                    item.setType(TcpConstanst.MOTIVATION_TYPE);
+                                    item.setMotivationMoney(base.getMotivationMoney());
+                                    moTotal += base.getMotivationMoney();
+                                }
                             }
-                            ibReport.setIbMoneyTotal(ibTotal);
-                            ibReport.setMotivationMoneyTotal(moTotal);
-                        } else{
-                            _logger.error("****no BaseBean list found:"+out.getId());
+
+                            itemList.add(item);
                         }
+                        ibReport.setIbMoneyTotal(ibTotal);
+                        ibReport.setMotivationMoneyTotal(moTotal);
+                    } else{
+                        _logger.error("****no BaseBean list found:"+out.getId());
                     }
                 }
-
             }
+            this.tcpIbReportDAO.saveEntityBean(ibReport);
+            for (TcpIbReportItemBean item : itemList){
+                item.setRefId(ibReport.getId());
+            }
+            this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
+            _logger.info("************finish ibReport job*************");
         }
     }
 
@@ -3253,5 +3345,21 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
     public void setBaseDAO(BaseDAO baseDAO) {
         this.baseDAO = baseDAO;
+    }
+
+    public TcpIbReportDAO getTcpIbReportDAO() {
+        return tcpIbReportDAO;
+    }
+
+    public void setTcpIbReportDAO(TcpIbReportDAO tcpIbReportDAO) {
+        this.tcpIbReportDAO = tcpIbReportDAO;
+    }
+
+    public TcpIbReportItemDAO getTcpIbReportItemDAO() {
+        return tcpIbReportItemDAO;
+    }
+
+    public void setTcpIbReportItemDAO(TcpIbReportItemDAO tcpIbReportItemDAO) {
+        this.tcpIbReportItemDAO = tcpIbReportItemDAO;
     }
 }

@@ -52,12 +52,12 @@ public class TcpIbBean implements Serializable
     /**
      * 中收金额
      */
-    private long ibMoney = 0;
+    private double ibMoney = 0.0d;
 
     /**
      * 激励金额
      */
-    private long motivationMoney = 0;
+    private double motivationMoney = 0.0d;
 
 
 
@@ -136,19 +136,19 @@ public class TcpIbBean implements Serializable
         this.amount = amount;
     }
 
-    public long getIbMoney() {
+    public double getIbMoney() {
         return ibMoney;
     }
 
-    public void setIbMoney(long ibMoney) {
+    public void setIbMoney(double ibMoney) {
         this.ibMoney = ibMoney;
     }
 
-    public long getMotivationMoney() {
+    public double getMotivationMoney() {
         return motivationMoney;
     }
 
-    public void setMotivationMoney(long motivationMoney) {
+    public void setMotivationMoney(double motivationMoney) {
         this.motivationMoney = motivationMoney;
     }
 
