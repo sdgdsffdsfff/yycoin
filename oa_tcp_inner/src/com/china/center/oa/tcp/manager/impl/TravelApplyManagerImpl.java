@@ -2902,6 +2902,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //TODO add begin time
         con1.addCondition("and OutBean.outType in (4,5)");
         con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
+        //TODO test only
+        con1.addCondition("outTime",">","2015-03-01");
         List<OutVO> outList2 = this.outDAO.queryEntityVOsByCondition(con1);
         if (!ListTools.isEmptyOrNull(outList2)){
             _logger.info("ibReport outList2 size:"+outList2.size());

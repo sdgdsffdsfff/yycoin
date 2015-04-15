@@ -139,6 +139,8 @@ function blackForbid()
 <input type=hidden name="taxList" value="" />
 <input type=hidden name="taxrateList" value="" />
 <input type=hidden name="inputRateList" value="" />
+<input type=hidden name="ibMoneyList" value="" />
+<input type=hidden name="motivationMoneyList" value="" />
 
 <input type=hidden name="customercreditlevel" value="" />
 <input type=hidden name="id" value="" />
