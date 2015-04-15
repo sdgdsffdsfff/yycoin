@@ -58,8 +58,8 @@ public abstract class StockHelper
             }
 
             buffer.append("<tr class='" + cls + "'>");
-
-            buffer.append("<td  align='center'>" + bean.getProductName() + "</td>");
+            System.out.println("******bean.getProductName****"+bean.getProductName());
+            buffer.append("<td  align='center'>" + bean.getProductName().trim() + "</td>");
             buffer.append("<td  align='center'>" + bean.getAmount() + "</td>");
             buffer.append("<td  align='center'>" + MathTools.formatNum(bean.getPrice()) + "</td>");
             buffer.append("<td  align='center'>" + MathTools.formatNum(bean.getPrePrice()) + "</td>");
