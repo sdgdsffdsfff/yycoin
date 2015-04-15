@@ -307,7 +307,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 增加(修改)
      * 
-     * @param locationBean
+     * @param outBean
      * @return String 销售单的ID
      * @throws Exception
      */
@@ -410,6 +410,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         final String [] taxList = request.getParameter("taxList").split("~");
         
         final String [] inputRateList = request.getParameter("inputRateList").split("~");
+
+        final String [] ibMoneyList = request.getParameter("ibMoneyList").split("~");
+
+        final String [] motivationMoneyList = request.getParameter("motivationMoneyList").split("~");
         
         _logger.info(fullId + "/nameList/" + request.getParameter("nameList"));
 
@@ -436,6 +440,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info(fullId + "/taxrateList/" + request.getParameter("taxrateList"));
         _logger.info(fullId + "/taxList/" + request.getParameter("taxList"));
         _logger.info(fullId + "/inputRateList/" + request.getParameter("inputRateList"));
+        _logger.info(fullId + "/ibMoneyList/" + request.getParameter("ibMoneyList"));
+        _logger.info(fullId + "/motivationMoneyList/" + request.getParameter("motivationMoneyList"));
 
         // 组织BaseBean
         double ttatol = 0.0d;
@@ -954,6 +960,10 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             base.setPprice(base.getInputPrice());
                             base.setIprice(base.getInputPrice());
                         }
+
+                        //TODO 2015/4/15 中收激励金额
+                        base.setIbMoney(MathTools.parseDouble(ibMoneyList[i]));
+                        base.setMotivationMoney(MathTools.parseDouble(motivationMoneyList[i]));
 
                         baseList.add(base);
 
@@ -2722,7 +2732,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     /**
      * 查询所有入库单Ignore status and not contain other in
-     * @param request
      * @param outId
      * @return
      */
@@ -3071,7 +3080,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      * 
      * @param outBean
      * @param baseList
-     * @param locationId
+     * @param deportId
      * @throws MYException
      */
     private void checkReject(final OutBean outBean, final List<BaseBean> baseList,
@@ -3994,7 +4003,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * CORE (销售单的终结)财务核对
      * 
-     * @param outBean
+     * @param fullId
      * @param user
      * @return
      * @throws Exception
@@ -4734,7 +4743,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 更新库单(但是不包括状态)
      * 
-     * @param fullId
+     * @param out
      * @return
      */
     public boolean updateOut(final OutBean out)
@@ -7066,8 +7075,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 检查是否可以转销售(入数据库但是没有提交)
      * 
-     * @param bean
-     * @param request
+     * @param outId
      * @return
      * @throws MYException
      */
@@ -8099,9 +8107,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 更新客户信用分及业务员信用额度 
      * 
-     * @param user
-     * @param outList
-     * @param staffer
+     * @param out
+     * @param id
      * @return
      * @throws MYException
      */
@@ -9199,7 +9206,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	 /**
      * 提交(包括领样退库和销售退库)
      * 
-     * @param outBean
+     * @param fullId
      * @param user
      * @return
      * @throws Exception

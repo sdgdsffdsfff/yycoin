@@ -241,14 +241,18 @@ function check(isAdd)
     var ibMoneyList = document.getElementsByName('ibMoney');
     var motivationMoneyList = document.getElementsByName('motivationMoney');
 
+    //console.log("ibMoneyList length:"+ibMoneyList.length);
     for (var i = 1; i < ibMoneyList.length; i++)
     {
         $O('ibMoneyList').value = $O('ibMoneyList').value + ibMoneyList[i].value + '~';
+        //console.log($O('ibMoneyList').value);
     }
 
+    //console.log("motivationMoneyList length:"+motivationMoneyList.length);
     for (var i = 1; i < motivationMoneyList.length; i++)
     {
         $O('motivationMoneyList').value = $O('motivationMoneyList').value + motivationMoneyList[i].value + '~';
+        //console.log($O('motivationMoneyList').value);
     }
 
     console.log("**********check now 222222222**************");
