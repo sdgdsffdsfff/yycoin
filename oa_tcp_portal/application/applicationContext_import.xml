@@ -74,6 +74,10 @@
 
     <osgi:reference id="tcpIbDAO" interface="com.china.center.oa.tcp.dao.TcpIbDAO" />
 
+    <osgi:reference id="tcpIbReportDAO" interface="com.china.center.oa.tcp.dao.TcpIbReportDAO" />
+
+    <osgi:reference id="tcpIbReportItemDAO" interface="com.china.center.oa.tcp.dao.TcpIbReportItemDAO" />
+
     <osgi:reference id="travelApplyDAO" interface="com.china.center.oa.tcp.dao.TravelApplyDAO" />
 
     <osgi:reference id="travelApplyItemDAO" interface="com.china.center.oa.tcp.dao.TravelApplyItemDAO" />

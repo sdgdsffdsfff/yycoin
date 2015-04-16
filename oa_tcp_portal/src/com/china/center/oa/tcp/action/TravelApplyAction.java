@@ -3010,7 +3010,7 @@ public class TravelApplyAction extends DispatchAction
      * @return
      * @throws ServletException
      */
-    public ActionForward ibReport(ActionMapping mapping, ActionForm form,
+    public ActionForward queryIbReport(ActionMapping mapping, ActionForm form,
                                   HttpServletRequest request,
                                   HttpServletResponse response)
             throws ServletException
@@ -3018,6 +3018,7 @@ public class TravelApplyAction extends DispatchAction
         try{
             ConditionParse con = new ConditionParse();
             List<TcpIbReportBean> ibReportList = this.tcpIbReportDAO.queryEntityBeansByCondition(con);
+            _logger.info("ibReportList size********"+ibReportList.size());
             request.setAttribute("ibReportList", ibReportList);
         }catch (Exception e){
             e.printStackTrace();

@@ -11,7 +11,7 @@
 </script>
 
 </head>
-<body class="body_class"  onload="load()">
+<body class="body_class">
 <form action="../tcp/apply.do" name="adminForm">
 <input type="hidden" value="queryIbReport" name="method">
 
@@ -42,8 +42,7 @@
 
                         <tr class="content2">
                             <td colspan="4" align="right">
-                                <input type="button" id="query_b"
-                                                                 onclick="query()" class="button_class"
+                                <input type="submit" id="query_b" class="button_class"
                                                                  value="&nbsp;&nbsp;查 询&nbsp;&nbsp;">&nbsp;&nbsp;
                             </td>
                         </tr>
@@ -70,7 +69,6 @@
                 <td>
                     <table width="100%" border="0" cellspacing='1' id="mainTable">
                         <tr align="center" class="content0">
-                            <td align="center" width="5%" align="center">选择</td>
                             <td align="center" onclick="tableSort(this)" class="td_class">客户名</td>
                             <td align="center" onclick="tableSort(this)" class="td_class">中收金额</td>
                             <td align="center" onclick="tableSort(this)" class="td_class">激励金额</td>
@@ -79,7 +77,7 @@
                         <c:forEach items="${ibReportList}" var="item" varStatus="vs">
                             <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
                                 <td align="center">${item.customerName}</td>
-                                <td align="center"><a href="../tcp/apply.do?method=ibReportDetail&ibReportId=${vs.id}">${item.ibMoneyTotal}</a></td>
+                                <td align="center"><a href="../tcp/apply.do?method=ibReportDetail&ibReportId=${item.id}">${item.ibMoneyTotal}</a></td>
                                 <td align="center">${item.motivationMoneyTotal}</td>
                             </tr>
                         </c:forEach>

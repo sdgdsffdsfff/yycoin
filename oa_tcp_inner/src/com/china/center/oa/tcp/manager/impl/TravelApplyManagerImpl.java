@@ -2857,10 +2857,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                  if (customerToOutMap.containsKey(customerId)){
                      List<OutVO> outVOs = customerToOutMap.get(customerId);
                      outVOs.add(out);
+                     _logger.info(out.getFullId()+" add to customerToOutMap:"+customerId);
                  }else{
                      List<OutVO> outVOList = new ArrayList<OutVO>();
                      outVOList.add(out);
                      customerToOutMap.put(customerId, outVOList);
+                     _logger.info(out.getFullId()+" first put to customerToOutMap:"+customerId);
                  }
              }
 
@@ -2929,12 +2931,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             if (!ListTools.isEmptyOrNull(outVOs)){
                 ibReport.setCustomerName(outVOs.get(0).getCustomerName());
                 for (OutVO out: outVOs){
-                    List<BaseBean> baseList = out.getBaseList();
+                    List<BaseBean> baseList = this.baseDAO.queryEntityBeansByFK(out.getFullId());
                     if (!ListTools.isEmptyOrNull(baseList)){
-                        long ibTotal = 0;
-                        long moTotal = 0;
+                        double ibTotal = 0.0d;
+                        double moTotal = 0.0d;
                         for (BaseBean base : baseList){
                             TcpIbReportItemBean item = new TcpIbReportItemBean();
+                            item.setId(commonDAO.getSquenceString20());
                             item.setCustomerName(out.getCustomerName());
                             item.setFullId(out.getFullId());
                             item.setProductName(base.getProductName());
@@ -2968,6 +2971,17 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                     }
                 }
             }
+            //TODO first remove by customerId
+            ConditionParse con2 = new ConditionParse();
+            con2.addWhereStr();
+            con2.addCondition("customerId","=",ibReport.getCustomerId());
+            this.tcpIbReportDAO.deleteEntityBeansByCondition(con2);
+
+            ConditionParse con3 = new ConditionParse();
+            con3.addWhereStr();
+            con3.addCondition("customerName","=",ibReport.getCustomerName());
+            this.tcpIbReportItemDAO.deleteEntityBeansByCondition(con3);
+
             this.tcpIbReportDAO.saveEntityBean(ibReport);
             for (TcpIbReportItemBean item : itemList){
                 item.setRefId(ibReport.getId());
