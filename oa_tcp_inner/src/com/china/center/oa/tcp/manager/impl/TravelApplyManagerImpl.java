@@ -2848,7 +2848,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //TODO 所有中收激励统计均为“已出库”、“已发货”状态的订单
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
-        con.addCondition("and (ibFlag = 0 or motivationFlag = 0) and (OutBean.status in (3,4))");
+//        con.addCondition("and (ibFlag = 0 or motivationFlag = 0) and (OutBean.status in (3,4))");
+        con.addCondition("and OutBean.status in (3,4)");
+        con.addCondition("outTime",">","2015-04-01");
         List<OutVO> outList = this.outDAO.queryEntityVOsByCondition(con);
         if (!ListTools.isEmptyOrNull(outList)){
             _logger.info("ibReport outList1 size:"+outList.size());
@@ -2865,37 +2867,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                      _logger.info(out.getFullId()+" first put to customerToOutMap:"+customerId);
                  }
              }
-
-//            for (String customerId : customerToOutMap.keySet()){
-//                TcpIbReportBean ibReport = new TcpIbReportBean();
-//                ibReport.setId(null);
-//                ibReport.setCustomerId(customerId);
-//                List<OutVO> outVOs = customerToOutMap.get(customerId);
-//                if (!ListTools.isEmptyOrNull(outVOs)){
-//                    ibReport.setCustomerName(outVOs.get(0).getCustomerName());
-//                    for (OutVO out: outVOs){
-//                        List<BaseBean> baseList = out.getBaseList();
-//                        if (!ListTools.isEmptyOrNull(baseList)){
-//                            long ibTotal = 0;
-//                            long moTotal = 0;
-//                            for (BaseBean base : baseList){
-//                                if (out.getIbFlag() == 0){
-//                                    ibTotal += base.getIbMoney();
-//                                }
-//
-//                                if (out.getMotivationFlag() ==0){
-//                                    moTotal += base.getMotivationMoney();
-//                                }
-//                            }
-//                            ibReport.setIbMoneyTotal(ibTotal);
-//                            ibReport.setMotivationMoneyTotal(moTotal);
-//                        } else{
-//                            _logger.error("****no BaseBean list found:"+out.getId());
-//                        }
-//                    }
-//                }
-//
-//            }
         }
 
         //退库订单的状态均为“待核对”状态
@@ -2905,7 +2876,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         con1.addCondition("and OutBean.outType in (4,5)");
         con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
         //TODO test only
-        con1.addCondition("outTime",">","2015-03-01");
+        con1.addCondition("outTime",">","2015-04-01");
         List<OutVO> outList2 = this.outDAO.queryEntityVOsByCondition(con1);
         if (!ListTools.isEmptyOrNull(outList2)){
             _logger.info("ibReport outList2 size:"+outList2.size());
@@ -2937,7 +2908,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                         double moTotal = 0.0d;
                         for (BaseBean base : baseList){
                             TcpIbReportItemBean item = new TcpIbReportItemBean();
-                            item.setId(commonDAO.getSquenceString20());
                             item.setCustomerName(out.getCustomerName());
                             item.setFullId(out.getFullId());
                             item.setProductName(base.getProductName());
@@ -2947,7 +2917,17 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     ||out.getOutType() == OutConstant.OUTTYPE_IN_STOCK
                                     ||out.getOutType() == OutConstant.OUTTYPE_IN_PRESENT) {
                                 //TODO
+                                if (out.getIbFlag() == 0){
+                                    item.setType(TcpConstanst.IB_TYPE);
+                                    item.setIbMoney(base.getIbMoney());
+                                    ibTotal -= base.getIbMoney();
+                                }
 
+                                if (out.getMotivationFlag() ==0){
+                                    item.setType(TcpConstanst.MOTIVATION_TYPE);
+                                    item.setMotivationMoney(base.getMotivationMoney());
+                                    moTotal -= base.getMotivationMoney();
+                                }
                             } else{
                                 if (out.getIbFlag() == 0){
                                     item.setType(TcpConstanst.IB_TYPE);
@@ -2961,7 +2941,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     moTotal += base.getMotivationMoney();
                                 }
                             }
-
+                            _logger.info("****create TcpIbReportItemBean**********"+item.getId());
                             itemList.add(item);
                         }
                         ibReport.setIbMoneyTotal(ibTotal);
@@ -2984,11 +2964,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
             this.tcpIbReportDAO.saveEntityBean(ibReport);
             for (TcpIbReportItemBean item : itemList){
+                item.setId(commonDAO.getSquenceString20());
                 item.setRefId(ibReport.getId());
             }
             this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
-            _logger.info("************finish ibReport job*************");
+            _logger.info("****save ibReport**********"+ibReport.getId());
         }
+        _logger.info("************finish ibReport job*************");
     }
 
     /**

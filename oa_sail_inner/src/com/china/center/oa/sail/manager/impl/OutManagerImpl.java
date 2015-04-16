@@ -2701,7 +2701,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 查询REF的入库单(已经通过的)
      * 
-     * @param request
      * @param outId
      * @return
      */
@@ -2898,7 +2897,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 驳回(只有销售单和入库单)
      * 
-     * @param outBean
+     * @param fullId
      * @param user
      * @return
      * @throws Exception
@@ -3107,7 +3106,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * CORE 审核通过(这里只有销售单/入库单才有此操作)分公司经理审核/结算中心/物流审批/库管发货
      * 
-     * @param outBean
+     * @param fullId
      * @param user
      * @param depotpartId
      *            废弃
@@ -3387,7 +3386,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      * @param user
      * @param outBean
      * @param baseList
-     * @param logList
+     * @param type
      * @throws MYException
      */
     private void processBuyAndSailPass(final User user, final OutBean outBean,
@@ -9389,7 +9388,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * CORE 审核通过(这里只有销售单/入库单才有此操作)分公司经理审核/结算中心/物流审批/库管发货
      * 
-     * @param outBean
+     * @param fullId
      * @param user
      * @param depotpartId
      *            废弃

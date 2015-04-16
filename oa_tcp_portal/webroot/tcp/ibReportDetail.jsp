@@ -83,7 +83,9 @@
         </tr>
 
         <tr height="10">
-            <td height="10" colspan='2'></td>
+            <td height="10" colspan='2'>
+                <input type="button" class="button_class" value="返回" onclick="javascript:history.go(-1)" >
+            </td>
         </tr>
 
         <p:message2/>

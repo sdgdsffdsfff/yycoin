@@ -7,6 +7,11 @@
     <script language="JavaScript" src="../js/common.js"></script>
     <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="javascript">
+    function exports()
+    {
+        if (window.confirm("确定导出当前查询结果?"))
+            document.location.href = '../tcp/apply.do?method=export';
+    }
 
 </script>
 
@@ -78,7 +83,7 @@
                             <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
                                 <td align="center">${item.customerName}</td>
                                 <td align="center"><a href="../tcp/apply.do?method=ibReportDetail&ibReportId=${item.id}">${item.ibMoneyTotal}</a></td>
-                                <td align="center">${item.motivationMoneyTotal}</td>
+                                <td align="center"><a href="../tcp/apply.do?method=ibReportDetail&ibReportId=${item.id}">${item.motivationMoneyTotal}</a></td>
                             </tr>
                         </c:forEach>
                     </table>
