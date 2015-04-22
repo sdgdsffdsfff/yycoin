@@ -26,6 +26,26 @@ public class ProductVSGiftBean implements Serializable
 	
 	private int amount = 0;
 
+    /**
+     * 活动描述
+     */
+    private String activity = "";
+
+    /**
+     * 开始日期
+     */
+    private String beginDate = "";
+
+    /**
+     * 结束日期
+     */
+    private String endDate = "";
+
+    /**
+     * 备注
+     */
+    private String description = "";
+
 	public ProductVSGiftBean()
 	{
 	}
@@ -69,4 +89,36 @@ public class ProductVSGiftBean implements Serializable
 	{
 		this.amount = amount;
 	}
+
+    public String getActivity() {
+        return activity;
+    }
+
+    public void setActivity(String activity) {
+        this.activity = activity;
+    }
+
+    public String getBeginDate() {
+        return beginDate;
+    }
+
+    public void setBeginDate(String beginDate) {
+        this.beginDate = beginDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }
