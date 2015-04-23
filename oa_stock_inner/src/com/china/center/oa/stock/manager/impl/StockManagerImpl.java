@@ -1219,8 +1219,8 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
     @Transactional(rollbackFor = {MYException.class})
     @Override
     public boolean fetchProduct(User user, String itemId, String depotpartId, int warehouseNum, int toBeWarehouse) throws MYException {
-        JudgeTools.judgeParameterIsNull(itemId, user, depotpartId, warehouseNum);
-
+//        JudgeTools.judgeParameterIsNull(itemId, user, depotpartId, warehouseNum);
+        try{
         StockItemBean item = stockItemDAO.find(itemId);
 
         if (item == null)
@@ -1288,6 +1288,11 @@ public class StockManagerImpl extends AbstractListenerManager<StockListener> imp
             // 修改成待结束采购
             updateStockStatus(user, item.getStockId(), StockConstant.STOCK_STATUS_END,
                     PublicConstant.OPRMODE_PASS, "拿货结束");
+        }
+        }catch(Exception e){
+            e.printStackTrace();
+            _logger.error("Exception when fetchProduct:",e);
+            return false;
         }
 
         return true;

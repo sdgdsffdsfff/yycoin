@@ -70,8 +70,8 @@ function updatePrice()
         return false;
     }
 
-    console.log(to_be_warehouse);
-    console.log(parseInt($$('warehouseNum')));
+//    console.log(to_be_warehouse);
+//    console.log(parseInt($$('warehouseNum')));
     if (parseInt($$('warehouseNum'))>to_be_warehouse){
         alert('此次入库数量不能大于待入库数量');
         return false;

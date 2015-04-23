@@ -688,7 +688,7 @@ public class StockAction extends DispatchAction
 
             String warehouseNum = request.getParameter("warehouseNum");
             String to_be_buy_count = request.getParameter("to_be_buy_count");
-            System.out.println("warehouseNum*********"+warehouseNum+"****to_be_buy_count*****"+to_be_buy_count);
+           _logger.info("warehouseNum*********"+warehouseNum+"****to_be_buy_count*****"+to_be_buy_count);
 
             try
             {
