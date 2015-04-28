@@ -101,6 +101,8 @@ public class FinanceManagerImpl implements FinanceManager {
 
     private final Log          triggerLog         = LogFactory.getLog("trigger");
 
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private FinanceDAO         financeDAO         = null;
 
     private FinanceTempDAO     financeTempDAO     = null;
@@ -189,7 +191,6 @@ public class FinanceManagerImpl implements FinanceManager {
     }
 
     private boolean addInner(User user, FinanceBean bean, boolean mainTable, boolean checkNull) throws MYException {
-        System.out.println("*********************user***************"+user+"*******checkNull*************"+checkNull);
         //TODO 2015/2/1 因票随货发功能暂时禁掉user限制
         if(checkNull){
 //            JudgeTools.judgeParameterIsNull(user, bean, bean.getItemList());
@@ -198,7 +199,7 @@ public class FinanceManagerImpl implements FinanceManager {
         bean.setId(commonDAO.getSquenceString20(IDPrefixConstant.ID_FINANCE_PREFIX));
 
         bean.setName(bean.getId());
-        System.out.println("*********************1111111111111111111111***************");
+        _logger.info("addInner for FinanceBean:"+bean);
         if (StringTools.isNullOrNone(bean.getCreaterId()) && user!= null) {
             bean.setCreaterId(user.getStafferId());
         }
@@ -214,7 +215,9 @@ public class FinanceManagerImpl implements FinanceManager {
         bean.setLogTime(TimeTools.now());
 
         if (OATools.getManagerFlag() && StringTools.isNullOrNone(bean.getDutyId())) {
-            throw new MYException("凭证必须有纳税实体的属性");
+            String msg = "凭证必须有纳税实体的属性";
+            _logger.error(msg);
+            throw new MYException(msg);
         }
         System.out.println("*********************444444444444444444***************");
         // 默认纳税实体
@@ -225,7 +228,9 @@ public class FinanceManagerImpl implements FinanceManager {
 
         if (bean.getType() == TaxConstanst.FINANCE_TYPE_DUTY
                 && StringTools.isNullOrNone(bean.getDutyId())) {
-            throw new MYException("普通凭证必须有纳税实体的属性");
+            String msg = "普通凭证必须有纳税实体的属性";
+            _logger.error(msg);
+            throw new MYException(msg);
         }
         System.out.println("*********************55555555555555555555***************");
         DutyBean duty = dutyDAO.find(bean.getDutyId());
@@ -238,7 +243,9 @@ public class FinanceManagerImpl implements FinanceManager {
         boolean isTurn = FinanceHelper.isTurnFinance(itemList);
 
         if (isLOCK_FINANCE() && !isTurn) {
-            throw new MYException("被锁定结转,不能增加凭证");
+            String msg = "被锁定结转,不能增加凭证";
+            _logger.error(msg);
+            throw new MYException(msg);
         }
         System.out.println("*********************666666666666666666***************");
         Map<String, List<FinanceItemBean>> pareMap = new HashMap<String, List<FinanceItemBean>>();
@@ -264,17 +271,23 @@ public class FinanceManagerImpl implements FinanceManager {
             String taxId = financeItemBean.getTaxId();
 
             if (StringTools.isNullOrNone(taxId)) {
-                throw new MYException("缺少科目信息,请确认操作");
+                String msg = "缺少科目信息,请确认操作";
+                _logger.error(msg);
+                throw new MYException(msg);
             }
 
             TaxBean tax = taxDAO.find(taxId);
 
             if (tax == null) {
-                throw new MYException("科目不存在,请确认操作");
+                String msg = "科目不存在,请确认操作:"+taxId;
+                _logger.error(msg);
+                throw new MYException(msg);
             }
 
             // 必须是最小科目哦
             if (tax.getBottomFlag() != TaxConstanst.TAX_BOTTOMFLAG_ITEM) {
+                String msg = tax.getName() + tax.getId()+"[%s]科目必须是最小科目,请确认操作";
+                _logger.error(msg);
                 throw new MYException("[%s]科目必须是最小科目,请确认操作", tax.getName() + tax.getId());
             }
 
@@ -296,7 +309,9 @@ public class FinanceManagerImpl implements FinanceManager {
 
             // 必须有一个为0
             if (financeItemBean.getInmoney() * financeItemBean.getOutmoney() != 0) {
-                throw new MYException("借方金额或者贷方金额不能都不为0");
+                String msg = financeItemBean.getId()+"借方金额或者贷方金额不能都不为0";
+                _logger.error(msg);
+                throw new MYException(msg);
             }
 
             inTotal += financeItemBean.getInmoney();
@@ -309,6 +324,8 @@ public class FinanceManagerImpl implements FinanceManager {
         bean.setOutmoney(outTotal);
 
         if (inTotal != outTotal) {
+            String msg = FinanceHelper.longToString(inTotal)+"总借[%s],总贷[%s]不等,凭证增加错误:"+FinanceHelper.longToString(outTotal);
+            _logger.error(msg);
             throw new MYException("总借[%s],总贷[%s]不等,凭证增加错误", FinanceHelper.longToString(inTotal),
                     FinanceHelper.longToString(outTotal));
         }
@@ -336,6 +353,13 @@ public class FinanceManagerImpl implements FinanceManager {
             financeDAO.saveEntityBean(bean);
 
             financeItemDAO.saveAllEntityBeans(itemList);
+
+            //2015/4/28 add debug info for 5101
+            for (FinanceItemBean item : itemList){
+                if ("5101".equals(item.getTaxId())){
+                     _logger.info(item.getId()+" saved with getInmoney:"+item.getInmoney()+"***getOutmoney:"+item.getOutmoney());
+                }
+            }
         } else {
             // 保存到临时的
             FinanceTempBean temp = new FinanceTempBean();
@@ -750,6 +774,7 @@ public class FinanceManagerImpl implements FinanceManager {
      */
     private void createMonthData(User user, FinanceTurnBean bean, String changeFormat,
             List<FinanceItemBean> itemList) {
+        _logger.info("**************createMonthData now************");
         List<TaxBean> taxList = taxDAO.listEntityBeansByOrder("order by id");
 
         for (TaxBean taxBean : taxList) {
@@ -838,6 +863,14 @@ public class FinanceManagerImpl implements FinanceManager {
             }
 
             fmb.setLogTime(TimeTools.now());
+
+            //2015/4/28 add debug info for 5101
+            if ("5101".equals(fmb.getTaxId())){
+                _logger.info("5010 sum sql:"+condition.toString());
+                _logger.info("5101 getInmoneyTotal:"+fmb.getInmoneyTotal()+"***getOutmoneyTotal:"+fmb.getOutmoneyTotal()+"***getLastTotal:"+fmb.getLastTotal());
+                _logger.info("5101 getInmoneyAllTotal:"+fmb.getInmoneyAllTotal()+"***getOutmoneyAllTotal:"+fmb.getOutmoneyAllTotal()+"***getLastAllTotal:"+fmb.getLastAllTotal());
+                _logger.info("5101 getMonthTurnTotal:"+fmb.getMonthTurnTotal());
+            }
 
             financeMonthDAO.saveEntityBean(fmb);
         }
@@ -941,6 +974,7 @@ public class FinanceManagerImpl implements FinanceManager {
             TaxBean yearTax = taxDAO.findByUnique(itemTaxId);
 
             if (yearTax == null) {
+                _logger.error("yearTax is null:"+TaxItemConstanst.YEAR_PROFIT);
                 throw new MYException("数据错误,请确认操作");
             }
 
@@ -1136,6 +1170,7 @@ public class FinanceManagerImpl implements FinanceManager {
 
             // 没有利润结转
             if (profit == 0) {
+                _logger.info("no profit for duty:"+dutyBean.getId());
                 continue;
             }
 
@@ -1172,6 +1207,7 @@ public class FinanceManagerImpl implements FinanceManager {
             TaxBean yearTax = taxDAO.findByUnique(itemTaxId);
 
             if (yearTax == null) {
+                _logger.error("yearTax is null:"+itemTaxId);
                 throw new MYException("数据错误,请确认操作");
             }
 
@@ -1179,6 +1215,7 @@ public class FinanceManagerImpl implements FinanceManager {
             TaxBean noProfit = taxDAO.findByUnique(TaxItemConstanst.NO_PROFIT);
 
             if (noProfit == null) {
+                _logger.error("noProfit is null:"+TaxItemConstanst.NO_PROFIT);
                 throw new MYException("数据错误,请确认操作");
             }
 
@@ -2084,7 +2121,6 @@ public class FinanceManagerImpl implements FinanceManager {
     /**
      * createTaxQuery
      * 
-     * @param request
      * @param taxBean
      * @param condtion
      */
