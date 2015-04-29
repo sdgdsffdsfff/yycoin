@@ -203,14 +203,14 @@ public class FinanceManagerImpl implements FinanceManager {
         if (StringTools.isNullOrNone(bean.getCreaterId()) && user!= null) {
             bean.setCreaterId(user.getStafferId());
         }
-        System.out.println("*********************2222222222222***************");
+
         // 允许自己制定凭证日期
         if (StringTools.isNullOrNone(bean.getFinanceDate())) {
             bean.setFinanceDate(TimeTools.now_short());
         }
 
         checkTime(bean);
-        System.out.println("*********************33333333333333333333***************");
+
         // 入库时间
         bean.setLogTime(TimeTools.now());
 
@@ -219,7 +219,7 @@ public class FinanceManagerImpl implements FinanceManager {
             _logger.error(msg);
             throw new MYException(msg);
         }
-        System.out.println("*********************444444444444444444***************");
+
         // 默认纳税实体
         if (bean.getType() == TaxConstanst.FINANCE_TYPE_MANAGER
                 && StringTools.isNullOrNone(bean.getDutyId())) {
@@ -232,7 +232,6 @@ public class FinanceManagerImpl implements FinanceManager {
             _logger.error(msg);
             throw new MYException(msg);
         }
-        System.out.println("*********************55555555555555555555***************");
         DutyBean duty = dutyDAO.find(bean.getDutyId());
 
         // 管理属性
@@ -247,13 +246,13 @@ public class FinanceManagerImpl implements FinanceManager {
             _logger.error(msg);
             throw new MYException(msg);
         }
-        System.out.println("*********************666666666666666666***************");
+
         Map<String, List<FinanceItemBean>> pareMap = new HashMap<String, List<FinanceItemBean>>();
 
         long inTotal = 0;
 
         long outTotal = 0;
-        System.out.println("*********************777777777777777777***************");
+
         // 整理出凭证对(且校验凭证的合法性)
         for (FinanceItemBean financeItemBean : itemList) {
             financeItemBean.setId(commonDAO.getSquenceString20());
@@ -318,7 +317,6 @@ public class FinanceManagerImpl implements FinanceManager {
 
             outTotal += financeItemBean.getOutmoney();
         }
-        System.out.println("*********************88888888888888888888888***************");
         bean.setInmoney(inTotal);
 
         bean.setOutmoney(outTotal);
@@ -332,7 +330,6 @@ public class FinanceManagerImpl implements FinanceManager {
 
         // CORE 核对借贷必相等的原则
         checkPare(pareMap);
-        System.out.println("*********************9999999999999999999999999***************");
         if (mainTable) {
             // 核心锁
 //            commonDAO.updatePublicLock();
@@ -355,11 +352,15 @@ public class FinanceManagerImpl implements FinanceManager {
             financeItemDAO.saveAllEntityBeans(itemList);
 
             //2015/4/28 add debug info for 5101
-            for (FinanceItemBean item : itemList){
-                if ("5101".equals(item.getTaxId())){
-                     _logger.info(item.getId()+" saved with getInmoney:"+item.getInmoney()+"***getOutmoney:"+item.getOutmoney());
+            if (!ListTools.isEmptyOrNull(itemList)){
+                _logger.info("created FinanceItemBean size:"+itemList.size());
+                for (FinanceItemBean item : itemList){
+                    if ("5101".equals(item.getTaxId()) || "5101".equals(item.getTaxId0())){
+                        _logger.info(item.getId()+" saved with getInmoney:"+item.getInmoney()+"***getOutmoney:"+item.getOutmoney());
+                    }
                 }
             }
+
         } else {
             // 保存到临时的
             FinanceTempBean temp = new FinanceTempBean();
@@ -376,11 +377,9 @@ public class FinanceManagerImpl implements FinanceManager {
                 financeItemTempDAO.saveEntityBean(tempItem);
             }
         }
-        System.out.println("*********************aaaaaaaaaaaaaaaaaaaaaaaaaaa***************");
         // 手工增加增加成功后需要更新
         if (bean.getCreateType() == TaxConstanst.FINANCE_CREATETYPE_HAND
                 && !StringTools.isNullOrNone(bean.getRefId())) {
-            System.out.println("*********************bbbbbbbbbbbbbbbbbbbbbbbbb***************");
             billManager.updateBillBeanChecksWithoutTransactional(user, bean.getRefId(),
                     "增加手工凭证自动更新收款单核对状态:" + FinanceHelper.createFinanceLink(bean.getId()), true);
         }
@@ -866,7 +865,7 @@ public class FinanceManagerImpl implements FinanceManager {
 
             //2015/4/28 add debug info for 5101
             if ("5101".equals(fmb.getTaxId())){
-                _logger.info("5010 sum sql:"+condition.toString());
+                _logger.info("5101 sum sql:"+condition.toString());
                 _logger.info("5101 getInmoneyTotal:"+fmb.getInmoneyTotal()+"***getOutmoneyTotal:"+fmb.getOutmoneyTotal()+"***getLastTotal:"+fmb.getLastTotal());
                 _logger.info("5101 getInmoneyAllTotal:"+fmb.getInmoneyAllTotal()+"***getOutmoneyAllTotal:"+fmb.getOutmoneyAllTotal()+"***getLastAllTotal:"+fmb.getLastAllTotal());
                 _logger.info("5101 getMonthTurnTotal:"+fmb.getMonthTurnTotal());
@@ -980,6 +979,7 @@ public class FinanceManagerImpl implements FinanceManager {
 
             for (TaxBean taxBean : taxList) {
                 if (taxBean.getBottomFlag() == TaxConstanst.TAX_BOTTOMFLAG_ROOT) {
+                    _logger.info("TAX_BOTTOMFLAG_ROOT not count");
                     continue;
                 }
 
@@ -1000,11 +1000,13 @@ public class FinanceManagerImpl implements FinanceManager {
                 long outMonetTotal = financeItemDAO.sumOutByCondition(condition);
 
                 if (inMonetTotal == 0 && outMonetTotal == 0) {
+                    _logger.warn(dutyBean.getId()+" inMonetTotal == outMonetTotal == 0"+taxBean.getId());
                     continue;
                 }
 
                 // 空的删除
                 if ((inMonetTotal == outMonetTotal) && (itemList.size() != 0)) {
+                    _logger.warn(dutyBean.getId()+" inMonetTotal == outMonetTotal"+taxBean.getId());
                     continue;
                 }
 
@@ -1033,6 +1035,7 @@ public class FinanceManagerImpl implements FinanceManager {
                     itemInEach.setOutmoney(0);
 
                     itemInEach.setDescription(eachName);
+
 
                     itemList.add(itemInEach);
 
@@ -1077,7 +1080,16 @@ public class FinanceManagerImpl implements FinanceManager {
                     // 科目拷贝
                     FinanceHelper.copyTax(taxBean, itemInEach);
 
+
+                    if ("5101".equals(itemInEach.getTaxId())){
+                        _logger.info("create in FinanceItemBean  with SQL:"+condition.toString());
+                        _logger.info("create in FinanceItemBean  with outMonetTotal:"+outMonetTotal+"***inMonetTotal:"+inMonetTotal);
+                    }
+
                     itemInEach.setInmoney(outMonetTotal - inMonetTotal);
+                    if ("5101".equals(itemInEach.getTaxId())){
+                        _logger.info("create in FinanceItemBean  with setInmoney:"+itemInEach.getInmoney());
+                    }
 
                     itemInEach.setOutmoney(0);
 
