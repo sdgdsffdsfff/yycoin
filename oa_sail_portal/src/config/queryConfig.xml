@@ -36,6 +36,17 @@
             <type>text</type>
         </condtion>
     </item>
+
+    <item name="queryGiftConfig" deaultpfix="ProductVSGiftBean">
+        <condtion name="activity" filed="name" caption="活动描述">
+            <opr>like</opr>
+            <type>text</type>
+        </condtion>
+        <condtion name="bank" filed="name" caption="适用银行">
+            <opr>like</opr>
+            <type>text</type>
+        </condtion>
+    </item>
     
     <item name="querySelfSailTranApply" deaultpfix="SailTranApplyBean">
         <condtion name="customerName" filed="name" caption="客户" pfix="CustomerBean">

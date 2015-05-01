@@ -93,11 +93,11 @@
             <forward name="detailSailConfig" path="/sailconfig/detailSailConfig.jsp" />
         </action>
 
-        <!--2015/4/22 ???? -->
-        <action path="/sail/gift" parameter="method"
+        <action path="/sail/giftconfig" parameter="method"
                 type="org.springframework.web.struts.DelegatingActionProxy"
                 validate="false">
-            <forward name="queryGiftConfig" path="/sailgift/queryGiftConfig.jsp" />
+            <forward name="queryGiftConfig" path="/giftconfig/queryGiftConfig.jsp" />
+            <forward name="addGiftConfig" path="/giftconfig/addGiftConfig.jsp" />
         </action>
         
          <action path="/sail/tran" parameter="method"

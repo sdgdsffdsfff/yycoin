@@ -2,11 +2,8 @@ package com.china.center.oa.product.bean;
 
 import java.io.Serializable;
 
-import com.china.center.jdbc.annotation.Entity;
-import com.china.center.jdbc.annotation.FK;
-import com.china.center.jdbc.annotation.Id;
-import com.china.center.jdbc.annotation.Join;
-import com.china.center.jdbc.annotation.Table;
+import com.china.center.jdbc.annotation.*;
+import com.china.center.jdbc.annotation.enums.Element;
 import com.china.center.jdbc.annotation.enums.JoinType;
 
 @SuppressWarnings("serial")
@@ -18,32 +15,48 @@ public class ProductVSGiftBean implements Serializable
 	private String id = "";
 	
 	@FK
+    @Html(title = "销售商品品名", type = Element.INPUT, name = "productName", readonly = true)
 	@Join(tagClass = ProductBean.class, type = JoinType.LEFT, alias = "P1")
 	private String productId = "";
-	
+
+    @Html(title = "赠送商品品名", type = Element.INPUT, name = "giftProductName", readonly = true)
 	@Join(tagClass = ProductBean.class, type = JoinType.LEFT, alias = "P2")
 	private String giftProductId = "";
-	
+
+    @Html(title = "赠送商品数量", must = true, maxLength = 100)
 	private int amount = 0;
+
+    @Html(title = "销售商品数量", must = true, maxLength = 100)
+    private int sailAmount = 0;
 
     /**
      * 活动描述
      */
+    @Html(title = "活动描述", must = true, maxLength = 100)
     private String activity = "";
+
+    /**
+     * 适用银行
+     */
+    @Html(title = "适用银行", must = true, maxLength = 100)
+    private String bank = "";
 
     /**
      * 开始日期
      */
+    @Html(title = "开始日期", must = true, type= Element.DATE)
     private String beginDate = "";
 
     /**
      * 结束日期
      */
+    @Html(title = "结束日期", must = true,type=Element.DATE)
     private String endDate = "";
 
     /**
      * 备注
      */
+    @Html(title = "备注", type = Element.TEXTAREA, maxLength = 255)
     private String description = "";
 
 	public ProductVSGiftBean()
@@ -120,5 +133,21 @@ public class ProductVSGiftBean implements Serializable
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getBank() {
+        return bank;
+    }
+
+    public void setBank(String bank) {
+        this.bank = bank;
+    }
+
+    public int getSailAmount() {
+        return sailAmount;
+    }
+
+    public void setSailAmount(int sailAmount) {
+        this.sailAmount = sailAmount;
     }
 }

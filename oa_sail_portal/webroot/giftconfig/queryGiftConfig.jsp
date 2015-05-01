@@ -11,9 +11,9 @@
     <script type="text/javascript">
         console.log("******************haha*************");
 
-        var gurl = '../product/show.do?method=';
-        var addUrl = '../product/addGiftConfig.jsp';
-        var ukey = 'Show';
+        var gurl = '../sail/giftconfig.do?method=';
+        var addUrl = '../giftconfig/addGiftConfig.jsp';
+        var ukey = 'GiftConfig';
 
         var allDef = window.top.topFrame.allDef;
         var guidMap;
@@ -27,9 +27,15 @@
                 url: gurl + 'query' + ukey,
                 colModel : [
                     {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id}>', width : 40, align: 'center'},
-                    {display: '名称', name : 'name', width : '25%'},
-                    {display: '纳税实体', name : 'dutyName', width : '25%'},
-                    {display: '其他', name : 'description', width : 'auto'}
+                    {display: '活动描述', name : 'activity', width : '25%'},
+                    {display: '适用银行', name : 'dutyName', width : '25%'},
+                    {display: '开始日期', name : 'dutyName', width : '25%'},
+                    {display: '结束日期', name : 'dutyName', width : '25%'},
+                    {display: '销售商品品名', name : 'dutyName', width : '25%'},
+                    {display: '销售商品数量', name : 'dutyName', width : '25%'},
+                    {display: '赠送商品品名', name : 'dutyName', width : '25%'},
+                    {display: '赠送商品数量', name : 'dutyName', width : '25%'},
+                    {display: '备注', name : 'description', width : 'auto'}
                 ],
                 extAtt: {
                     //name : {begin : '<a href=' + gurl + 'find' + ukey + '&id={id}>', end : '</a>'}

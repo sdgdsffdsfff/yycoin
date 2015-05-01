@@ -17,6 +17,8 @@ import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.product.dao.ProductVSGiftDAO;
+import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.publics.Helper;
 import com.china.center.oa.publics.bean.PrincipalshipBean;
 import com.china.center.oa.publics.dao.ShowDAO;
@@ -54,17 +56,9 @@ public class GiftConfigAction extends DispatchAction
 {
     private final Log _logger = LogFactory.getLog(getClass());
 
-    private SailConfigDAO sailConfigDAO = null;
+    private ProductVSGiftDAO productVSGiftDAO = null;
 
-    private SailConfigManager sailConfigManager = null;
-
-    private ShowDAO showDAO = null;
-
-    private SailConfDAO sailConfDAO = null;
-
-    private OrgManager orgManager = null;
-
-    private static final String QUERYSAILCONFIG = "querySailConfig";
+    private static final String QUERYSAILCONFIG = "queryGiftConfig";
 
     /**
      * default constructor
@@ -74,7 +68,7 @@ public class GiftConfigAction extends DispatchAction
     }
 
     /**
-     * querySailConfig
+     * queryGiftConfig
      *
      * @param mapping
      * @param form
@@ -83,10 +77,11 @@ public class GiftConfigAction extends DispatchAction
      * @return
      * @throws javax.servlet.ServletException
      */
-    public ActionForward querySailConfig(ActionMapping mapping, ActionForm form,
+    public ActionForward queryGiftConfig(ActionMapping mapping, ActionForm form,
                                          HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
+        _logger.info("queryGiftConfig********************");
         ConditionParse condtion = new ConditionParse();
 
         condtion.addWhereStr();
@@ -94,19 +89,19 @@ public class GiftConfigAction extends DispatchAction
         ActionTools.processJSONQueryCondition(QUERYSAILCONFIG, request, condtion);
 
         String jsonstr = ActionTools.queryVOByJSONAndToString(QUERYSAILCONFIG, request, condtion,
-            this.sailConfDAO, new HandleResult<SailConfVO>()
+            this.productVSGiftDAO, new HandleResult<ProductVSGiftVO>()
             {
-                public void handle(SailConfVO obj)
+                public void handle(ProductVSGiftVO obj)
                 {
 
                 }
             });
-
+        _logger.info("queryGiftConfig********************"+jsonstr);
         return JSONTools.writeResponse(response, jsonstr);
     }
 
     /**
-     * preForAddSailConfig
+     * preForAddGiftConfig
      *
      * @param mapping
      * @param form
@@ -115,26 +110,16 @@ public class GiftConfigAction extends DispatchAction
      * @return
      * @throws javax.servlet.ServletException
      */
-    public ActionForward preForAddSailConfig(ActionMapping mapping, ActionForm form,
+    public ActionForward preForAddGiftConfig(ActionMapping mapping, ActionForm form,
                                              HttpServletRequest request,
                                              HttpServletResponse response)
         throws ServletException
     {
-        List<PrincipalshipBean> industryList = orgManager.listAllIndustry();
-
-        for (PrincipalshipBean principalshipBean : industryList)
-        {
-            principalshipBean.setName(principalshipBean.getParentName() + "-->"
-                                      + principalshipBean.getName());
-        }
-
-        request.setAttribute("industryList", industryList);
-
-        return mapping.findForward("addSailConfig");
+        return mapping.findForward("addGiftConfig");
     }
 
     /**
-     * addSailConfig
+     * addGiftConfig
      *
      * @param mapping
      * @param form
@@ -143,10 +128,11 @@ public class GiftConfigAction extends DispatchAction
      * @return
      * @throws javax.servlet.ServletException
      */
-    public ActionForward addSailConfig(ActionMapping mapping, ActionForm form,
+    public ActionForward addGiftConfig(ActionMapping mapping, ActionForm form,
                                        HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
+        //TODO
         SailConfBean bean = new SailConfBean();
 
         String sailType = request.getParameter("sailType");
@@ -168,11 +154,12 @@ public class GiftConfigAction extends DispatchAction
 
             User user = Helper.getUser(request);
 
-            sailConfigManager.addBean(user, bean);
+//            sailConfigManager.addBean(user, bean);
+            //TODO
 
             request.setAttribute(KeyConstant.MESSAGE, "成功操作");
         }
-        catch (MYException e)
+        catch (Exception e)
         {
             _logger.warn(e, e);
 
@@ -181,11 +168,11 @@ public class GiftConfigAction extends DispatchAction
 
         CommonTools.removeParamers(request);
 
-        return mapping.findForward("querySailConfig");
+        return mapping.findForward("queryGiftConfig");
     }
 
     /**
-     * addSailConfig
+     * updateGiftConfig
      *
      * @param mapping
      * @param form
@@ -194,7 +181,7 @@ public class GiftConfigAction extends DispatchAction
      * @return
      * @throws javax.servlet.ServletException
      */
-    public ActionForward updateSailConfig(ActionMapping mapping, ActionForm form,
+    public ActionForward updateGiftConfig(ActionMapping mapping, ActionForm form,
                                           HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
@@ -219,11 +206,11 @@ public class GiftConfigAction extends DispatchAction
 
             User user = Helper.getUser(request);
 
-            sailConfigManager.updateBean(user, bean);
+//            sailConfigManager.updateBean(user, bean);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功操作");
         }
-        catch (MYException e)
+        catch (Exception e)
         {
             _logger.warn(e, e);
 
@@ -232,11 +219,11 @@ public class GiftConfigAction extends DispatchAction
 
         CommonTools.removeParamers(request);
 
-        return mapping.findForward("querySailConfig");
+        return mapping.findForward("queryGiftConfig");
     }
 
     /**
-     * findSailConfig
+     * findGiftConfig
      *
      * @param mapping
      * @param form
@@ -245,7 +232,7 @@ public class GiftConfigAction extends DispatchAction
      * @return
      * @throws javax.servlet.ServletException
      */
-    public ActionForward findSailConfig(ActionMapping mapping, ActionForm form,
+    public ActionForward findGiftConfig(ActionMapping mapping, ActionForm form,
                                         HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
@@ -253,27 +240,27 @@ public class GiftConfigAction extends DispatchAction
 
         String update = request.getParameter("update");
 
-        SailConfVO vo = sailConfDAO.findVO(id);
+//        SailConfVO vo = sailConfDAO.findVO(id);
+//
+//        if (vo == null)
+//        {
+//            request.setAttribute(KeyConstant.ERROR_MESSAGE, "不存在");
+//
+//            return mapping.findForward("querySailConfig");
+//        }
 
-        if (vo == null)
-        {
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "不存在");
-
-            return mapping.findForward("querySailConfig");
-        }
-
-        request.setAttribute("bean", vo);
+//        request.setAttribute("bean", vo);
 
         if ("1".equals(update))
         {
-            return mapping.findForward("updateSailConfig");
+            return mapping.findForward("updateGiftConfig");
         }
 
-        return mapping.findForward("detailSailConfig");
+        return mapping.findForward("detailGiftConfig");
     }
 
     /**
-     * deleteSailConfig
+     * deleteGiftConfig
      *
      * @param mapping
      * @param form
@@ -282,7 +269,7 @@ public class GiftConfigAction extends DispatchAction
      * @return
      * @throws javax.servlet.ServletException
      */
-    public ActionForward deleteSailConfig(ActionMapping mapping, ActionForm form,
+    public ActionForward deleteGiftConfig(ActionMapping mapping, ActionForm form,
                                           HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
@@ -294,11 +281,11 @@ public class GiftConfigAction extends DispatchAction
 
             User user = Helper.getUser(request);
 
-            sailConfigManager.deleteConf(user, id);
+//            sailConfigManager.deleteConf(user, id);
 
             ajax.setSuccess("成功删除");
         }
-        catch (MYException e)
+        catch (Exception e)
         {
             _logger.warn(e, e);
 
@@ -308,88 +295,11 @@ public class GiftConfigAction extends DispatchAction
         return JSONTools.writeResponse(response, ajax);
     }
 
-    /**
-     * @return the sailConfigDAO
-     */
-    public SailConfigDAO getSailConfigDAO()
-    {
-        return sailConfigDAO;
+    public ProductVSGiftDAO getProductVSGiftDAO() {
+        return productVSGiftDAO;
     }
 
-    /**
-     * @param sailConfigDAO
-     *            the sailConfigDAO to set
-     */
-    public void setSailConfigDAO(SailConfigDAO sailConfigDAO)
-    {
-        this.sailConfigDAO = sailConfigDAO;
-    }
-
-    /**
-     * @return the sailConfigManager
-     */
-    public SailConfigManager getSailConfigManager()
-    {
-        return sailConfigManager;
-    }
-
-    /**
-     * @param sailConfigManager
-     *            the sailConfigManager to set
-     */
-    public void setSailConfigManager(SailConfigManager sailConfigManager)
-    {
-        this.sailConfigManager = sailConfigManager;
-    }
-
-    /**
-     * @return the showDAO
-     */
-    public ShowDAO getShowDAO()
-    {
-        return showDAO;
-    }
-
-    /**
-     * @param showDAO
-     *            the showDAO to set
-     */
-    public void setShowDAO(ShowDAO showDAO)
-    {
-        this.showDAO = showDAO;
-    }
-
-    /**
-     * @return the sailConfDAO
-     */
-    public SailConfDAO getSailConfDAO()
-    {
-        return sailConfDAO;
-    }
-
-    /**
-     * @param sailConfDAO
-     *            the sailConfDAO to set
-     */
-    public void setSailConfDAO(SailConfDAO sailConfDAO)
-    {
-        this.sailConfDAO = sailConfDAO;
-    }
-
-    /**
-     * @return the orgManager
-     */
-    public OrgManager getOrgManager()
-    {
-        return orgManager;
-    }
-
-    /**
-     * @param orgManager
-     *            the orgManager to set
-     */
-    public void setOrgManager(OrgManager orgManager)
-    {
-        this.orgManager = orgManager;
+    public void setProductVSGiftDAO(ProductVSGiftDAO productVSGiftDAO) {
+        this.productVSGiftDAO = productVSGiftDAO;
     }
 }
