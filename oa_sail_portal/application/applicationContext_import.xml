@@ -79,6 +79,8 @@
 	<osgi:reference id="storageRelationManager" interface="com.china.center.oa.product.manager.StorageRelationManager" />
 	
 	<osgi:reference id="productDAO" interface="com.china.center.oa.product.dao.ProductDAO" />
+
+    <osgi:reference id="productVSGiftDAO" interface="com.china.center.oa.product.dao.ProductVSGiftDAO" />
 	
 	<osgi:reference id="customerMainDAO" interface="com.china.center.oa.client.dao.CustomerMainDAO" />
 	
@@ -226,4 +228,6 @@
     <osgi:reference id="productFacade" interface="com.china.center.oa.product.facade.ProductFacade" />
 
     <osgi:reference id="invoiceinsDAO" interface="com.china.center.oa.finance.dao.InvoiceinsDAO" />
+
+    <osgi:reference id="giftConfigManager" interface="com.china.center.oa.product.manager.GiftConfigManager" />
 </beans>

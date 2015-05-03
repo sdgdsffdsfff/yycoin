@@ -9,8 +9,6 @@
     <script src="../js/pop.js"></script>
     <script src="../js/plugin/highlight/jquery.highlight.js"></script>
     <script type="text/javascript">
-        console.log("******************haha*************");
-
         var gurl = '../sail/giftconfig.do?method=';
         var addUrl = '../giftconfig/addGiftConfig.jsp';
         var ukey = 'GiftConfig';
@@ -27,14 +25,14 @@
                 url: gurl + 'query' + ukey,
                 colModel : [
                     {display: '选择', name : 'check', content : '<input type=radio name=checkb value={id}>', width : 40, align: 'center'},
-                    {display: '活动描述', name : 'activity', width : '25%'},
-                    {display: '适用银行', name : 'dutyName', width : '25%'},
-                    {display: '开始日期', name : 'dutyName', width : '25%'},
-                    {display: '结束日期', name : 'dutyName', width : '25%'},
-                    {display: '销售商品品名', name : 'dutyName', width : '25%'},
-                    {display: '销售商品数量', name : 'dutyName', width : '25%'},
-                    {display: '赠送商品品名', name : 'dutyName', width : '25%'},
-                    {display: '赠送商品数量', name : 'dutyName', width : '25%'},
+                    {display: '活动描述', name : 'activity', width : '20%'},
+                    {display: '适用银行', name : 'bank', width : '10%'},
+                    {display: '开始日期', name : 'beginDate', width : '8%'},
+                    {display: '结束日期', name : 'endDate', width : '8%'},
+                    {display: '销售商品品名', name : 'productName', width : '15%'},
+                    {display: '销售商品数量', name : 'sailAmount', width : '6%'},
+                    {display: '赠送商品品名', name : 'giftProductName', width : '15%'},
+                    {display: '赠送商品数量', name : 'amount', width : '6%'},
                     {display: '备注', name : 'description', width : 'auto'}
                 ],
                 extAtt: {

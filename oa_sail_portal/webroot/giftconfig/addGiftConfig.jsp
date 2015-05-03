@@ -9,20 +9,50 @@
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/math.js"></script>
 <script language="javascript">
+    var index = -1;
 function addBean()
 {
 	submit('确定增加赠品配置?', null, null);
 }
 
-function selectProduct()
+function selectProduct(idx)
 {
+//    console.log(idx);
+    index = idx;
     window.common.modal('../product/product.do?method=rptQueryProduct&load=1&selectMode=1');
 }
 
-function clears()
+//refer to rptQueryProduct.jsp, this is callback function for selectProduct()
+function getProduct(oos)
 {
-    $O('productId').value = '';
-    $O('productName').value = '公共';
+//    console.log("getProduct now");
+    var obj = oos[0];
+//    console.log(obj);
+//    console.log(index);
+    if (index === 1){
+        $O('productName').value = obj.pname;
+        $O('productId').value = obj.value;
+//        console.log("index 1*************");
+    } else if (index === 2){
+        $O('giftProductName').value = obj.pname;
+        $O('giftProductId').value = obj.value;
+//        console.log("index 2*************");
+    }
+}
+
+function clears(idx)
+{
+//    console.log(idx);
+    if (idx === 1){
+        $O('productId').value = '';
+        $O('productName').value = '公共';
+//        console.log("index 1--------------");
+    } else if (idx === 2){
+        $O('giftProductId').value = '';
+        $O('giftProductName').value = '公共';
+//        console.log("index 2------------------");
+    }
+
 }
 
 </script>
@@ -32,6 +62,7 @@ function clears()
 <form name="formEntry" action="../sail/giftconfig.do" method="post">
 <input type="hidden" name="method" value="addGiftConfig">
 <input type="hidden" name="productId" value="0">
+<input type="hidden" name="giftProductId" value="0">
 
 
 <p:navigation
@@ -69,18 +100,18 @@ function clears()
 
 			<p:pro field="productId" value="销售商品品名" innerString="size=60">
 			     <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
-                    class="button_class" onclick="selectProduct()">&nbsp;
+                    class="button_class" onclick="selectProduct(1)">&nbsp;
                  <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
-                        class="button_class" onclick="clears()">&nbsp;&nbsp;
+                        class="button_class" onclick="clears(1)">&nbsp;&nbsp;
 			</p:pro>
 
             <p:pro field="sailAmount" value="0" innerString="size=60 oncheck='isMathNumber'"/>
 
             <p:pro field="giftProductId" value="赠送商品品名" innerString="size=60">
                 <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
-                       class="button_class" onclick="selectProduct()">&nbsp;
+                       class="button_class" onclick="selectProduct(2)">&nbsp;
                 <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
-                       class="button_class" onclick="clears()">&nbsp;&nbsp;
+                       class="button_class" onclick="clears(2)">&nbsp;&nbsp;
             </p:pro>
 
             <p:pro field="amount" value="0" innerString="size=60 oncheck='isMathNumber'"/>

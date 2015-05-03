@@ -150,4 +150,20 @@ public class ProductVSGiftBean implements Serializable
     public void setSailAmount(int sailAmount) {
         this.sailAmount = sailAmount;
     }
+
+    @Override
+    public String toString() {
+        return "ProductVSGiftBean{" +
+                "id='" + id + '\'' +
+                ", productId='" + productId + '\'' +
+                ", giftProductId='" + giftProductId + '\'' +
+                ", amount=" + amount +
+                ", sailAmount=" + sailAmount +
+                ", activity='" + activity + '\'' +
+                ", bank='" + bank + '\'' +
+                ", beginDate='" + beginDate + '\'' +
+                ", endDate='" + endDate + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

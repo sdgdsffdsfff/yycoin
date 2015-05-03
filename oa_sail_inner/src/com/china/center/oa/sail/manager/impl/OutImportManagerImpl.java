@@ -1,5 +1,6 @@
 package com.china.center.oa.sail.manager.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -1116,6 +1117,24 @@ public class OutImportManagerImpl implements OutImportManager
     	
     	if (ListTools.isEmptyOrNull(giftList))
     		return;
+        else {
+            //2015/5/2 必须在有效期内才生成赠品订单
+            for (ProductVSGiftVO gift: giftList){
+                _logger.info("gift endDate:"+gift.getEndDate());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                try{
+                    Date end = sdf.parse(gift.getEndDate());
+                    Date now = new Date();
+                    if (end.before(now)){
+                        _logger.warn("gift is out of date:"+gift);
+                        return;
+                    }
+                }catch(Exception e){
+                    _logger.error(productId+" Exception when create gift out:",e);
+                    return ;
+                }
+            }
+        }
     	
     	OutBean newOutBean = new OutBean();
 
@@ -1775,7 +1794,7 @@ public class OutImportManagerImpl implements OutImportManager
 	/**
 	 * CORE
 	 * @param user
-	 * @param bean
+	 * @param bList
 	 * @throws MYException
 	 */
 	private void processBatchSwatch(final User user, List<BatchSwatchBean> bList, final String batchId) throws MYException

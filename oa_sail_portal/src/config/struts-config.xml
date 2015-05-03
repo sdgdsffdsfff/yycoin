@@ -98,6 +98,8 @@
                 validate="false">
             <forward name="queryGiftConfig" path="/giftconfig/queryGiftConfig.jsp" />
             <forward name="addGiftConfig" path="/giftconfig/addGiftConfig.jsp" />
+            <forward name="updateGiftConfig" path="/giftconfig/updateGiftConfig.jsp" />
+            <forward name="detailGiftConfig" path="/giftconfig/detailGiftConfig.jsp" />
         </action>
         
          <action path="/sail/tran" parameter="method"

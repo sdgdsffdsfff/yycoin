@@ -106,5 +106,7 @@
 	<osgi:service ref="gsOutDAO" interface="com.china.center.oa.product.dao.GSOutDAO" />
 	
 	<osgi:service ref="gsOutItemDAO" interface="com.china.center.oa.product.dao.GSOutItemDAO" />
+
+    <osgi:service ref="giftConfigManager" interface="com.china.center.oa.product.manager.GiftConfigManager" />
 	
 </beans>

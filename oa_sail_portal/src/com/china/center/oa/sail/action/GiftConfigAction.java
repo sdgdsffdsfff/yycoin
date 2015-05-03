@@ -17,17 +17,11 @@ import com.china.center.actionhelper.json.AjaxResult;
 import com.china.center.actionhelper.query.HandleResult;
 import com.china.center.common.MYException;
 import com.china.center.jdbc.util.ConditionParse;
+import com.china.center.oa.product.bean.ProductVSGiftBean;
 import com.china.center.oa.product.dao.ProductVSGiftDAO;
+import com.china.center.oa.product.manager.GiftConfigManager;
 import com.china.center.oa.product.vo.ProductVSGiftVO;
 import com.china.center.oa.publics.Helper;
-import com.china.center.oa.publics.bean.PrincipalshipBean;
-import com.china.center.oa.publics.dao.ShowDAO;
-import com.china.center.oa.publics.manager.OrgManager;
-import com.china.center.oa.sail.bean.SailConfBean;
-import com.china.center.oa.sail.dao.SailConfDAO;
-import com.china.center.oa.sail.dao.SailConfigDAO;
-import com.china.center.oa.sail.manager.SailConfigManager;
-import com.china.center.oa.sail.vo.SailConfVO;
 import com.china.center.tools.BeanUtil;
 import com.china.center.tools.CommonTools;
 import com.china.center.tools.StringTools;
@@ -57,6 +51,8 @@ public class GiftConfigAction extends DispatchAction
     private final Log _logger = LogFactory.getLog(getClass());
 
     private ProductVSGiftDAO productVSGiftDAO = null;
+
+    private GiftConfigManager giftConfigManager = null;
 
     private static final String QUERYSAILCONFIG = "queryGiftConfig";
 
@@ -132,30 +128,19 @@ public class GiftConfigAction extends DispatchAction
                                        HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
-        //TODO
-        SailConfBean bean = new SailConfBean();
+        ProductVSGiftBean bean = new ProductVSGiftBean();
 
-        String sailType = request.getParameter("sailType");
-        String productType = request.getParameter("productType");
+//        String sailType = request.getParameter("sailType");
+//        String productType = request.getParameter("productType");
 
         try
         {
             BeanUtil.getBean(bean, request);
-
-            if (StringTools.isNullOrNone(sailType))
-            {
-                bean.setSailType( -1);
-            }
-
-            if (StringTools.isNullOrNone(productType))
-            {
-                bean.setProductType( -1);
-            }
+            _logger.info("create ProductVSGiftBean:"+bean);
 
             User user = Helper.getUser(request);
 
-//            sailConfigManager.addBean(user, bean);
-            //TODO
+            this.giftConfigManager.addBean(user, bean);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功操作");
         }
@@ -185,28 +170,31 @@ public class GiftConfigAction extends DispatchAction
                                           HttpServletRequest request, HttpServletResponse response)
         throws ServletException
     {
-        SailConfBean bean = new SailConfBean();
+        ProductVSGiftBean bean = new ProductVSGiftBean();
 
-        String sailType = request.getParameter("sailType");
-        String productType = request.getParameter("productType");
+        String amount = request.getParameter("amount");
+        String sailAmount = request.getParameter("sailAmount");
+        String activity = request.getParameter("activity");
+        String bank = request.getParameter("bank");
+        String beginDate = request.getParameter("beginDate");
+        String endDate = request.getParameter("endDate");
+        String description = request.getParameter("description");
 
         try
         {
             BeanUtil.getBean(bean, request);
-
-            if (StringTools.isNullOrNone(sailType))
-            {
-                bean.setSailType( -1);
-            }
-
-            if (StringTools.isNullOrNone(productType))
-            {
-                bean.setProductType( -1);
-            }
+//            bean.setAmount(Integer.valueOf(amount));
+//            bean.setSailAmount(Integer.valueOf(sailAmount));
+//            bean.setActivity(activity);
+//            bean.setBank(bank);
+//            bean.setBeginDate(beginDate);
+//            bean.setEndDate(endDate);
+//            bean.setDescription(description);
+            _logger.info("update ProductVSGiftBean:"+bean);
 
             User user = Helper.getUser(request);
 
-//            sailConfigManager.updateBean(user, bean);
+            giftConfigManager.updateBean(user, bean);
 
             request.setAttribute(KeyConstant.MESSAGE, "成功操作");
         }
@@ -214,7 +202,7 @@ public class GiftConfigAction extends DispatchAction
         {
             _logger.warn(e, e);
 
-            request.setAttribute(KeyConstant.ERROR_MESSAGE, "增加失败:" + e.getMessage());
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "更新失败:" + e.getMessage());
         }
 
         CommonTools.removeParamers(request);
@@ -240,19 +228,20 @@ public class GiftConfigAction extends DispatchAction
 
         String update = request.getParameter("update");
 
-//        SailConfVO vo = sailConfDAO.findVO(id);
-//
-//        if (vo == null)
-//        {
-//            request.setAttribute(KeyConstant.ERROR_MESSAGE, "不存在");
-//
-//            return mapping.findForward("querySailConfig");
-//        }
+        ProductVSGiftVO vo = this.productVSGiftDAO.findVO(id);
 
-//        request.setAttribute("bean", vo);
+        if (vo == null)
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "不存在");
+
+            return mapping.findForward("queryGiftConfig");
+        }
+
+        request.setAttribute("bean", vo);
 
         if ("1".equals(update))
         {
+            _logger.info("*********update gift config*************"+vo);
             return mapping.findForward("updateGiftConfig");
         }
 
@@ -281,7 +270,7 @@ public class GiftConfigAction extends DispatchAction
 
             User user = Helper.getUser(request);
 
-//            sailConfigManager.deleteConf(user, id);
+            giftConfigManager.deleteBean(user, id);
 
             ajax.setSuccess("成功删除");
         }
@@ -301,5 +290,13 @@ public class GiftConfigAction extends DispatchAction
 
     public void setProductVSGiftDAO(ProductVSGiftDAO productVSGiftDAO) {
         this.productVSGiftDAO = productVSGiftDAO;
+    }
+
+    public GiftConfigManager getGiftConfigManager() {
+        return giftConfigManager;
+    }
+
+    public void setGiftConfigManager(GiftConfigManager giftConfigManager) {
+        this.giftConfigManager = giftConfigManager;
     }
 }

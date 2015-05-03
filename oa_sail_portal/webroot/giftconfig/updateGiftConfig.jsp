@@ -44,7 +44,7 @@ function load()
 <form name="formEntry" action="../sail/giftconfig.do" method="post">
 <input type="hidden" name="method" value="updateGiftConfig">
 <input type="hidden" name="productId" value="${bean.productId}">
-    <input type="hidden" name="giftProductId" value="${bean.giftProductId}">
+<input type="hidden" name="giftProductId" value="${bean.giftProductId}">
 <input type="hidden" name="id" value="${bean.id}">
 
 <p:navigation
@@ -69,34 +69,26 @@ function load()
         <p:table cells="1">
 
             <p:cell title="活动描述">
-                <input type="text" name="activity" id="activity">
+                <input type="text" name="activity" id="activity" value="${bean.activity}">
             </p:cell>
 
             <p:cell title="适用银行">
-                <input type="text" name="bank" id="bank">
+                <input type="text" name="bank" id="bank" value="${bean.bank}">
             </p:cell>
 
             <p:pro field="beginDate" />
 
             <p:pro field="endDate" />
 
-            <p:pro field="productId" value="销售商品品名" innerString="size=60">
-                <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
-                       class="button_class" onclick="selectProduct()">&nbsp;
-                <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
-                       class="button_class" onclick="clears()">&nbsp;&nbsp;
+            <p:pro field="productId" value="${bean.productName}" innerString="size=60">
             </p:pro>
 
-            <p:pro field="sailAmount" value="0" innerString="size=60 oncheck='isMathNumber'"/>
+            <p:pro field="sailAmount" value="${bean.sailAmount}" innerString="size=60 oncheck='isMathNumber'" />
 
-            <p:pro field="giftProductId" value="赠送商品品名" innerString="size=60">
-                <input type="button" value="&nbsp;选择产品&nbsp;" name="qout1" id="qout1"
-                       class="button_class" onclick="selectProduct()">&nbsp;
-                <input type="button" value="&nbsp;清 空&nbsp;" name="qout" id="qout"
-                       class="button_class" onclick="clears()">&nbsp;&nbsp;
+            <p:pro field="giftProductId" value="${bean.giftProductName}" innerString="size=60">
             </p:pro>
 
-            <p:pro field="amount" value="0" innerString="size=60 oncheck='isMathNumber'"/>
+            <p:pro field="amount" value="${bean.amount}" innerString="size=60 oncheck='isMathNumber'"/>
 
             <p:pro field="description" cell="0" innerString="rows=3 cols=55" />
 
