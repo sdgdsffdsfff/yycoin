@@ -690,6 +690,11 @@ public class OutImportManagerImpl implements OutImportManager
 			base.setOwner("0");
 			
 			base.setOwnerName("公共");
+
+            //2015/5/4 中收激励金额
+            //TODO
+            base.setIbMoney(each.getIbMoney());
+            base.setMotivationMoney(each.getMotivationMoney());
 			
 			// 业务员结算价，总部结算价
 			ProductBean product = productDAO.find(base.getProductId());

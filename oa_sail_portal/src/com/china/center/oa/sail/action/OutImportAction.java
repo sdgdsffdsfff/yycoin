@@ -1170,6 +1170,18 @@ public class OutImportAction extends DispatchAction
 				importError = true;
 			}
 		}
+
+        // 2015/05/04 中收金额
+        if ( !StringTools.isNullOrNone(obj[41]))
+        {
+            bean.setIbMoney(MathTools.parseDouble(obj[41].trim()));
+        }
+
+        // 激励金额
+        if ( !StringTools.isNullOrNone(obj[42]))
+        {
+            bean.setMotivationMoney(MathTools.parseDouble(obj[42].trim()));
+        }
 		
 		return importError;
 	}

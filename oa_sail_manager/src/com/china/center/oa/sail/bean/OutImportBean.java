@@ -185,6 +185,16 @@ public class OutImportBean implements Serializable
      * 赠送类型
      */
     private int presentFlag = 0;
+
+    /**2015/04/11 中收激励功能
+     * 中收金额
+     */
+    private double ibMoney = 0.0d;
+
+    /**2015/04/11 中收激励功能
+     * 激励金额
+     */
+    private double motivationMoney = 0.0d;
     
     @Ignore
     private int mayAmount = 0;
@@ -783,4 +793,20 @@ public class OutImportBean implements Serializable
 	public void setPresentFlag(int presentFlag) {
 		this.presentFlag = presentFlag;
 	}
+
+    public double getIbMoney() {
+        return ibMoney;
+    }
+
+    public void setIbMoney(double ibMoney) {
+        this.ibMoney = ibMoney;
+    }
+
+    public double getMotivationMoney() {
+        return motivationMoney;
+    }
+
+    public void setMotivationMoney(double motivationMoney) {
+        this.motivationMoney = motivationMoney;
+    }
 }
