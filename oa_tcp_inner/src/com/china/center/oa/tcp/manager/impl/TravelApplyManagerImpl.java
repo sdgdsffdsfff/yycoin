@@ -2841,7 +2841,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //所有中收激励统计均为“已出库”、“已发货”状态的订单，退库订单的状态均为“待核对”状态
         //销售退库订单的对应中收、激励金额为负数也列入统计及明细
         _logger.info("*****ibReportJob running******");
-        System.out.println("*****ibReportJob running******");
         //根据customerId分组
         Map<String, List<OutVO>>  customerToOutMap = new HashMap<String,List<OutVO>>();
 
@@ -2893,8 +2892,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             }
         }
 
-        List<TcpIbReportItemBean> itemList = new ArrayList<TcpIbReportItemBean>();
         for (String customerId : customerToOutMap.keySet()){
+            List<TcpIbReportItemBean> itemList = new ArrayList<TcpIbReportItemBean>();
+
             TcpIbReportBean ibReport = new TcpIbReportBean();
             ibReport.setId(commonDAO.getSquenceString20());
             ibReport.setCustomerId(customerId);
