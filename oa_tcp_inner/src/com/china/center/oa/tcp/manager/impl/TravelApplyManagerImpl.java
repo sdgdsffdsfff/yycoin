@@ -2901,11 +2901,12 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             List<OutVO> outVOs = customerToOutMap.get(customerId);
             if (!ListTools.isEmptyOrNull(outVOs)){
                 ibReport.setCustomerName(outVOs.get(0).getCustomerName());
+                double ibTotal = 0.0d;
+                double moTotal = 0.0d;
+
                 for (OutVO out: outVOs){
                     List<BaseBean> baseList = this.baseDAO.queryEntityBeansByFK(out.getFullId());
                     if (!ListTools.isEmptyOrNull(baseList)){
-                        double ibTotal = 0.0d;
-                        double moTotal = 0.0d;
                         for (BaseBean base : baseList){
                             TcpIbReportItemBean item = new TcpIbReportItemBean();
                             item.setCustomerName(out.getCustomerName());
@@ -2941,15 +2942,15 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     moTotal += base.getMotivationMoney();
                                 }
                             }
-                            _logger.info("****create TcpIbReportItemBean**********"+item.getId());
+                            _logger.info("****create TcpIbReportItemBean**********"+item);
                             itemList.add(item);
                         }
-                        ibReport.setIbMoneyTotal(ibTotal);
-                        ibReport.setMotivationMoneyTotal(moTotal);
                     } else{
                         _logger.error("****no BaseBean list found:"+out.getId());
                     }
                 }
+                ibReport.setIbMoneyTotal(ibTotal);
+                ibReport.setMotivationMoneyTotal(moTotal);
             }
             //TODO first remove by customerId
             ConditionParse con2 = new ConditionParse();
@@ -2968,7 +2969,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 item.setRefId(ibReport.getId());
             }
             this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
-            _logger.info("****save ibReport**********"+ibReport.getId());
+            _logger.info("****save ibReport**********"+ibReport);
         }
         _logger.info("************finish ibReport job*************");
     }
