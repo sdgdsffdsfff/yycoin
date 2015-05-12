@@ -2847,7 +2847,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //TODO 所有中收激励统计均为“已出库”、“已发货”状态的订单
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
-//        con.addCondition("and (ibFlag = 0 or motivationFlag = 0) and (OutBean.status in (3,4))");
+        //销售单
+        con.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
+        // “已出库”、“已发货”状态的订单
         con.addCondition("and OutBean.status in (3,4)");
         con.addCondition("outTime",">","2015-04-01");
         List<OutVO> outList = this.outDAO.queryEntityVOsByCondition(con);
@@ -2870,11 +2872,14 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
 
         //退库订单的状态均为“待核对”状态
         ConditionParse con1 = new ConditionParse();
-        //领样和销售退库
+        //入库单
+        con1.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_INBILL);
         //TODO add begin time
-        con1.addCondition("and OutBean.outType in (4,5)");
+        //销售退库
+        con1.addCondition("OutBean.outType","=", OutConstant.OUTTYPE_IN_OUTBACK);
+//        con1.addCondition("OutBean.outType in (4,5)");
+        //“待核对”状态
         con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
-        //TODO test only
         con1.addCondition("outTime",">","2015-04-01");
         List<OutVO> outList2 = this.outDAO.queryEntityVOsByCondition(con1);
         if (!ListTools.isEmptyOrNull(outList2)){
@@ -2913,23 +2918,23 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                             item.setFullId(out.getFullId());
                             item.setProductName(base.getProductName());
                             item.setAmount(base.getAmount());
-                            if (out.getOutType() == OutConstant.OUTTYPE_IN_SWATCH
-                                    ||out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK
-                                    ||out.getOutType() == OutConstant.OUTTYPE_IN_STOCK
-                                    ||out.getOutType() == OutConstant.OUTTYPE_IN_PRESENT) {
-                                //TODO
-                                if (out.getIbFlag() == 0){
+                            //销售退库
+                            if (out.getType() == OutConstant.OUT_TYPE_INBILL && out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK) {
+                                //已经结算过的中收需要退款
+                                if (out.getIbFlag() == 1){
                                     item.setType(TcpConstanst.IB_TYPE);
-                                    item.setIbMoney(base.getAmount()*base.getIbMoney());
+                                    item.setIbMoney(-base.getAmount()*base.getIbMoney());
                                     ibTotal -= base.getAmount()*base.getIbMoney();
                                 }
 
-                                if (out.getMotivationFlag() ==0){
+                                //已经结算过的激励需要退款
+                                if (out.getMotivationFlag() ==1){
                                     item.setType(TcpConstanst.MOTIVATION_TYPE);
-                                    item.setMotivationMoney(base.getAmount()*base.getMotivationMoney());
+                                    item.setMotivationMoney(-base.getAmount()*base.getMotivationMoney());
                                     moTotal -= base.getAmount()*base.getMotivationMoney();
                                 }
                             } else{
+                                //出库
                                 if (out.getIbFlag() == 0){
                                     item.setType(TcpConstanst.IB_TYPE);
                                     item.setIbMoney(base.getAmount()*base.getIbMoney());

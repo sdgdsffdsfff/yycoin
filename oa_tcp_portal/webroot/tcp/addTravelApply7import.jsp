@@ -10,7 +10,7 @@
 <script language="JavaScript" src="../js/public.js"></script>
 <script language="JavaScript" src="../js/JCheck.js"></script>
 <script language="JavaScript" src="../js/json.js"></script>
-<script language="JavaScript" src="../tcp_js/travelApply.js"></script>
+<script language="JavaScript" src="../tcp_js/travelApply7.js"></script>
 <script language="javascript">
 
 function addBean(opr)

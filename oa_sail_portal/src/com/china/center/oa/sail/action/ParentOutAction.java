@@ -3883,6 +3883,10 @@ public class ParentOutAction extends DispatchAction
 			out.setDescription("销售退库,销售单号:" + outId + ". " + adescription);
 		}
 
+        //2015/5/12 拷贝原销售单中收激励情况
+        out.setIbFlag(oldOut.getIbFlag());
+        out.setMotivationFlag(oldOut.getMotivationFlag());
+
 		// 商务
 		User g_srcUser = (User) request.getSession().getAttribute("g_srcUser");
 
@@ -4031,6 +4035,11 @@ public class ParentOutAction extends DispatchAction
 						// 成本
 						baseBean.setDescription(String.valueOf(each
 								.getCostPrice()));
+
+
+                        //2015/5/12 销售退库需要记录中收激励金额
+                        baseBean.setIbMoney(each.getIbMoney());
+                        baseBean.setMotivationMoney(each.getMotivationMoney());
 
 						newBaseList.add(baseBean);
 

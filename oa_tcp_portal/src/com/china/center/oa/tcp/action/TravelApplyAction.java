@@ -2318,9 +2318,9 @@ public class TravelApplyAction extends DispatchAction
 
         List<String> typeList = rds.getParameters("ib_type");
         List<String> customerNameList = rds.getParameters("customerName");
-        List<String> fullIdList = rds.getParameters("fullId");
-        List<String> productNameList2 = rds.getParameters("productName");
-        List<String> amountList2 = rds.getParameters("amount");
+//        List<String> fullIdList = rds.getParameters("fullId");
+//        List<String> productNameList2 = rds.getParameters("productName");
+//        List<String> amountList2 = rds.getParameters("amount");
         List<String> ibMoneyList = rds.getParameters("ibMoney");
         List<String> motivationMoneyList = rds.getParameters("motivationMoney");
 
@@ -2339,9 +2339,9 @@ public class TravelApplyAction extends DispatchAction
 
                 ib.setType(Integer.valueOf(type));
                 ib.setCustomerName(customerNameList.get(i));
-                ib.setFullId(fullIdList.get(i));
-                ib.setProductName(productNameList2.get(i));
-                ib.setAmount(Integer.valueOf(amountList2.get(i)));
+//                ib.setFullId(fullIdList.get(i));
+//                ib.setProductName(productNameList2.get(i));
+//                ib.setAmount(Integer.valueOf(amountList2.get(i)));
                 ib.setIbMoney(MathTools.parseDouble(ibMoneyList.get(i)));
                 ib.setMotivationMoney(MathTools.parseDouble(motivationMoneyList.get(i)));
 
@@ -2777,6 +2777,7 @@ public class TravelApplyAction extends DispatchAction
         Map<String, Double>  customerToIbMap = new HashMap<String,Double>();
         //<customerName,motivationMoneyTotal>
         Map<String, Double>  customerToMotivationMap = new HashMap<String,Double>();
+
         ReaderFile reader = ReadeFileFactory.getXLSReader();
         int type = 0;
 
@@ -2902,6 +2903,16 @@ public class TravelApplyAction extends DispatchAction
                                 }
 
                             }
+
+                            //TODO 检查订单的付款状态
+                            if (out.getPay() == OutConstant.PAY_NOT){
+                                builder
+                                        .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                        .append("订单未付款")
+                                        .append("</font><br>");
+
+                                importError = true;
+                            }
                         }
                     } else{
                         builder
@@ -2967,7 +2978,7 @@ public class TravelApplyAction extends DispatchAction
                         importError = true;
                     }
 
-                    importItemList.add(item);
+//                    importItemList.add(item);
 
                 }
                 else
@@ -3067,6 +3078,25 @@ public class TravelApplyAction extends DispatchAction
 
 //        request.setAttribute("imp", true);
         request.setAttribute("import", true);
+
+        //2015/5/12 根据客户分组
+        if (type == TcpConstanst.IB_TYPE){
+            for (String name : customerToIbMap.keySet()){
+                TcpIbBean bean = new TcpIbBean();
+                bean.setCustomerName(name);
+                bean.setIbMoney(customerToIbMap.get(name));
+                bean.setType(type);
+                importItemList.add(bean);
+            }
+        }else if (type == TcpConstanst.MOTIVATION_TYPE){
+            for (String name : customerToMotivationMap.keySet()){
+                TcpIbBean bean = new TcpIbBean();
+                bean.setCustomerName(name);
+                bean.setIbMoney(customerToMotivationMap.get(name));
+                bean.setType(type);
+                importItemList.add(bean);
+            }
+        }
 
         TravelApplyVO bean = new TravelApplyVO();
         bean.setIbList(importItemList);

@@ -183,6 +183,7 @@ public class OutImportAction extends DispatchAction
             HttpServletRequest request, HttpServletResponse response)
 	throws ServletException
 	{
+        _logger.info("***********importOut now*************");
         User user = Helper.getUser(request);
     	
         RequestDataStream rds = new RequestDataStream(request);
@@ -192,6 +193,7 @@ public class OutImportAction extends DispatchAction
         List<OutImportBean> importItemList = new ArrayList<OutImportBean>(); 
         
         StringBuilder builder = new StringBuilder();
+        _logger.info("***********importOut step1*************");
         try
         {
             rds.parser();
@@ -211,8 +213,8 @@ public class OutImportAction extends DispatchAction
             return mapping.findForward("importOut");
         }
         
-        String itype = rds.getParameter("type"); 
-        
+        String itype = rds.getParameter("type");
+
         ReaderFile reader = ReadeFileFactory.getXLSReader();
          try
         {
@@ -297,7 +299,9 @@ public class OutImportAction extends DispatchAction
         }
         
         String batchId = "";
-        
+
+        _logger.info("before outImportManager.addBean***");
+
         try
         {
         	batchId = outImportManager.addBean(importItemList);
@@ -314,7 +318,8 @@ public class OutImportAction extends DispatchAction
         
         if (!ListTools.isEmptyOrNull(list))
         {
-        	outImportManager.processAsyn(list);
+            _logger.info("before outImportManager.processAsyn***");
+            outImportManager.processAsyn(list);
         }
         
         return mapping.findForward("queryOutImport");

@@ -171,25 +171,30 @@ public class OutImportManagerImpl implements OutImportManager
         String id = commonDAO.getSquenceString20();
         
         int i = 0;
+        try{
         
-        for (OutImportBean each : list)
-        {
-        	//each.setItype(0);
-        	
-        	each.setBatchId(id);
-        	
-        	each.setId(++i);
-        	
-        	each.setStatus(OutImportConstant.STATUS_INIT);
-        	
-        	if (each.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
-        			&& each.getPrice() != 0)
-        	{
-        		throw new MYException("赠送类型订单单价须为0");
-        	}
+            for (OutImportBean each : list)
+            {
+                //each.setItype(0);
+
+                each.setBatchId(id);
+
+                each.setId(++i);
+
+                each.setStatus(OutImportConstant.STATUS_INIT);
+
+                if (each.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
+                        && each.getPrice() != 0)
+                {
+                    throw new MYException("赠送类型订单单价须为0");
+                }
+            }
+
+            outImportDAO.saveAllEntityBeans(list);
+        }catch(Exception e){
+            e.printStackTrace();
+            _logger.error("Fail to import out:",e);
         }
-        
-        outImportDAO.saveAllEntityBeans(list);
         
         // 清除 10天前的数据至备份表
         //delHisData();
@@ -789,6 +794,8 @@ public class OutImportManagerImpl implements OutImportManager
 		outDAO.saveEntityBean(newOutBean);
     	
     	baseDAO.saveAllEntityBeans(baseList);
+
+        _logger.info("create newOutBean and base bean for:"+newOutBean.getFullId());
     	
     	newOutBean.setBaseList(baseList);
     	

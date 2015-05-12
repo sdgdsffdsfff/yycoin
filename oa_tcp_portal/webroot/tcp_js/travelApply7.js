@@ -96,11 +96,12 @@ function checks()
     sumTotal();
     
     var borrow = 0.0;
-    
+
     if ($$('borrow') == 1)
     {
         borrow = sumborrowTotal();
-        
+
+//        console.log("borrow:"+borrow);
         if (borrow == 0)
         {
         	alert('借款金额不能为0');
@@ -109,7 +110,7 @@ function checks()
         }
         
         var stotal = sumTotal();
-        
+//        console.log("stotal:"+stotal);
         if (compareNumber(borrow, stotal) > 0)
         {
             alert('借款金额大于申请金额');
@@ -120,7 +121,7 @@ function checks()
     
     //s_ratio
     var total = sumRatio();
-    
+//    console.log("total:"+total);
     if ($$('borrow') == 1)
     {
     	if (total == 0)
@@ -138,6 +139,15 @@ function checks()
 	            
 	        return false;
 	    }
+
+        var ibTotal = sumIb();
+        if (compareNumber(stotal, ibTotal) != 0)
+        {
+            //2015/5/12 中收或激励金额之和必须等于预算项之和
+            alert('中收或激励金额之和必须等于预算项之和:' + stotal);
+
+            return false;
+        }
     }
     
     //检查预算分担不能重复
@@ -174,6 +184,33 @@ function sumRatio()
         }
     );   
     
+    return total;
+}
+
+function sumIb()
+{
+    var total = 0;
+
+    $("input[name='ibMoney']").each(
+        function()
+        {
+            if (this.value != '')
+            {
+                total += parseFloat(this.value);
+            }
+        }
+    );
+
+    $("input[name='motivationMoney']").each(
+        function()
+        {
+            if (this.value != '')
+            {
+                total += parseFloat(this.value);
+            }
+        }
+    );
+
     return total;
 }
 
