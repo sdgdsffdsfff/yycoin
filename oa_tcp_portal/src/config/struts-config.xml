@@ -10,6 +10,7 @@
 			<forward name="addTravelApply2" path="/tcp/addTravelApply2.jsp" />
 			<forward name="addTravelApply3" path="/tcp/addTravelApply3.jsp" />
 			<forward name="addTravelApply7" path="/tcp/addTravelApply7.jsp" />
+            <forward name="addTravelApply7import" path="/tcp/addTravelApply7import.jsp" />
 			<forward name="addVocationAndWork" path="/tcp/addVocationAndWork.jsp" />
 			<forward name="addCommission" path="/tcp/addCommission.jsp" />
 			<forward name="queryAllCommissionApprove" path="/tcp/queryAllCommissionApprove.jsp" />

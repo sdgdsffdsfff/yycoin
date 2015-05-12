@@ -2882,6 +2882,26 @@ public class TravelApplyAction extends DispatchAction
                             importError = true;
                         }else{
                             item.setFullId(outId);
+
+                            //TODO 同一个订单不能重复提交中收激励报销申请
+                            if (out.getIbFlag() == 1){
+                                if (type == TcpConstanst.IB_TYPE){
+                                    builder
+                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                            .append("订单号不能重复提交中收报销申")
+                                            .append("</font><br>");
+
+                                    importError = true;
+                                } else if(type == TcpConstanst.MOTIVATION_TYPE){
+                                    builder
+                                            .append("<font color=red>第[" + currentNumber + "]行错误:")
+                                            .append("订单号不能重复提交激励报销申")
+                                            .append("</font><br>");
+
+                                    importError = true;
+                                }
+
+                            }
                         }
                     } else{
                         builder
@@ -2990,7 +3010,7 @@ public class TravelApplyAction extends DispatchAction
         rds.close();
 
 
-        //TODO 每个客户的申请金额不得大于统计的可申请的中收或激励金额
+        //每个客户的申请金额不得大于统计的可申请的中收或激励金额
         if (type == TcpConstanst.IB_TYPE){
             for(String customerName : customerToIbMap.keySet()){
                 ConditionParse con = new ConditionParse();
@@ -3057,7 +3077,7 @@ public class TravelApplyAction extends DispatchAction
 
         prepareInner(request);
 
-        return mapping.findForward("addTravelApply7");
+        return mapping.findForward("addTravelApply7import");
     }
 
     /**

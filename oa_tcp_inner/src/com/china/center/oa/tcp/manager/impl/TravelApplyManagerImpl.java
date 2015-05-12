@@ -2920,26 +2920,26 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                 //TODO
                                 if (out.getIbFlag() == 0){
                                     item.setType(TcpConstanst.IB_TYPE);
-                                    item.setIbMoney(base.getIbMoney());
-                                    ibTotal -= base.getIbMoney();
+                                    item.setIbMoney(base.getAmount()*base.getIbMoney());
+                                    ibTotal -= base.getAmount()*base.getIbMoney();
                                 }
 
                                 if (out.getMotivationFlag() ==0){
                                     item.setType(TcpConstanst.MOTIVATION_TYPE);
-                                    item.setMotivationMoney(base.getMotivationMoney());
-                                    moTotal -= base.getMotivationMoney();
+                                    item.setMotivationMoney(base.getAmount()*base.getMotivationMoney());
+                                    moTotal -= base.getAmount()*base.getMotivationMoney();
                                 }
                             } else{
                                 if (out.getIbFlag() == 0){
                                     item.setType(TcpConstanst.IB_TYPE);
-                                    item.setIbMoney(base.getIbMoney());
-                                    ibTotal += base.getIbMoney();
+                                    item.setIbMoney(base.getAmount()*base.getIbMoney());
+                                    ibTotal += base.getAmount()*base.getIbMoney();
                                 }
 
                                 if (out.getMotivationFlag() ==0){
                                     item.setType(TcpConstanst.MOTIVATION_TYPE);
-                                    item.setMotivationMoney(base.getMotivationMoney());
-                                    moTotal += base.getMotivationMoney();
+                                    item.setMotivationMoney(base.getAmount()*base.getMotivationMoney());
+                                    moTotal += base.getAmount()*base.getMotivationMoney();
                                 }
                             }
                             _logger.info("****create TcpIbReportItemBean**********"+item);
@@ -2952,7 +2952,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 ibReport.setIbMoneyTotal(ibTotal);
                 ibReport.setMotivationMoneyTotal(moTotal);
             }
-            //TODO first remove by customerId
+            //first remove by customerId
             ConditionParse con2 = new ConditionParse();
             con2.addWhereStr();
             con2.addCondition("customerId","=",ibReport.getCustomerId());
