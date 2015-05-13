@@ -91,6 +91,20 @@ function load()
             </p:pro>
 
             <p:pro field="description" cell="0" innerString="rows=4 cols=55" />
+
+            <c:if test="${import}">
+                <p:cell title="原附件" width="8" end="true">
+                    <c:forEach items="${bean.attachmentList}" var="item" varStatus="vs">
+                        <span id="span_${item.id}"><img src=../images/oa/attachment.gif>
+                            <a target="_blank">${item.name}</a>&nbsp;
+                        </span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <c:if test="${!vs.last}">
+                            <br>
+                        </c:if>
+                    </c:forEach>
+                </p:cell>
+            </c:if>
             
             <p:cell title="附件" width="8" end="true"><input type="file" name="atts" size="70" >  
             <font color="blue"><span style="cursor: pointer;" onclick="showMoreAtt()" >【更多附件】 </span><b>建议压缩后上传,最大支持10M</b></font>
@@ -253,7 +267,7 @@ function load()
                                 <c:forEach items="${bean.ibList}" var="itemEach" varStatus="vs">
                                     <tr class="content1">
                                     <td align="left">
-                                        <select name="ib_type" class="select_class" style="width: 100%;">
+                                        <select name="ib_type" class="select_class" style="width: 100%;" disabled="disabled">
                                             <c:if test="${itemEach.type ==0}">
                                                 <option value="0" selected>中收</option>
                                                 <option value="1">激励</option>
@@ -266,15 +280,15 @@ function load()
                                     </td>
 
                                     <td align="left">
-                                        <input type="text" style="width: 100%" name="customerName" value="${itemEach.customerName}" required>
+                                        <input type="text" style="width: 100%" name="customerName" value="${itemEach.customerName}" required readonly="readonly">
                                     </td>
 
                                     <td align="left">
-                                        <input type="number" style="width: 100%" name="ibMoney" value="${itemEach.ibMoney}" required>
+                                        <input type="number" style="width: 100%" name="ibMoney" value="${itemEach.ibMoney}" required readonly="readonly">
                                     </td>
 
                                     <td align="left">
-                                        <input type="number" style="width: 100%" name="motivationMoney" value="${itemEach.motivationMoney}" required>
+                                        <input type="number" style="width: 100%" name="motivationMoney" value="${itemEach.motivationMoney}" required readonly="readonly">
                                     </td>
 
                                     <td width="5%" align="center">

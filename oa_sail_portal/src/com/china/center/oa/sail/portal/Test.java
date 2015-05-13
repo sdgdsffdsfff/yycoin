@@ -25,6 +25,9 @@ import java.util.*;
  */
 public class Test {
     public static void main(String[] args) throws Exception{
+        double d1 = 2.3;
+        double d2 = 2.3;
+        System.out.println(d1==d2);
         String endDate ="2015-03-19 23:59:59";
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         Date end = sdf.parse(endDate);

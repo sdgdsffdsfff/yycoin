@@ -7,6 +7,13 @@
     <script language="JavaScript" src="../js/common.js"></script>
     <script language="JavaScript" src="../js/JCheck.js"></script>
     <script language="javascript">
+        function exports()
+        {
+            var ibReportId = '${ibReportId}';
+            console.log("ibReportId:"+ibReportId);
+            if (window.confirm("确定导出当前明细?"))
+                document.location.href = '../tcp/apply.do?method=exportIbDetail&ibReportId='+ibReportId;
+        }
 
     </script>
 
@@ -84,7 +91,12 @@
 
         <tr height="10">
             <td height="10" colspan='2'>
-                <input type="button" class="button_class" value="返回" onclick="javascript:history.go(-1)" >
+                <div align="right">
+                    <input type="button" class="button_class"
+                           value="&nbsp;导出查询结果&nbsp;" onclick="exports()" />&nbsp;&nbsp;
+                    <input type="button" class="button_class" value="返回" onclick="javascript:history.go(-1)" >
+                </div>
+
             </td>
         </tr>
 
