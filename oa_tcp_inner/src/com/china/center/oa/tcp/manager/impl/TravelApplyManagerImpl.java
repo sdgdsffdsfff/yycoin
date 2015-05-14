@@ -2920,19 +2920,24 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                             item.setAmount(base.getAmount());
                             //销售退库
                             if (out.getType() == OutConstant.OUT_TYPE_INBILL && out.getOutType() == OutConstant.OUTTYPE_IN_OUTBACK) {
-                                //已经结算过的中收需要退款
-                                if (out.getIbFlag() == 1){
-                                    item.setType(TcpConstanst.IB_TYPE);
-                                    item.setIbMoney(-base.getAmount()*base.getIbMoney());
-                                    ibTotal -= base.getAmount()*base.getIbMoney();
-                                }
+                                item.setIbMoney(-base.getAmount()*base.getIbMoney());
+                                ibTotal -= base.getAmount()*base.getIbMoney();
+                                item.setMotivationMoney(-base.getAmount()*base.getMotivationMoney());
+                                moTotal -= base.getAmount()*base.getMotivationMoney();
 
-                                //已经结算过的激励需要退款
-                                if (out.getMotivationFlag() ==1){
-                                    item.setType(TcpConstanst.MOTIVATION_TYPE);
-                                    item.setMotivationMoney(-base.getAmount()*base.getMotivationMoney());
-                                    moTotal -= base.getAmount()*base.getMotivationMoney();
-                                }
+//                                //已经结算过的中收需要退款
+//                                if (out.getIbFlag() == 1){
+//                                    item.setType(TcpConstanst.IB_TYPE);
+//                                    item.setIbMoney(-base.getAmount()*base.getIbMoney());
+//                                    ibTotal -= base.getAmount()*base.getIbMoney();
+//                                }
+//
+//                                //已经结算过的激励需要退款
+//                                if (out.getMotivationFlag() ==1){
+//                                    item.setType(TcpConstanst.MOTIVATION_TYPE);
+//                                    item.setMotivationMoney(-base.getAmount()*base.getMotivationMoney());
+//                                    moTotal -= base.getAmount()*base.getMotivationMoney();
+//                                }
                             } else{
                                 //出库
                                 if (out.getIbFlag() == 0){

@@ -2395,6 +2395,19 @@ public class TravelApplyAction extends DispatchAction
             }
         }
 
+        //2015/5/14 add imported IB attachment
+        String importIbPath = rds.getParameter("importIbPath");
+        String importIbName = rds.getParameter("importIbName");
+        _logger.info("*****importIbPath*************"+importIbPath+"***importIbName***"+importIbName);
+        if (!StringTools.isNullOrNone(importIbPath)){
+            AttachmentBean bean = new AttachmentBean();
+            bean.setName(importIbName);
+            bean.setPath(importIbPath);
+            bean.setLogTime(TimeTools.now());
+            attachmentList.add(bean);
+            _logger.info("*****create AttachmentBean for IB import*************"+bean);
+        }
+
         // parser attachment
         if ( !rds.haveStream())
         {
@@ -2461,6 +2474,8 @@ public class TravelApplyAction extends DispatchAction
                 }
             }
         }
+
+
 
         return null;
     }
@@ -3208,6 +3223,7 @@ public class TravelApplyAction extends DispatchAction
                 out = new FileOutputStream(filePath);
 
                 ustream = new UtilStream(entry.getValue(), out);
+                _logger.info("**********entry value******"+entry.getValue());
 
                 ustream.copyStream();
 

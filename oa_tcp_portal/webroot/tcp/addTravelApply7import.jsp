@@ -25,7 +25,9 @@ function addBean(opr)
     {
         $O('processer').oncheck = 'notNone';
     }
-    
+
+    //2015/5/14 disabled HTML select will not submit value ,need to remove disabled before submit
+    $(".select_class").removeAttr('disabled');
     submit('确定中收申请?', null, checks);
 }
 
@@ -95,6 +97,8 @@ function load()
             <c:if test="${import}">
                 <p:cell title="原附件" width="8" end="true">
                     <c:forEach items="${bean.attachmentList}" var="item" varStatus="vs">
+                        <input type="hidden" name="importIbPath" value="${item.path}">
+                        <input type="hidden" name="importIbName" value="${item.name}">
                         <span id="span_${item.id}"><img src=../images/oa/attachment.gif>
                             <a target="_blank">${item.name}</a>&nbsp;
                         </span>
