@@ -41,9 +41,14 @@ import com.china.center.oa.sail.vo.OutVO;
 import com.china.center.oa.tcp.bean.*;
 import com.china.center.oa.tcp.dao.*;
 import com.china.center.tools.*;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.io.IOUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -2788,7 +2793,7 @@ public class TravelApplyAction extends DispatchAction
         {
             request.setAttribute(KeyConstant.ERROR_MESSAGE, "解析失败");
 
-            return mapping.findForward("importShare");
+            return mapping.findForward("importIb");
         }
 
         //<customerName,ibMoneyTotal>
@@ -2799,9 +2804,28 @@ public class TravelApplyAction extends DispatchAction
         ReaderFile reader = ReadeFileFactory.getXLSReader();
         int type = 0;
 
+        TravelApplyVO vo = new TravelApplyVO();
+        vo.setIbList(importItemList);
+        vo.setImportFlag(true);
+
+        //save attachment
+        String filePath = this.parserIbAttachment(mapping,request,rds,vo) ;
+
+        if ( StringTools.isNullOrNone(filePath))
+        {
+            request.setAttribute(KeyConstant.ERROR_MESSAGE, "附件上传失败");
+
+            return mapping.findForward("importIb");
+        }
+
         try
         {
-            reader.readFile(rds.getUniqueInputStream());
+//            reader.readFile(rds.getUniqueInputStream());
+//            reader.readFile(rds.getUniqueInputStream());
+
+            FileInputStream fs = new FileInputStream(filePath);
+            reader.readFile(fs);
+
             String ibType = "";
 
             while (reader.hasNext())
@@ -3130,17 +3154,13 @@ public class TravelApplyAction extends DispatchAction
                 }
             }
 
-            TravelApplyVO bean = new TravelApplyVO();
-            bean.setIbList(importItemList);
-            bean.setImportFlag(true);
-            bean.setIbType(type);
-
-            request.setAttribute("bean", bean);
+            vo.setIbType(type);
+            request.setAttribute("bean", vo);
 
             prepareInner(request);
 
             //save attachment
-            this.parserIbAttachment(mapping,request,rds,bean) ;
+//            this.parserIbAttachment(mapping,request,rds,bean) ;
 
             rds.close();
         }
@@ -3178,18 +3198,12 @@ public class TravelApplyAction extends DispatchAction
      * @param travelApply
      * @return
      */
-    private ActionForward parserIbAttachment(ActionMapping mapping, HttpServletRequest request,
+    private String parserIbAttachment(ActionMapping mapping, HttpServletRequest request,
                                            RequestDataStream rds, TravelApplyBean travelApply)
     {
         List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();
 
         travelApply.setAttachmentList(attachmentList);
-
-        // parser attachment
-        if ( !rds.haveStream())
-        {
-            return null;
-        }
 
         Map<String, InputStream> streamMap = rds.getStreamMap();
 
@@ -3222,20 +3236,40 @@ public class TravelApplyAction extends DispatchAction
 
                 out = new FileOutputStream(filePath);
 
-                ustream = new UtilStream(entry.getValue(), out);
-                _logger.info("**********entry value******"+entry.getValue());
+//                ustream = new UtilStream(entry.getValue(), out);
+                _logger.info("**********entry value******"+entry.getValue().available());
 
-                ustream.copyStream();
+//                InputStream uploadedStream = null;
+//                FileItemFactory factory = new DiskFileItemFactory();
+//                ServletFileUpload upload = new ServletFileUpload(factory);
+//                java.util.List items = upload.parseRequest(request);
+//                java.util.Iterator iter = items.iterator();
+//
+//                while (iter.hasNext()) {
+//                    FileItem item = (FileItem) iter.next();
+//                    if (!item.isFormField()) {
+//                        _logger.info("**********item size:"+item.getSize());
+//                        uploadedStream = item.getInputStream();
+//                        //CHANGE uploadedStreambyte = item.get()
+//                    }
+//                }
+
+//                InputStream in;
+                 IOUtils.copy(entry.getValue(), out);
+//                in.close();
+                out.close();
+
+//                ustream.copyStream();
 
                 attachmentList.add(bean);
+                return filePath;
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 _logger.error(e, e);
 
                 request.setAttribute(KeyConstant.ERROR_MESSAGE, "保存失败");
 
-                return mapping.findForward("addTravelApply7import");
             }
             finally
             {
