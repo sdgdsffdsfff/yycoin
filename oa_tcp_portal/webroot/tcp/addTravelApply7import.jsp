@@ -295,6 +295,8 @@ function load()
                                         <input type="number" style="width: 100%" name="motivationMoney" value="${itemEach.motivationMoney}" required readonly="readonly">
                                     </td>
 
+                                    <input type="hidden" name="fullId" value="${itemEach.fullId}">
+
                                     <td width="5%" align="center">
                                         <input type=button name="ib_del_bu" value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)">
                                     </td>
@@ -444,17 +446,17 @@ function load()
             <input type="text" style="width: 100%" name="customerName" value="" required>
         </td>
 
-        <td align="left">
-            <input type="text" style="width: 100%" name="fullId" value="" required>
-        </td>
+        <%--<td align="left">--%>
+            <%--<input type="text" style="width: 100%" name="fullId" value="" required>--%>
+        <%--</td>--%>
 
-        <td align="left">
-            <input type="text" style="width: 100%" name="productName" value="" required>
-        </td>
+        <%--<td align="left">--%>
+            <%--<input type="text" style="width: 100%" name="productName" value="" required>--%>
+        <%--</td>--%>
 
-        <td align="left">
-            <input type="number" style="width: 100%" name="amount" value="" required>
-        </td>
+        <%--<td align="left">--%>
+            <%--<input type="number" style="width: 100%" name="amount" value="" required>--%>
+        <%--</td>--%>
 
         <td align="left">
             <input type="number" style="width: 100%" name="ibMoney" value="" required>

@@ -2326,7 +2326,7 @@ public class TravelApplyAction extends DispatchAction
 
         List<String> typeList = rds.getParameters("ib_type");
         List<String> customerNameList = rds.getParameters("customerName");
-//        List<String> fullIdList = rds.getParameters("fullId");
+        List<String> fullIdList = rds.getParameters("fullId");
 //        List<String> productNameList2 = rds.getParameters("productName");
 //        List<String> amountList2 = rds.getParameters("amount");
         List<String> ibMoneyList = rds.getParameters("ibMoney");
@@ -2347,7 +2347,7 @@ public class TravelApplyAction extends DispatchAction
 
                 ib.setType(Integer.valueOf(type));
                 ib.setCustomerName(customerNameList.get(i));
-//                ib.setFullId(fullIdList.get(i));
+                ib.setFullId(fullIdList.get(i));
 //                ib.setProductName(productNameList2.get(i));
 //                ib.setAmount(Integer.valueOf(amountList2.get(i)));
                 ib.setIbMoney(MathTools.parseDouble(ibMoneyList.get(i)));
@@ -2801,6 +2801,9 @@ public class TravelApplyAction extends DispatchAction
         //<customerName,motivationMoneyTotal>
         Map<String, Double>  customerToMotivationMap = new HashMap<String,Double>();
 
+        //<customerName,List<outId>>
+        Map<String, List<String>>  customerToOutMap = new HashMap<String,List<String>>();
+
         ReaderFile reader = ReadeFileFactory.getXLSReader();
         int type = 0;
 
@@ -2809,7 +2812,7 @@ public class TravelApplyAction extends DispatchAction
         vo.setImportFlag(true);
 
         //save attachment
-        String filePath = this.parserIbAttachment(mapping,request,rds,vo) ;
+        String filePath = this.parserIbAttachment(request,rds,vo) ;
 
         if ( StringTools.isNullOrNone(filePath))
         {
@@ -2820,9 +2823,6 @@ public class TravelApplyAction extends DispatchAction
 
         try
         {
-//            reader.readFile(rds.getUniqueInputStream());
-//            reader.readFile(rds.getUniqueInputStream());
-
             FileInputStream fs = new FileInputStream(filePath);
             reader.readFile(fs);
 
@@ -2926,7 +2926,7 @@ public class TravelApplyAction extends DispatchAction
                         }else{
                             item.setFullId(outId);
 
-                            //TODO 同一个订单不能重复提交中收激励报销申请
+                            //同一个订单不能重复提交中收激励报销申请
                             if (out.getIbFlag() == 1){
                                 if (type == TcpConstanst.IB_TYPE){
                                     builder
@@ -2946,7 +2946,7 @@ public class TravelApplyAction extends DispatchAction
 
                             }
 
-                            //TODO 检查订单的付款状态
+                            //检查订单的付款状态
                             if (out.getPay() == OutConstant.PAY_NOT){
                                 builder
                                         .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -2954,6 +2954,16 @@ public class TravelApplyAction extends DispatchAction
                                         .append("</font><br>");
 
                                 importError = true;
+                            }
+
+
+                            if (customerToOutMap.containsKey(item.getCustomerName())){
+                                List<String> oudIds = customerToOutMap.get(item.getCustomerName());
+                                oudIds.add(outId);
+                            }else{
+                                List<String> oudIds = new ArrayList<String>();
+                                oudIds.add(outId);
+                                customerToOutMap.put(item.getCustomerName(), oudIds);
                             }
                         }
                     } else{
@@ -3006,14 +3016,15 @@ public class TravelApplyAction extends DispatchAction
                         if (type == TcpConstanst.IB_TYPE){
                             item.setIbMoney(Long.valueOf(money));
                             if (customerToIbMap.containsKey(item.getCustomerName())){
-                                customerToIbMap.put(item.getCustomerName(),customerToIbMap.get(item.getCustomerName())+item.getIbMoney());
+                                customerToIbMap.put(item.getCustomerName(),customerToIbMap.get(item.getCustomerName())+item.getIbMoney()*item.getAmount());
                             } else{
-                                customerToIbMap.put(item.getCustomerName(), item.getIbMoney());
+                                customerToIbMap.put(item.getCustomerName(), item.getIbMoney()*item.getAmount());
                             }
+
                             if (!ListTools.isEmptyOrNull(baseBeans)){
                                com.china.center.oa.sail.bean.BaseBean baseBean = baseBeans.get(0);
                                 _logger.info("baseBean.getIbMoney():"+baseBean.getIbMoney()+"***item.getIbMoney()***"+item.getIbMoney());
-                                if (Math.abs(baseBean.getIbMoney()-item.getIbMoney()) > 0.00001){
+                                if (Math.abs(baseBean.getIbMoney()*baseBean.getAmount()-item.getAmount()*item.getIbMoney()) > 0.00001){
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
                                             .append("中收金额与系统记录的金额不等")
@@ -3027,15 +3038,16 @@ public class TravelApplyAction extends DispatchAction
                         } else if (type == TcpConstanst.MOTIVATION_TYPE){
                             item.setMotivationMoney(Long.valueOf(money));
                             if(customerToMotivationMap.containsKey(item.getCustomerName())){
-                                customerToMotivationMap.put(item.getCustomerName(),customerToMotivationMap.get(item.getCustomerName())+item.getMotivationMoney());
+                                customerToMotivationMap.put(item.getCustomerName(),
+                                        customerToMotivationMap.get(item.getCustomerName())+item.getMotivationMoney()*item.getAmount());
                             }else{
-                                customerToMotivationMap.put(item.getCustomerName(),item.getMotivationMoney());
+                                customerToMotivationMap.put(item.getCustomerName(),item.getMotivationMoney()*item.getAmount());
                             }
 
                             if (!ListTools.isEmptyOrNull(baseBeans)){
                                 com.china.center.oa.sail.bean.BaseBean baseBean = baseBeans.get(0);
                                 _logger.info("baseBean.getMotivationMoney():"+baseBean.getMotivationMoney()+"***item.getMotivationMoney()***"+item.getMotivationMoney());
-                                if (Math.abs(baseBean.getMotivationMoney()-item.getMotivationMoney()) > 0.00001){
+                                if (Math.abs(baseBean.getMotivationMoney()*baseBean.getAmount()-item.getMotivationMoney()*item.getAmount()) > 0.00001){
                                     builder
                                             .append("<font color=red>第[" + currentNumber + "]行错误:")
                                             .append("激励金额与系统记录的金额不等")
@@ -3045,9 +3057,6 @@ public class TravelApplyAction extends DispatchAction
                                 }
                             }
                         }
-
-
-//                        this.outDAO.quevo
                     } else{
                         builder
                                 .append("<font color=red>第[" + currentNumber + "]行错误:")
@@ -3070,10 +3079,6 @@ public class TravelApplyAction extends DispatchAction
                     importError = true;
                 }
             }
-
-
-
-         //TODO 每张订单的中收与激励的申请必须一次性完成，不得分批进行，如申请金额与订单记录金额不符，报错提示
         }
 
 
@@ -3123,11 +3128,17 @@ public class TravelApplyAction extends DispatchAction
                 }
             }
 
-
-
             if (importError){
-
                 request.setAttribute(KeyConstant.ERROR_MESSAGE, "导入出错:"+ builder.toString());
+
+                //remove the uploaded file
+                File file = new File(filePath);
+                if (file.exists()){
+                    boolean success = file.delete();
+                    _logger.info(filePath + " delete temp file:" + success);
+                } else{
+                    _logger.info("***no temp file**************"+filePath);
+                }
 
                 return mapping.findForward("importIb");
             }
@@ -3142,14 +3153,16 @@ public class TravelApplyAction extends DispatchAction
                     bean.setCustomerName(name);
                     bean.setIbMoney(customerToIbMap.get(name));
                     bean.setType(type);
+                    bean.setFullId(this.listToString(customerToOutMap.get(name)));
                     importItemList.add(bean);
                 }
             }else if (type == TcpConstanst.MOTIVATION_TYPE){
                 for (String name : customerToMotivationMap.keySet()){
                     TcpIbBean bean = new TcpIbBean();
                     bean.setCustomerName(name);
-                    bean.setIbMoney(customerToMotivationMap.get(name));
+                    bean.setMotivationMoney(customerToMotivationMap.get(name));
                     bean.setType(type);
+                    bean.setFullId(this.listToString(customerToOutMap.get(name)));
                     importItemList.add(bean);
                 }
             }
@@ -3189,16 +3202,25 @@ public class TravelApplyAction extends DispatchAction
         return mapping.findForward("addTravelApply7import");
     }
 
+    private String listToString(List<String> outIds){
+        StringBuilder sb = new StringBuilder();
+        if (!ListTools.isEmptyOrNull(outIds)){
+            for (String outId: outIds){
+                sb.append(outId).append(";");
+            }
+        }
+        return sb.toString();
+    }
+
     /**2015/5/13 导入中收激励模板时先保存附件
      * parserIbAttachment
      *
-     * @param mapping
      * @param request
      * @param rds
      * @param travelApply
      * @return
      */
-    private String parserIbAttachment(ActionMapping mapping, HttpServletRequest request,
+    private String parserIbAttachment( HttpServletRequest request,
                                            RequestDataStream rds, TravelApplyBean travelApply)
     {
         List<AttachmentBean> attachmentList = new ArrayList<AttachmentBean>();

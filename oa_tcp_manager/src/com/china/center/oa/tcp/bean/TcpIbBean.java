@@ -43,6 +43,7 @@ public class TcpIbBean implements Serializable
 
     private String customerName = "";
 
+    //2015/5/17 fullId保存一次申请时的所有订单号，以;分隔
     private String fullId = "";
 
     private String productName = "";

@@ -368,29 +368,32 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             if (bean.isImportFlag()){
                 //2015/4/12 中收激励设置对应SO标志位
                 List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
-                Set<String> outIdSet = new HashSet<String>();
                 if (!ListTools.isEmptyOrNull(ibList)){
-                    _logger.info("TcpIbBean list size:"+ibList.size());
+                    _logger.info(bean.getId()+" with TcpIbBean list size:"+ibList.size());
                     for (TcpIbBean ib : ibList){
-                        String outId = ib.getFullId();
-                        outIdSet.add(outId);
+                        String outIds = ib.getFullId();
+                        if (!StringTools.isNullOrNone(outIds)){
+                            StringTokenizer  st = new  StringTokenizer(outIds,";");
+                            while(st.hasMoreTokens()) {
+                                String outId = st.nextToken();
+                                OutBean out = this.outDAO.find(outId);
+                                if (out!= null){
+                                    _logger.info(outId+" OutBean set IB flag**********");
+                                    if (bean.getIbType() == TcpConstanst.IB_TYPE){
+                                        out.setIbFlag(1);
+                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+                                        out.setMotivationFlag(1);
+                                    }
+
+                                    this.outDAO.updateEntityBean(out);
+                                }
+                            }
+                        } else{
+                            _logger.info("no out for TcpIbBean:"+ib.getId());
+                        }
                     }
                 } else{
                     _logger.info("***no TcpIbBean found for:"+bean.getId());
-                }
-
-                for (String outId: outIdSet){
-                    OutBean out = this.outDAO.find(outId);
-                    if (out!= null){
-                        _logger.info(outId+" OutBean set IB flag**********");
-                        if (bean.getIbType() == TcpConstanst.IB_TYPE){
-                            out.setIbFlag(1);
-                        } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
-                            out.setMotivationFlag(1);
-                        }
-
-                        this.outDAO.updateEntityBean(out);
-                    }
                 }
             }
 

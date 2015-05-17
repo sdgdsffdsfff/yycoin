@@ -25,6 +25,12 @@ import java.util.*;
  */
 public class Test {
     public static void main(String[] args) throws Exception{
+        String outIds = "SO1504161858017551344;SO1504161858017551345;";
+        StringTokenizer  st = new  StringTokenizer(outIds,";");
+        while(st.hasMoreTokens()) {
+            String outId = st.nextToken();
+            System.out.println(outId);
+        }
         double d1 = 2.3;
         double d2 = 2.3;
         System.out.println(d1==d2);
