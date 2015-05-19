@@ -1730,27 +1730,33 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             if (bean.isImportFlag()) {
                 //2015/4/12 中收激励设置SO单标志位
                 List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
-                Set<String> outIdSet = new HashSet<String>();
                 if (!ListTools.isEmptyOrNull(ibList)){
                     _logger.info("TcpIbBean list size:"+ibList.size());
                     for (TcpIbBean ib : ibList){
-                        String outId = ib.getFullId();
-                        outIdSet.add(outId);
+                        String outIds = ib.getFullId();
+                        if (!StringTools.isNullOrNone(outIds)){
+                            StringTokenizer  st = new  StringTokenizer(outIds,";");
+                            while(st.hasMoreTokens()) {
+                                String outId = st.nextToken();
+                                OutBean out = this.outDAO.find(outId);
+                                if (out!= null){
+                                    _logger.info(outId+" OutBean reset IB flag**********");
+                                    if (bean.getIbType() == TcpConstanst.IB_TYPE){
+                                        out.setIbFlag(0);
+                                    } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+                                        out.setMotivationFlag(0);
+                                    }
+
+                                    this.outDAO.updateEntityBean(out);
+                                }
+                            }
+                        } else{
+                            _logger.info("no out for TcpIbBean:"+ib.getId());
+                        }
                     }
+
                 }
 
-                for (String outId: outIdSet){
-                    OutBean out = this.outDAO.find(outId);
-                    if (out!= null){
-                        _logger.info(outId + " OutBean reset IB flag**********");
-                        if (bean.getIbType() == TcpConstanst.IB_TYPE){
-                            out.setIbFlag(0);
-                        } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
-                            out.setMotivationFlag(0);
-                        }
-                        this.outDAO.updateEntityBean(out);
-                    }
-                }
             }
 
         	Collection<TcpPayListener> listenerMapValues = this.listenerMapValues();
@@ -2711,6 +2717,38 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         }
 
         attachmentDAO.deleteEntityBeansByFK(bean.getId());
+
+        if (bean.isImportFlag()) {
+            //2015/5/19 中收激励重置SO单标志位
+            List<TcpIbBean> ibList = this.tcpIbDAO.queryEntityBeansByFK(bean.getId());
+            if (!ListTools.isEmptyOrNull(ibList)){
+                _logger.info("TcpIbBean list size:"+ibList.size());
+                for (TcpIbBean ib : ibList){
+                    String outIds = ib.getFullId();
+                    if (!StringTools.isNullOrNone(outIds)){
+                        StringTokenizer  st = new  StringTokenizer(outIds,";");
+                        while(st.hasMoreTokens()) {
+                            String outId = st.nextToken();
+                            OutBean out = this.outDAO.find(outId);
+                            if (out!= null){
+                                _logger.info(outId+" OutBean reset IB flag before delete bean**********"+bean.getId());
+                                if (bean.getIbType() == TcpConstanst.IB_TYPE){
+                                    out.setIbFlag(0);
+                                } else if (bean.getIbType() == TcpConstanst.MOTIVATION_TYPE){
+                                    out.setMotivationFlag(0);
+                                }
+
+                                this.outDAO.updateEntityBean(out);
+                            }
+                        }
+                    } else{
+                        _logger.info("no out for TcpIbBean:"+ib.getId());
+                    }
+                }
+
+            }
+
+        }
 
         travelApplyDAO.deleteEntityBean(id);
 

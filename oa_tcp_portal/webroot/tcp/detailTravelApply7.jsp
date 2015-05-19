@@ -48,12 +48,12 @@ function load()
 
             <c:if test="${bean.importFlag}">
                 <p:pro field="id"/>
-                <c:if test="${item.type ==0}">
+                <c:if test="${item.ibType ==0}">
                     <p:cell title="申请类型">
                         中收
                     </p:cell>
                 </c:if>
-                <c:if test="${item.type ==1}">
+                <c:if test="${item.ibType ==1}">
                     <p:cell title="申请类型">
                         激励
                     </p:cell>

@@ -297,9 +297,9 @@ function load()
 
                                     <input type="hidden" name="fullId" value="${itemEach.fullId}">
 
-                                    <td width="5%" align="center">
-                                        <input type=button name="ib_del_bu" value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)">
-                                    </td>
+                                    <%--<td width="5%" align="center">--%>
+                                        <%--<input type=button name="ib_del_bu" value="&nbsp;删 除&nbsp;" class=button_class onclick="removeTr(this)">--%>
+                                    <%--</td>--%>
 
                                     </tr>
 

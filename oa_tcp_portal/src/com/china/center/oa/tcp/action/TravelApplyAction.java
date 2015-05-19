@@ -3014,7 +3014,7 @@ public class TravelApplyAction extends DispatchAction
                         List<com.china.center.oa.sail.bean.BaseBean> baseBeans = this.baseDAO.queryEntityBeansByCondition(con1);
 
                         if (type == TcpConstanst.IB_TYPE){
-                            item.setIbMoney(Long.valueOf(money));
+                            item.setIbMoney(MathTools.parseDouble(money));
                             if (customerToIbMap.containsKey(item.getCustomerName())){
                                 customerToIbMap.put(item.getCustomerName(),customerToIbMap.get(item.getCustomerName())+item.getIbMoney()*item.getAmount());
                             } else{
@@ -3036,7 +3036,7 @@ public class TravelApplyAction extends DispatchAction
                                 _logger.warn("No BaseBeans found:"+con1.toString());
                             }
                         } else if (type == TcpConstanst.MOTIVATION_TYPE){
-                            item.setMotivationMoney(Long.valueOf(money));
+                            item.setMotivationMoney(MathTools.parseDouble(money));
                             if(customerToMotivationMap.containsKey(item.getCustomerName())){
                                 customerToMotivationMap.put(item.getCustomerName(),
                                         customerToMotivationMap.get(item.getCustomerName())+item.getMotivationMoney()*item.getAmount());
