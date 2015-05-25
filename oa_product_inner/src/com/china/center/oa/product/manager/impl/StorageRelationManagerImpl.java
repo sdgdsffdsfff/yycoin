@@ -317,7 +317,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
             throw new MYException("库存被锁定,请确认解锁库存操作");
         }
 
-        _logger.info("changeStorageRelationWithoutTransaction**********"+user+"***bean****"+bean.getStafferId());
+        _logger.info("changeStorageRelationWithoutTransaction**********"+user+"***bean****"+bean.getStafferId()+"***bean.getRelationId()**"+bean.getRelationId()+"***bean.getChange()**"+bean.getChange());
         //TODO 2015/2/4 因票随货发Job修改暂时不检查
 //        JudgeTools.judgeParameterIsNull(user, bean, bean.getStafferId());
 //        JudgeTools.judgeParameterIsNull(user, bean);
@@ -450,6 +450,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
 
         if (relation == null && bean.getChange() < 0)
         {
+            _logger.error("****relation is null && bean.getChange() < 0***");
             throw new MYException("仓库[%s]下仓区[%s]下储位[%s]的产品[%s]库存不够,当前库存为[%d],需要使用[%d]", depotBean
                 .getName(), depotpartBean.getName(), storageBean.getName(), productBean.getName(),
                 0, -bean.getChange());
@@ -482,6 +483,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         // 查看库存大小
         if (relation.getAmount() + bean.getChange() < 0)
         {
+            _logger.error("****relation.getAmount() + bean.getChange() < 0***");
             throw new MYException("仓库[%s]下仓区[%s]下储位[%s]的产品[%s]库存不够,当前库存为[%d],需要使用[%d]", depotBean
                 .getName(), depotpartBean.getName(), storageBean.getName(), productBean.getName(),
                 relation.getAmount(), -bean.getChange());
@@ -530,6 +532,7 @@ public class StorageRelationManagerImpl extends AbstractListenerManager<StorageR
         // 如果脏读有小于0的数据异常抛出
         if (updateNew.getAmount() < 0)
         {
+            _logger.error(relation.getId()+"****updateNew.getAmount() < 0***");
             throw new MYException("仓库[%s]下仓区[%s]下储位[%s]的产品[%s]库存不够,当前库存为[%d],需要使用[%d]", depotBean
                 .getName(), depotpartBean.getName(), storageBean.getName(), productBean.getName(),
                 relation.getAmount(), -bean.getChange());

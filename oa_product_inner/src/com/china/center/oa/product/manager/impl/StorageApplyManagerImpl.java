@@ -12,6 +12,8 @@ package com.china.center.oa.product.manager.impl;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,6 +58,7 @@ import com.china.center.tools.TimeTools;
 @Exceptional
 public class StorageApplyManagerImpl extends AbstractListenerManager<StorageApplyListener> implements StorageApplyManager
 {
+    private final Log _logger = LogFactory.getLog(getClass());
     private StorageApplyDAO storageApplyDAO = null;
 
     private StorageRelationDAO storageRelationDAO = null;
@@ -484,6 +487,8 @@ public class StorageApplyManagerImpl extends AbstractListenerManager<StorageAppl
 	
 	        eachWrap.setStorageId(item.getStorageId());
 	        eachWrap.setStafferId(StorageConstant.PUBLIC_STAFFER);
+
+            _logger.info("****forward:"+forward+"***item.getAmount()***"+item.getAmount());
 	        eachWrap.setChange( forward * item.getAmount());
 	        eachWrap.setDepotpartId(item.getDepotpartId());
 	        eachWrap.setDescription("金银料成品出入库:" + bean.getId());
@@ -512,8 +517,11 @@ public class StorageApplyManagerImpl extends AbstractListenerManager<StorageAppl
 		        if (bean.getType() == StorageConstant.STORAGEAPPLY_GS_OUT)
 		        {
 		        	eachgsWrap.setChange( -forward * weight);
+                    _logger.info("****forward:"+forward+"***weight***"+weight);
 		        }else{
-		        	eachgsWrap.setChange( -forward * weight * item.getAmount());
+                    //2015/5/25 入库应该是正数！
+		        	eachgsWrap.setChange( forward * weight * item.getAmount());
+                    _logger.info("****forward:"+forward+"***weight***"+weight+"***getAmount***"+item.getAmount());
 		        }
 		        
 		        eachgsWrap.setDepotpartId(item.getDepotpartId());
