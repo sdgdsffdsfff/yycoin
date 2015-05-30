@@ -519,8 +519,7 @@ public class StorageApplyManagerImpl extends AbstractListenerManager<StorageAppl
 		        	eachgsWrap.setChange( -forward * weight);
                     _logger.info("****forward:"+forward+"***weight***"+weight);
 		        }else{
-                    //2015/5/25 入库应该是正数！
-		        	eachgsWrap.setChange( forward * weight * item.getAmount());
+                    eachgsWrap.setChange( -forward * weight * item.getAmount());
                     _logger.info("****forward:"+forward+"***weight***"+weight+"***getAmount***"+item.getAmount());
 		        }
 		        
