@@ -120,7 +120,7 @@ function titleChange()
 
 function check(isAdd)
 {
-    console.log("**********check now**************");
+    //console.log("**********check now**************");
     var amountList = document.getElementsByName('amount');
     
     if (isAdd)
@@ -255,7 +255,7 @@ function check(isAdd)
         //console.log($O('motivationMoneyList').value);
     }
 
-    console.log("**********check now 222222222**************");
+    //console.log("**********check now 222222222**************");
 
     var tmpMap = {};
     
