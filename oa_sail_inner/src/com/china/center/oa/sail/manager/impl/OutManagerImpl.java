@@ -411,9 +411,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         
         final String [] inputRateList = request.getParameter("inputRateList").split("~");
 
-        final String [] ibMoneyList = request.getParameter("ibMoneyList").split("~");
-
-        final String [] motivationMoneyList = request.getParameter("motivationMoneyList").split("~");
+        final String ibMoneyListStr = request.getParameter("ibMoneyList");
+        final String motivationMoneyListStr = request.getParameter("motivationMoneyList");
         
         _logger.info(fullId + "/nameList/" + request.getParameter("nameList"));
 
@@ -440,8 +439,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info(fullId + "/taxrateList/" + request.getParameter("taxrateList"));
         _logger.info(fullId + "/taxList/" + request.getParameter("taxList"));
         _logger.info(fullId + "/inputRateList/" + request.getParameter("inputRateList"));
-        _logger.info(fullId + "/ibMoneyList/" + request.getParameter("ibMoneyList"));
-        _logger.info(fullId + "/motivationMoneyList/" + request.getParameter("motivationMoneyList"));
+        _logger.info(fullId + "/ibMoneyList/" + ibMoneyListStr);
+        _logger.info(fullId + "/motivationMoneyList/" + motivationMoneyListStr);
 
         // 组织BaseBean
         double ttatol = 0.0d;
@@ -961,9 +960,16 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             base.setIprice(base.getInputPrice());
                         }
 
-                        //TODO 2015/4/15 中收激励金额
-                        base.setIbMoney(MathTools.parseDouble(ibMoneyList[i]));
-                        base.setMotivationMoney(MathTools.parseDouble(motivationMoneyList[i]));
+                        //2015/4/15 中收激励金额（对于入库来说没有此数据）
+                        if (!StringTools.isNullOrNone(ibMoneyListStr)){
+                            final String [] ibMoneyList = ibMoneyListStr.split("~");
+                            base.setIbMoney(MathTools.parseDouble(ibMoneyList[i]));
+                        }
+
+                        if (!StringTools.isNullOrNone(motivationMoneyListStr)){
+                            final String [] motivationMoneyList = motivationMoneyListStr.split("~");
+                            base.setMotivationMoney(MathTools.parseDouble(motivationMoneyList[i]));
+                        }
 
                         baseList.add(base);
 
