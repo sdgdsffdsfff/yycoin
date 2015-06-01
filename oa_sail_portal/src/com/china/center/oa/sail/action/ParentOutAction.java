@@ -5276,6 +5276,7 @@ public class ParentOutAction extends DispatchAction
 			return mapping.findForward("error");
 		}
 
+        _logger.info("addOut 111111111111111");
 		CommonTools.saveParamers(request);
 
 		User user = (User) request.getSession().getAttribute("user");
@@ -5312,7 +5313,7 @@ public class ParentOutAction extends DispatchAction
 		{
 			saves = "提交";
 		}
-
+        _logger.info("addOut 22222222222222222222222");
 		ParamterMap map = new ParamterMap(request);
 
 		ActionForward action = null;
@@ -5342,7 +5343,7 @@ public class ParentOutAction extends DispatchAction
 					+ fullId);
 			_logger.info("Debug LocationShadow ...." + locationShadow);
 		}
-
+        _logger.info("addOut 33333333333333333333333");
 		outBean.setLogTime(TimeTools.now());
 
 		if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
@@ -5388,7 +5389,7 @@ public class ParentOutAction extends DispatchAction
 
 			return mapping.findForward("error");
 		}
-
+        _logger.info("addOut 44444444444444444444444");
 		// 当前切换用户登陆的且为商务登陆的，记录经办人
 		if (!StringTools.isNullOrNone(elogin) && null != g_srcUser
 				&& g_loginType.equals("1"))
@@ -5402,7 +5403,7 @@ public class ParentOutAction extends DispatchAction
 			outBean.setOperatorName(user.getStafferName());
 		}
 		// 商务 - end
-
+        _logger.info("addOut 5555555555555555555");
 		// 销售单
 		if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
 		{
@@ -5446,7 +5447,7 @@ public class ParentOutAction extends DispatchAction
 					outBean.setRatio(String.valueOf(ratio));
 				}
 			}
-
+            _logger.info("addOut 6666666666666666666666666666");
 			action = processCommonOut(mapping, form, request, reponse, user,
 					saves, fullId, outBean, map, "1");
 
@@ -5495,12 +5496,12 @@ public class ParentOutAction extends DispatchAction
 
 			outBean.setDepartment("公共部门");
 			outBean.setArriveDate(TimeTools.now_short(10));
-
+            _logger.info("addOut 77777777777777777777");
 			// 入库单的处理
 			try
 			{
 				String id = outManager.addOut(outBean, map.getParameterMap(), user);
-
+                _logger.info("addOut 88888888888888888888*********"+id);
 				if ("提交".equals(saves))
 				{
 					int ttype = StorageConstant.OPR_STORAGE_INOTHER;
@@ -5521,16 +5522,18 @@ public class ParentOutAction extends DispatchAction
 						{
 							_logger.info("入库拆单(共拆成" + ids.length + "张)：原单" + id
 									+ ", 新单：" + eachId);
-							
+                            _logger.info("addOut 999999999999999999999999*********"+eachId);
 							outManager.submit(eachId, user, ttype);
 						}
 					}else {
+                        _logger.info("addOut aaaaaaaaaaaaaaaa*********");
 						outManager.submit(id, user, ttype);
 					}
 				}
 			}
 			catch (MYException e)
 			{
+                e.printStackTrace();
 				_logger.warn(e, e);
 
 				request.setAttribute(KeyConstant.ERROR_MESSAGE,
@@ -5540,6 +5543,7 @@ public class ParentOutAction extends DispatchAction
 			}
 			catch (Exception e)
 			{
+                e.printStackTrace();
 				_logger.error(e, e);
 
 				request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getMessage());
@@ -6076,7 +6080,7 @@ public class ParentOutAction extends DispatchAction
 			HttpServletResponse reponse, User user, String saves,
 			String fullId, OutBean outBean, ParamterMap map, String step)
 	{
-        System.out.println("processCommonOut:**************step***"+step);
+        _logger.info("processCommonOut:**************step***"+step);
 		// 增加库单
 		if (!StringTools.isNullOrNone(fullId))
 		{
@@ -6105,7 +6109,7 @@ public class ParentOutAction extends DispatchAction
 			{
 				id = outManager.addOutStep2(outBean, user);
 			}
-            System.out.println("step:"+step+" id******************"+id);
+            _logger.info("step:"+step+" id******************"+id);
 
 			// 提交
 			if (OutConstant.FLOW_DECISION_SUBMIT.equals(saves)
