@@ -245,6 +245,9 @@ public class ZJRCManagerImpl implements ZJRCManager
         _logger.info(fullId + "/costprice/" + request.getParameter("costpriceList"));
         _logger.info(fullId + "/midrevenue/" + request.getParameter("midrevenueList"));
 
+//        final String motivationListStr = request.getParameter("motivationList");
+//        _logger.info(fullId + "/motivationListStr/" + request.getParameter("motivationListStr"));
+
         // 组织BaseBean
         double ttatol = 0.0d;
         
@@ -354,7 +357,10 @@ public class ZJRCManagerImpl implements ZJRCManager
                         base.setPrice(MathTools.parseDouble(priceList[i]));
                         base.setCostPrice(MathTools.parseDouble(costpriceList[i]));
                         base.setMidRevenue(MathTools.parseDouble(midrevenueList[i]));
-                        
+
+                        //2015/6/7 中收激励
+                        base.setMotivationMoney(zjrcProduct.getMotivationMoney());
+
                         // 销售价格动态获取的
                         base.setValue(base.getAmount() * base.getPrice());
 
@@ -823,6 +829,10 @@ public class ZJRCManagerImpl implements ZJRCManager
 
         	base.setProfit(profit);
         	base.setProfitRatio(profitRatio);
+
+            //2015/6/7 中收/激励金额
+            base.setIbMoney(each.getMidRevenue());
+            base.setMotivationMoney(each.getMotivationMoney());
 			
         	baseList.add(base);
         	

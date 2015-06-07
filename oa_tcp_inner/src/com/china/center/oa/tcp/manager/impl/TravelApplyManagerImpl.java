@@ -2877,7 +2877,6 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
     @Transactional(rollbackFor = MYException.class)
     public void ibReportJob() throws MYException {
         //To change body of implemented methods use File | Settings | File Templates.
-        //TODO
         //每天夜里跑JOB统计从15.4.1日到当天的未申请的中收和激励数据
         //所有中收激励统计均为“已出库”、“已发货”状态的订单，退库订单的状态均为“待核对”状态
         //销售退库订单的对应中收、激励金额为负数也列入统计及明细
@@ -2885,11 +2884,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         //根据customerId分组
         Map<String, List<OutVO>>  customerToOutMap = new HashMap<String,List<OutVO>>();
 
-        //TODO 所有中收激励统计均为“已出库”、“已发货”状态的订单
+        //所有中收激励统计均为“已出库”、“已发货”状态的销售出库订单
         ConditionParse con = new ConditionParse();
         con.addWhereStr();
         //销售单
         con.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_OUTBILL);
+        //销售出库
+        con.addCondition("OutBean.outType","=", OutConstant.OUTTYPE_OUT_COMMON);
         // “已出库”、“已发货”状态的订单
         con.addCondition("and OutBean.status in (3,4)");
         con.addCondition("outTime",">","2015-04-01");
@@ -2915,10 +2916,9 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
         ConditionParse con1 = new ConditionParse();
         //入库单
         con1.addCondition("OutBean.type","=",  OutConstant.OUT_TYPE_INBILL);
-        //TODO add begin time
+        //add begin time
         //销售退库
         con1.addCondition("OutBean.outType","=", OutConstant.OUTTYPE_IN_OUTBACK);
-//        con1.addCondition("OutBean.outType in (4,5)");
         //“待核对”状态
         con1.addIntCondition("OutBean.status", "=", OutConstant.BUY_STATUS_PASS);
         con1.addCondition("outTime",">","2015-04-01");
@@ -3014,13 +3014,21 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             con3.addCondition("customerName","=",ibReport.getCustomerName());
             this.tcpIbReportItemDAO.deleteEntityBeansByCondition(con3);
 
-            this.tcpIbReportDAO.saveEntityBean(ibReport);
-            for (TcpIbReportItemBean item : itemList){
-                item.setId(commonDAO.getSquenceString20());
-                item.setRefId(ibReport.getId());
+            //如果中收、激励金额都为0就不需要生成
+            final double zero = 0.000001;
+            if (ibReport.getIbMoneyTotal() > zero && ibReport.getMotivationMoneyTotal()> zero){
+                this.tcpIbReportDAO.saveEntityBean(ibReport);
+
+                for (TcpIbReportItemBean item : itemList){
+                    item.setId(commonDAO.getSquenceString20());
+                    item.setRefId(ibReport.getId());
+                }
+                this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
+                _logger.info("****save ibReport**********"+ibReport);
+            } else{
+                _logger.info("****ibReport is zero:"+ibReport);
             }
-            this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
-            _logger.info("****save ibReport**********"+ibReport);
+
         }
         _logger.info("************finish ibReport job*************");
     }

@@ -70,6 +70,11 @@ public class ZJRCBaseBean implements Serializable
      */
     private double midRevenue = 0.0d;
 
+    /**2015/6/6
+     * 激励金额
+     */
+    private double motivationMoney = 0.0d;
+
     /**
      * 总销售价
      */
@@ -363,4 +368,12 @@ public class ZJRCBaseBean implements Serializable
 	{
 		this.pstatus = pstatus;
 	}
+
+    public double getMotivationMoney() {
+        return motivationMoney;
+    }
+
+    public void setMotivationMoney(double motivationMoney) {
+        this.motivationMoney = motivationMoney;
+    }
 }

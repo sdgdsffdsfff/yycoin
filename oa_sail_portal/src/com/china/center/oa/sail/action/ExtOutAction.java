@@ -748,9 +748,7 @@ public class ExtOutAction extends DispatchAction
 
 		ActionForward action = null;
 
-		ZJRCOutBean outBean = null;
-
-		outBean = new ZJRCOutBean();
+		ZJRCOutBean outBean = new ZJRCOutBean();
 
 		// 增加职员的ID
 		outBean.setStafferId(user.getStafferId());

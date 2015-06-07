@@ -125,6 +125,7 @@ function changeArea(areaId)
 <input type=hidden name="priceList">
 <input type=hidden name="costpriceList">
 <input type=hidden name="midrevenueList">
+<input type=hidden name="motivationList">
 <input type=hidden name="saves" value="" /> 
 
 <p:navigation height="22">
@@ -267,7 +268,7 @@ function changeArea(areaId)
 					<tr class="content1" id="trCopy" style="display: none;">
 						<td><input type="text" name="productName"
 							onclick="opens(this)" productid="" costprice=""
-							midrevenue="" 
+							midrevenue=""  motivationmoney=""
 							readonly="readonly" style="width: 100%; cursor: hand">
 						</td>
 					
@@ -287,7 +288,7 @@ function changeArea(areaId)
 					<tr class="content2">
 						<td><input type="text" name="productName" id="unProductName"
 							onclick="opens(this)" productid="" costprice="" 
-							midrevenue="" 
+							midrevenue="" motivationmoney=""
 							readonly="readonly"
 							style="width: 100%; cursor: pointer"></td>
 
