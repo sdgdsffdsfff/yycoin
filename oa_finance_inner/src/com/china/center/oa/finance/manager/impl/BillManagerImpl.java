@@ -12,6 +12,8 @@ package com.china.center.oa.finance.manager.impl;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.china.center.spring.ex.annotation.Exceptional;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,6 +69,8 @@ import com.china.center.tools.TimeTools;
 @Exceptional
 public class BillManagerImpl extends AbstractListenerManager<BillListener> implements BillManager
 {
+    private final Log _logger = LogFactory.getLog(getClass());
+
     private InBillDAO inBillDAO = null;
 
     private OutBillDAO outBillDAO = null;
@@ -928,7 +932,8 @@ public class BillManagerImpl extends AbstractListenerManager<BillListener> imple
 
             if (srcStaffer == null)
             {
-                throw new MYException("数据错误,请确认操作");
+                _logger.error(inBillBean.getId()+" changeBillListToTranWithoutTransactional error,no staffer found:"+inBillBean.getStafferId());
+                throw new MYException("数据错误,请确认操作,T_CENTER_INBILL表中stafferId为空："+inBillBean.getId());
             }
 
             inBillBean.setOwnerId(destStaffer.getId());
