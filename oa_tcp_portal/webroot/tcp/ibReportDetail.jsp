@@ -60,7 +60,10 @@
                                 <c:forEach items="${ibReportItems}" var="item" varStatus="vs">
                                     <tr class='${vs.index % 2 == 0 ? "content1" : "content2"}'>
                                         <td align="center">${item.customerName}</td>
-                                        <td align="center">${item.fullId}</td>
+                                        <td align="center">
+                                            <a href="../sail/out.do?method=findOut&fow=99&outId=${item.fullId}">
+                                            ${item.fullId}
+                                            </a></td>
                                         <td align="center">${item.productName}</td>
                                         <td align="center">${item.amount}</td>
                                         <td align="center">${item.ibMoney}</td>

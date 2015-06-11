@@ -2938,6 +2938,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             }
         }
 
+        final double zero = 0.000001;
         for (String customerId : customerToOutMap.keySet()){
             List<TcpIbReportItemBean> itemList = new ArrayList<TcpIbReportItemBean>();
 
@@ -2993,8 +2994,13 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                                     moTotal += base.getAmount()*base.getMotivationMoney();
                                 }
                             }
-                            _logger.info("****create TcpIbReportItemBean**********"+item);
-                            itemList.add(item);
+
+                            if (Math.abs(item.getIbMoney()) > zero || Math.abs(item.getMotivationMoney())> zero){
+                                _logger.info("****create TcpIbReportItemBean**********"+item);
+                                itemList.add(item);
+                            } else{
+                                _logger.info("****TcpIbReportItemBean is zero**********"+item);
+                            }
                         }
                     } else{
                         _logger.error("****no BaseBean list found:"+out.getId());
@@ -3014,9 +3020,8 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
             con3.addCondition("customerName","=",ibReport.getCustomerName());
             this.tcpIbReportItemDAO.deleteEntityBeansByCondition(con3);
 
-            //如果中收、激励金额都为0就不需要生成
-            final double zero = 0.000001;
-            if (ibReport.getIbMoneyTotal() > zero && ibReport.getMotivationMoneyTotal()> zero){
+            //中收或激励只要一个有值就生成
+            if (Math.abs(ibReport.getIbMoneyTotal()) > zero || Math.abs(ibReport.getMotivationMoneyTotal())> zero){
                 this.tcpIbReportDAO.saveEntityBean(ibReport);
 
                 for (TcpIbReportItemBean item : itemList){
@@ -3026,6 +3031,7 @@ public class TravelApplyManagerImpl extends AbstractListenerManager<TcpPayListen
                 this.tcpIbReportItemDAO.saveAllEntityBeans(itemList);
                 _logger.info("****save ibReport**********"+ibReport);
             } else{
+                //如果中收、激励金额都为0就不需要生成
                 _logger.info("****ibReport is zero:"+ibReport);
             }
 
