@@ -2229,6 +2229,7 @@ public class OutImportManagerImpl implements OutImportManager
 					oldBean.setTransportFee(each.getTransportFee());
 					oldBean.setReveiver(each.getReveiver());
 					oldBean.setApplys(each.getApplys());
+                    oldBean.setSfReceiveDate(each.getSfReceiveDate());
 					
 					consignDAO.updateConsign(oldBean);
 				} else {
@@ -2258,6 +2259,7 @@ public class OutImportManagerImpl implements OutImportManager
 						oldBean.setTransportFee(each.getTransportFee());
 						oldBean.setReveiver(each.getReveiver());
 						oldBean.setApplys(each.getApplys());
+                        oldBean.setSfReceiveDate(each.getSfReceiveDate());
 						
 			            consignDAO.addConsign(oldBean);
 					}

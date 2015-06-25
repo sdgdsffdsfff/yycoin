@@ -96,6 +96,9 @@ public class ConsignBean implements Serializable
 
     private String transportFee = "";
 
+    //2015/6/25 顺丰收货日期
+    private String sfReceiveDate = "";
+
     /**
      * 收货人
      */
@@ -121,6 +124,14 @@ public class ConsignBean implements Serializable
      */
     public ConsignBean()
     {
+    }
+
+    public String getSfReceiveDate() {
+        return sfReceiveDate;
+    }
+
+    public void setSfReceiveDate(String sfReceiveDate) {
+        this.sfReceiveDate = sfReceiveDate;
     }
 
     /**

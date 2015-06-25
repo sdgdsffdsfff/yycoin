@@ -3890,7 +3890,21 @@ public class OutImportAction extends DispatchAction
             		{
             			bean.setTransportFee(obj[15]);
             		}
-            		
+
+                    //2015/6/25 顺丰收货日期必填
+                    if ( !StringTools.isNullOrNone(obj[16]))
+                    {
+                        bean.setSfReceiveDate(obj[16]);
+                    }else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("顺丰收货日期不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
                     importItemList.add(bean);
                     
                 }
