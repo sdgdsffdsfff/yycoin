@@ -39,6 +39,8 @@
     </bean>
     
     <bean name="/sail/config" class="com.china.center.oa.sail.action.SailConfigAction" />
+
+    <bean name="/sail/giftconfig" class="com.china.center.oa.sail.action.GiftConfigAction" />
     
     <bean name="/sail/tran" class="com.china.center.oa.sail.action.SailTranApplyAction" />
     

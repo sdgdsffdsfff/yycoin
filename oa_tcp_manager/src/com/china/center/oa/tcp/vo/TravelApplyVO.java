@@ -63,6 +63,7 @@ public class TravelApplyVO extends TravelApplyBean
     @Ignore
     private List<TcpShareVO> shareVOList = null;
 
+
     /**
      * 准确到分
      */

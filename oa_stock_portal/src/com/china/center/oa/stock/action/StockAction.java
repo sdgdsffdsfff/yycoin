@@ -687,22 +687,34 @@ public class StockAction extends DispatchAction
             String depotpartId = request.getParameter("depotpartId");
 
             String warehouseNum = request.getParameter("warehouseNum");
-            String to_be_buy_count = request.getParameter("to_be_buy_count");
-            System.out.println("warehouseNum*********"+warehouseNum+"****to_be_buy_count*****"+to_be_buy_count);
+            String to_be_warehouse = request.getParameter("to_be_warehouse");
+           _logger.info("warehouseNum*********"+warehouseNum+"****to_be_warehouse*****"+to_be_warehouse);
+            int  warehouseNumber = 0;
+            int toBeWarehouseNum = Integer.valueOf(to_be_warehouse);
+            if (StringTools.isNullOrNone(warehouseNum)){
+                _logger.info("warehouseNum is empty and will use default to_be_warehouse value");
+                warehouseNumber = Integer.valueOf(to_be_warehouse);
+            }
 
+            boolean result = true;
             try
             {
                 User user = Helper.getUser(request);
 
-                stockManager.fetchProduct(user, itemId, depotpartId, Integer.valueOf(warehouseNum), 0);
+                result = stockManager.fetchProduct(user, itemId, depotpartId, warehouseNumber, toBeWarehouseNum);
 
                 request.setAttribute(KeyConstant.MESSAGE, "成功拿货,且自动生成入库单");
             }
             catch (MYException e)
             {
+                e.printStackTrace();
                 _logger.warn(e, e);
-
-                request.setAttribute(KeyConstant.ERROR_MESSAGE, "拿货失败:" + e.getMessage());
+                result = false;
+//                request.setAttribute(KeyConstant.ERROR_MESSAGE, "拿货失败:" + e.getMessage());
+            } finally{
+                if (!result){
+                    request.setAttribute(KeyConstant.ERROR_MESSAGE, "拿货失败");
+                }
             }
 
             CommonTools.removeParamers(request);
@@ -717,7 +729,6 @@ public class StockAction extends DispatchAction
      * 收集数据
      * 
      * @param pbean
-     * @param item
      * @param request
      * @throws MYException
      */
@@ -1629,7 +1640,8 @@ public class StockAction extends DispatchAction
     /**
      * checkQueryOutAuth
      * 
-     * @param request
+     * @param user
+     * @param queryType
      * @throws MYException
      */
     private void checkQueryAuth(User user, String queryType)
@@ -1968,7 +1980,7 @@ public class StockAction extends DispatchAction
      * setStockDisplay
      * 
      * @param user
-     * @param StockVO
+     * @param stockBeanVO
      */
     private void setStockDisplay(User user, StockVO stockBeanVO, int type)
     {
@@ -2977,7 +2989,7 @@ public class StockAction extends DispatchAction
      * @param fullId
      * @param user
      * @param reason
-     * @param out
+     * @param vo
      * @param subject
      */
     private void sendOutRejectMail(String fullId, User user, String reason, StockItemVO vo,String subject) 

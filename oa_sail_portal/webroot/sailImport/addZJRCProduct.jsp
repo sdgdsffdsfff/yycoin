@@ -76,6 +76,8 @@ function clears()
 			<p:pro field="costPrice" value="0.0" innerString="size=60 oncheck='isFloat'"/>
 			
 			<p:pro field="midRevenue" value="0.0" innerString="size=60 oncheck='isFloat'"/>
+
+            <p:pro field="motivationMoney" value="0.0" innerString="size=60 oncheck='isFloat'"/>
 			
 		</p:table>
 	</p:subBody>

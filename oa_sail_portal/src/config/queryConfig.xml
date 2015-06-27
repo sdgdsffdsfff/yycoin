@@ -36,6 +36,27 @@
             <type>text</type>
         </condtion>
     </item>
+
+    <item name="queryGiftConfig" deaultpfix="ProductVSGiftBean">
+        <condtion name="activity" caption="活动描述">
+            <opr>like</opr>
+            <type>text</type>
+        </condtion>
+        <condtion name="bank" caption="适用银行">
+            <opr>like</opr>
+            <type>text</type>
+        </condtion>
+        <condtion name="beginDate" filed="beginDate" caption="开始日期" >
+            <opr>&gt;=</opr>
+            <type>date</type>
+            <inner></inner>
+        </condtion>
+        <condtion name="endDate" filed="endDate" caption="结束日期" >
+            <opr>&lt;=</opr>
+            <type>date</type>
+            <inner></inner>
+        </condtion>
+    </item>
     
     <item name="querySelfSailTranApply" deaultpfix="SailTranApplyBean">
         <condtion name="customerName" filed="name" caption="客户" pfix="CustomerBean">

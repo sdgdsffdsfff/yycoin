@@ -451,6 +451,13 @@ public class OutBean implements Serializable
 
     //2015/2/25 默认为当前时间
     private String podate = TimeTools.now_short();
+
+    //2015/4/11 中收激励标志位
+    //0: 未申请 1：已申请
+    private int ibFlag = 0;
+
+    //0: 未申请 1：已申请
+    private int motivationFlag = 0;
     
     @Ignore
     private List<BaseBean> baseList = null;
@@ -2010,7 +2017,23 @@ public class OutBean implements Serializable
 		this.distList = distList;
 	}
 
-	/**
+    public int getIbFlag() {
+        return ibFlag;
+    }
+
+    public void setIbFlag(int ibFlag) {
+        this.ibFlag = ibFlag;
+    }
+
+    public int getMotivationFlag() {
+        return motivationFlag;
+    }
+
+    public void setMotivationFlag(int motivationFlag) {
+        this.motivationFlag = motivationFlag;
+    }
+
+    /**
      * Constructs a <code>String</code> with all attributes in name = value format.
      * 
      * @return a <code>String</code> representation of this object.

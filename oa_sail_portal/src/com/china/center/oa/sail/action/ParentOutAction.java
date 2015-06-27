@@ -1586,7 +1586,7 @@ public class ParentOutAction extends DispatchAction
 	 * @param request
 	 * @param check
 	 *            是否检查事业部
-	 * @param detailQuery
+	 * @param needDeepQuery
 	 * 
 	 * @throws MYException
 	 */
@@ -2488,6 +2488,9 @@ public class ParentOutAction extends DispatchAction
 			line.writeColumn("数量");
 			line.writeColumn("单价");
 			line.writeColumn("金额");
+            //2015/6/17 导出中收激励金额
+            line.writeColumn("中收金额");
+            line.writeColumn("激励金额");
 
 			line.writeColumn("产品类型");
 			line.writeColumn("销售类型");
@@ -2757,6 +2760,10 @@ public class ParentOutAction extends DispatchAction
 					line.writeColumn(String.valueOf(base.getAmount()));
 					line.writeColumn(String.valueOf(base.getPrice()));
 					line.writeColumn(String.valueOf(base.getValue()));
+
+                    //2015/6/17 导出中收激励金额
+                    line.writeColumn(MathTools.formatNum(base.getIbMoney()));
+                    line.writeColumn(MathTools.formatNum(base.getMotivationMoney()));
 
 					String productType = "";
 					String productSailType = "";
@@ -3697,7 +3704,7 @@ public class ParentOutAction extends DispatchAction
 	 * 
 	 * @param outId
 	 * @param request
-	 * @param bean
+	 * @param baseList
 	 */
 	private List<OutBean> makeLingYang(String outId,
 			HttpServletRequest request, List<BaseBean> baseList)
@@ -3883,6 +3890,10 @@ public class ParentOutAction extends DispatchAction
 			out.setDescription("销售退库,销售单号:" + outId + ". " + adescription);
 		}
 
+        //2015/5/12 拷贝原销售单中收激励情况
+        out.setIbFlag(oldOut.getIbFlag());
+        out.setMotivationFlag(oldOut.getMotivationFlag());
+
 		// 商务
 		User g_srcUser = (User) request.getSession().getAttribute("g_srcUser");
 
@@ -4032,6 +4043,11 @@ public class ParentOutAction extends DispatchAction
 						baseBean.setDescription(String.valueOf(each
 								.getCostPrice()));
 
+
+                        //2015/5/12 销售退库需要记录中收激励金额
+                        baseBean.setIbMoney(each.getIbMoney());
+                        baseBean.setMotivationMoney(each.getMotivationMoney());
+
 						newBaseList.add(baseBean);
 
 						total += baseBean.getValue();
@@ -4133,7 +4149,6 @@ public class ParentOutAction extends DispatchAction
 
 	/**
 	 * 
-	 * @param eventId
 	 * @param oldOut
 	 * @param out
 	 * @param newBaseList
@@ -4780,8 +4795,7 @@ public class ParentOutAction extends DispatchAction
 	/**
 	 * 收集数据
 	 * 
-	 * @param pbean
-	 * @param item
+	 * @param bean
 	 * @param request
 	 * @throws MYException
 	 */
@@ -4958,7 +4972,6 @@ public class ParentOutAction extends DispatchAction
 	/**
 	 * 
 	 * @param list
-	 * @param type
 	 * @param request
 	 * @param bean
 	 * @throws MYException
@@ -5270,6 +5283,7 @@ public class ParentOutAction extends DispatchAction
 			return mapping.findForward("error");
 		}
 
+        _logger.info("addOut 111111111111111");
 		CommonTools.saveParamers(request);
 
 		User user = (User) request.getSession().getAttribute("user");
@@ -5306,7 +5320,7 @@ public class ParentOutAction extends DispatchAction
 		{
 			saves = "提交";
 		}
-
+        _logger.info("addOut 22222222222222222222222");
 		ParamterMap map = new ParamterMap(request);
 
 		ActionForward action = null;
@@ -5336,7 +5350,7 @@ public class ParentOutAction extends DispatchAction
 					+ fullId);
 			_logger.info("Debug LocationShadow ...." + locationShadow);
 		}
-
+        _logger.info("addOut 33333333333333333333333");
 		outBean.setLogTime(TimeTools.now());
 
 		if (outBean.getType() == OutConstant.OUT_TYPE_INBILL
@@ -5382,7 +5396,7 @@ public class ParentOutAction extends DispatchAction
 
 			return mapping.findForward("error");
 		}
-
+        _logger.info("addOut 44444444444444444444444");
 		// 当前切换用户登陆的且为商务登陆的，记录经办人
 		if (!StringTools.isNullOrNone(elogin) && null != g_srcUser
 				&& g_loginType.equals("1"))
@@ -5396,7 +5410,7 @@ public class ParentOutAction extends DispatchAction
 			outBean.setOperatorName(user.getStafferName());
 		}
 		// 商务 - end
-
+        _logger.info("addOut 5555555555555555555");
 		// 销售单
 		if (outBean.getType() == OutConstant.OUT_TYPE_OUTBILL)
 		{
@@ -5440,7 +5454,7 @@ public class ParentOutAction extends DispatchAction
 					outBean.setRatio(String.valueOf(ratio));
 				}
 			}
-
+            _logger.info("addOut 6666666666666666666666666666");
 			action = processCommonOut(mapping, form, request, reponse, user,
 					saves, fullId, outBean, map, "1");
 
@@ -5489,12 +5503,12 @@ public class ParentOutAction extends DispatchAction
 
 			outBean.setDepartment("公共部门");
 			outBean.setArriveDate(TimeTools.now_short(10));
-
+            _logger.info("addOut 77777777777777777777");
 			// 入库单的处理
 			try
 			{
 				String id = outManager.addOut(outBean, map.getParameterMap(), user);
-
+                _logger.info("addOut 88888888888888888888*********"+id);
 				if ("提交".equals(saves))
 				{
 					int ttype = StorageConstant.OPR_STORAGE_INOTHER;
@@ -5515,16 +5529,18 @@ public class ParentOutAction extends DispatchAction
 						{
 							_logger.info("入库拆单(共拆成" + ids.length + "张)：原单" + id
 									+ ", 新单：" + eachId);
-							
+                            _logger.info("addOut 999999999999999999999999*********"+eachId);
 							outManager.submit(eachId, user, ttype);
 						}
 					}else {
+                        _logger.info("addOut aaaaaaaaaaaaaaaa*********");
 						outManager.submit(id, user, ttype);
 					}
 				}
 			}
 			catch (MYException e)
 			{
+                e.printStackTrace();
 				_logger.warn(e, e);
 
 				request.setAttribute(KeyConstant.ERROR_MESSAGE,
@@ -5534,6 +5550,7 @@ public class ParentOutAction extends DispatchAction
 			}
 			catch (Exception e)
 			{
+                e.printStackTrace();
 				_logger.error(e, e);
 
 				request.setAttribute(KeyConstant.ERROR_MESSAGE, e.getMessage());
@@ -5899,7 +5916,7 @@ public class ParentOutAction extends DispatchAction
 			HttpServletRequest request, HttpServletResponse reponse)
 			throws ServletException
 	{
-        System.out.println("addOutStep2111111111111111111");
+        _logger.info("*********addOutStep2111111111111111111");
 		// 是否锁定库存
 		if (storageRelationManager.isStorageRelationLock())
 		{
@@ -5907,7 +5924,7 @@ public class ParentOutAction extends DispatchAction
 
 			return mapping.findForward("error");
 		}
-        System.out.println("addOutStep211122222222222222222");
+        _logger.info("addOutStep211122222222222222222");
 
 		User user = (User) request.getSession().getAttribute("user");
 
@@ -5925,21 +5942,18 @@ public class ParentOutAction extends DispatchAction
 		}
 
 		ActionForward action = null;
-        System.out.println("addOutStep233333333333333333");
-		OutBean outBean = outDAO.find(fullId);
-        System.out.println("addOutStep2444444444444444");
-		if (null == outBean)
+        OutBean outBean = outDAO.find(fullId);
+        if (null == outBean)
 		{
 			request.setAttribute(KeyConstant.ERROR_MESSAGE, "库单不存在,请重新操作");
 
 			return mapping.findForward("error");
 		}
-        System.out.println("addOutStep255555555555555555");
+        _logger.info("addOutStep255555555555555555");
 		fillDistribution(request, outBean);
-        System.out.println("addOutStep21166666666666666666");
+        _logger.info("addOutStep21166666666666666666");
 		// 商务 - begin
 		ActionForward error = checkAuthForEcommerce(request, user, mapping);
-        System.out.println("addOutStep2177777777777777");
 		if (null != error)
 		{
 			return error;
@@ -5957,11 +5971,11 @@ public class ParentOutAction extends DispatchAction
 		}
 
 		// 商务 - end
-        System.out.println("addOutStep2188888888888888888");
+        _logger.info("addOutStep2188888888888888888");
 		// 销售单
 		action = processCommonOut(mapping, form, request, reponse, user, saves,
 				fullId, outBean, null, "2");
-        System.out.println("addOutStep211999999999999999999");
+        _logger.info("addOutStep211999999999999999999");
 		if (action != null)
 		{
 			return action;
@@ -5986,13 +6000,13 @@ public class ParentOutAction extends DispatchAction
             System.out.println("addOutStep2 sendOutMailsendOutMailsendOutMailsendOutMail");
 			//outManager.sendOutMail(outBean, "商务开单确认.");
 		}
-        System.out.println("addOutStep2aaaaaaaaaaaaaaaaaa");
+        _logger.info("addOutStep2 finished*****");
 		return querySelfOut(mapping, form, request, reponse);
 	}
 
 	/**
 	 * 
-	 * @param request
+	 * @param rds
 	 * @param out
 	 */
 	private void fillDistribution(HttpServletRequest rds, OutBean out)
@@ -6073,7 +6087,7 @@ public class ParentOutAction extends DispatchAction
 			HttpServletResponse reponse, User user, String saves,
 			String fullId, OutBean outBean, ParamterMap map, String step)
 	{
-        System.out.println("processCommonOut:**************step***"+step);
+        _logger.info("processCommonOut:**************step***"+step);
 		// 增加库单
 		if (!StringTools.isNullOrNone(fullId))
 		{
@@ -6102,7 +6116,7 @@ public class ParentOutAction extends DispatchAction
 			{
 				id = outManager.addOutStep2(outBean, user);
 			}
-            System.out.println("step:"+step+" id******************"+id);
+            _logger.info("step:"+step+" id******************"+id);
 
 			// 提交
 			if (OutConstant.FLOW_DECISION_SUBMIT.equals(saves)

@@ -13,6 +13,7 @@ import com.china.center.tools.StringTools;
 import com.china.center.tools.TimeTools;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -23,7 +24,26 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class Test {
-    public static void main(String[] args){
+    public static void main(String[] args) throws Exception{
+        String outIds = "SO1504161858017551344;SO1504161858017551345;";
+        StringTokenizer  st = new  StringTokenizer(outIds,";");
+        while(st.hasMoreTokens()) {
+            String outId = st.nextToken();
+            System.out.println(outId);
+        }
+        double d1 = 2.3;
+        double d2 = 2.3;
+        System.out.println(d1==d2);
+        String endDate ="2015-03-19 23:59:59";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        Date end = sdf.parse(endDate);
+        Date now = new Date();
+        System.out.println(end.compareTo(now));
+        endDate ="2015-05-19 23:59:59";
+        sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        end = sdf.parse(endDate);
+        System.out.println(end.compareTo(now));
+        System.out.println(end.after(now));
         String sql1 = "<= '2015-03-19 23:59:59' AND PackageBean.status =0 AND PackageBean.insFollowOut =1 AND PackageBean.logTime >= '2015-03-12" ;
         String placeholder = "AND PackageBean.insFollowOut =";
         int index3 = sql1.indexOf(placeholder);

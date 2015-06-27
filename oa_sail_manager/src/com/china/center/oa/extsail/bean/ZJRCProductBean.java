@@ -53,6 +53,12 @@ public class ZJRCProductBean implements Serializable
 	 */
 	@Html(title = "中收", must = true, type = Element.DOUBLE)
 	private double midRevenue = 0.0d;
+
+    /**2015/6/6
+     * 激励金额
+     */
+    @Html(title = "激励", must = true, type = Element.DOUBLE)
+    private double motivationMoney = 0.0d;
 	
 	private String stafferId = "";
 	
@@ -209,4 +215,12 @@ public class ZJRCProductBean implements Serializable
 	{
 		this.stafferName = stafferName;
 	}
+
+    public double getMotivationMoney() {
+        return motivationMoney;
+    }
+
+    public void setMotivationMoney(double motivationMoney) {
+        this.motivationMoney = motivationMoney;
+    }
 }

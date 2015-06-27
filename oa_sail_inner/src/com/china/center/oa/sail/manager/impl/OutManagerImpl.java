@@ -307,7 +307,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 增加(修改)
      * 
-     * @param locationBean
+     * @param outBean
      * @return String 销售单的ID
      * @throws Exception
      */
@@ -410,6 +410,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         final String [] taxList = request.getParameter("taxList").split("~");
         
         final String [] inputRateList = request.getParameter("inputRateList").split("~");
+
+        final String ibMoneyListStr = request.getParameter("ibMoneyList");
+        final String motivationMoneyListStr = request.getParameter("motivationMoneyList");
         
         _logger.info(fullId + "/nameList/" + request.getParameter("nameList"));
 
@@ -436,6 +439,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
         _logger.info(fullId + "/taxrateList/" + request.getParameter("taxrateList"));
         _logger.info(fullId + "/taxList/" + request.getParameter("taxList"));
         _logger.info(fullId + "/inputRateList/" + request.getParameter("inputRateList"));
+        _logger.info(fullId + "/ibMoneyList/" + ibMoneyListStr);
+        _logger.info(fullId + "/motivationMoneyList/" + motivationMoneyListStr);
 
         // 组织BaseBean
         double ttatol = 0.0d;
@@ -955,10 +960,23 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
                             base.setIprice(base.getInputPrice());
                         }
 
+                        //2015/4/15 中收激励金额（对于入库来说没有此数据）
+                        if (!StringTools.isNullOrNone(ibMoneyListStr)){
+                            final String [] ibMoneyList = ibMoneyListStr.split("~");
+                            base.setIbMoney(MathTools.parseDouble(ibMoneyList[i]));
+                        }
+
+                        if (!StringTools.isNullOrNone(motivationMoneyListStr)){
+                            final String [] motivationMoneyList = motivationMoneyListStr.split("~");
+                            base.setMotivationMoney(MathTools.parseDouble(motivationMoneyList[i]));
+                        }
+
                         baseList.add(base);
 
                         // 增加单个产品到base表
                         baseDAO.saveEntityBean(base);
+
+                        _logger.info("***************create BaseBean ************");
 
                         addSub = true;
                     }
@@ -1503,8 +1521,9 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 提交(包括领样退库和销售退库)
      * 
-     * @param outBean
+     * @param fullId
      * @param user
+     * @param storageType
      * @return
      * @throws Exception
      */
@@ -2688,7 +2707,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 查询REF的入库单(已经通过的)
      * 
-     * @param request
      * @param outId
      * @return
      */
@@ -2719,7 +2737,6 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 
     /**
      * 查询所有入库单Ignore status and not contain other in
-     * @param request
      * @param outId
      * @return
      */
@@ -2886,7 +2903,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 驳回(只有销售单和入库单)
      * 
-     * @param outBean
+     * @param fullId
      * @param user
      * @return
      * @throws Exception
@@ -3068,7 +3085,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      * 
      * @param outBean
      * @param baseList
-     * @param locationId
+     * @param deportId
      * @throws MYException
      */
     private void checkReject(final OutBean outBean, final List<BaseBean> baseList,
@@ -3095,7 +3112,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * CORE 审核通过(这里只有销售单/入库单才有此操作)分公司经理审核/结算中心/物流审批/库管发货
      * 
-     * @param outBean
+     * @param fullId
      * @param user
      * @param depotpartId
      *            废弃
@@ -3375,7 +3392,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
      * @param user
      * @param outBean
      * @param baseList
-     * @param logList
+     * @param type
      * @throws MYException
      */
     private void processBuyAndSailPass(final User user, final OutBean outBean,
@@ -3991,7 +4008,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * CORE (销售单的终结)财务核对
      * 
-     * @param outBean
+     * @param fullId
      * @param user
      * @return
      * @throws Exception
@@ -4731,7 +4748,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 更新库单(但是不包括状态)
      * 
-     * @param fullId
+     * @param out
      * @return
      */
     public boolean updateOut(final OutBean out)
@@ -7063,8 +7080,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 检查是否可以转销售(入数据库但是没有提交)
      * 
-     * @param bean
-     * @param request
+     * @param outId
      * @return
      * @throws MYException
      */
@@ -8096,9 +8112,8 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * 更新客户信用分及业务员信用额度 
      * 
-     * @param user
-     * @param outList
-     * @param staffer
+     * @param out
+     * @param id
      * @return
      * @throws MYException
      */
@@ -9196,7 +9211,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
 	 /**
      * 提交(包括领样退库和销售退库)
      * 
-     * @param outBean
+     * @param fullId
      * @param user
      * @return
      * @throws Exception
@@ -9379,7 +9394,7 @@ public class OutManagerImpl extends AbstractListenerManager<OutListener> impleme
     /**
      * CORE 审核通过(这里只有销售单/入库单才有此操作)分公司经理审核/结算中心/物流审批/库管发货
      * 
-     * @param outBean
+     * @param fullId
      * @param user
      * @param depotpartId
      *            废弃

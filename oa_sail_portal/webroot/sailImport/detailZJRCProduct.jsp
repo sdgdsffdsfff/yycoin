@@ -79,6 +79,8 @@ function goback()
 			<p:pro field="costPrice" innerString="size=60 oncheck='isFloat'"/>
 			
 			<p:pro field="midRevenue" innerString="size=60 oncheck='isFloat'"/>
+
+            <p:pro field="motivationMoney" innerString="size=60 oncheck='isFloat'"/>
 			
 			<p:pro field="stafferName" />
 			

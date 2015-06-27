@@ -22,6 +22,14 @@ function addShareTr()
     }
 }
 
+function addIbTr()
+{
+    for (var i = 0; i < 1; i++)
+    {
+        addTrInner("tables_ib", "trCopy_ib");
+    }
+}
+
 function compareNumber(a, b)
 {
 	var aa = a * 1000;
@@ -122,9 +130,11 @@ function checks()
             return false;
     	}
     	
-	    if (total != 100 && compareNumber(borrow, total) != 0)
+	    if (total != 100 && compareNumber(stotal, total) != 0)
 	    {
-	        alert('分担比例之和必须等于100,或者分担金额之和等于(借款):' + borrow);
+//	        alert('分担比例之和必须等于100,或者分担金额之和等于(借款):' + borrow);
+            //2015/4/1 费用分担之和必须等于预算项之和
+            alert('费用分担金额之和必须等于预算项之和:' + stotal);
 	            
 	        return false;
 	    }

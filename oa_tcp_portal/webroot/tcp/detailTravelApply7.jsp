@@ -46,7 +46,22 @@ function load()
             ${bean.flowDescription}
             </p:cell>
 
-            <p:pro field="id" cell="0"/>
+            <c:if test="${bean.importFlag}">
+                <p:pro field="id"/>
+                <c:if test="${item.ibType ==0}">
+                    <p:cell title="申请类型">
+                        中收
+                    </p:cell>
+                </c:if>
+                <c:if test="${item.ibType ==1}">
+                    <p:cell title="申请类型">
+                        激励
+                    </p:cell>
+                </c:if>
+            </c:if>
+            <c:if test="${!bean.importFlag}">
+                <p:pro field="id" cell="0"/>
+            </c:if>
             
             <p:pro field="stafferId" value="${bean.stafferName}"/>
             <p:pro field="departmentId" value="${bean.departmentName}"/>
@@ -202,7 +217,57 @@ function load()
     </tr>
     
     <%@include file="share_detail.jsp"%>
-    
+
+    <c:if test="${bean.importFlag}">
+        <p:title>
+            <td class="caption">
+                <strong>中收激励明细</strong>
+            </td>
+        </p:title>
+
+        <p:line flag="0" />
+
+        <tr id="ib_main_tr">
+            <td colspan='2' align='center'>
+                <table width="98%" border="0" cellpadding="0" cellspacing="0"
+                       class="border">
+                    <tr>
+                        <td>
+                            <table width="100%" border="0" cellspacing='1' id="tables_ib">
+                                <tr align="center" class="content0">
+                                    <td width="10%" align="center">申请类型</td>
+                                    <td width="20%" align="center">客户名</td>
+                                    <%--<td width="20%" align="center">订单号</td>--%>
+                                    <%--<td width="15%" align="center">商品名</td>--%>
+                                    <%--<td width="10%" align="center">数量</td>--%>
+                                    <td width="10%" align="center">中收金额</td>
+                                    <td width="10%" align="center">激励金额</td>
+                                </tr>
+                                <c:forEach items="${bean.ibList}" var="item">
+                                    <tr align="center" class="content1">
+                                        <td align="center">
+                                            <c:if test="${item.type ==0}">中收
+                                            </c:if>
+                                            <c:if test="${item.type ==1}">激励
+                                            </c:if>
+                                        </td>
+                                        <td align="center">${item.customerName}</td>
+                                        <%--<td align="center">${item.fullId}</td>--%>
+                                        <%--<td align="center">${item.productName}</td>--%>
+                                        <%--<td align="center">${item.amount}</td>--%>
+                                        <td align="center">${item.ibMoney}</td>
+                                        <td align="center">${item.motivationMoney}</td>
+                                    </tr>
+                                </c:forEach>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </c:if>
+
     <p:title>
         <td class="caption">
          <strong>流程日志</strong>

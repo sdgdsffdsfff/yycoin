@@ -116,18 +116,21 @@ function pop(obj)
 				<td align="center" class="td_class"><strong>销售价</strong></td>
 				<td align="center" class="td_class"><strong>供货价</strong></td>
 				<td align="center" class="td_class"><strong>中收</strong></td>
+                <td align="center" class="td_class"><strong>激励</strong></td>
 			</tr>
 
 			<c:forEach items="${beanList}" var="item" varStatus="vs">
 				<tr class="${vs.index % 2 == 0 ? 'content1' : 'content2'}">
 					<td align="center"><input type='${selectMode == 1 ? "radio" : "checkbox"}' name="beans"
 					pname="${item.zjrProductName}" pprice="${item.price}" pcostprice="${item.costPrice}" pmidrevenue="${item.midRevenue}"
+                    pmontivationmoney="${item.motivationMoney}"
 					value="${item.id}"/>
 					</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${item.zjrProductName}</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${my:formatNum(item.price)}</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${my:formatNum(item.costPrice)}</td>
 					<td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${my:formatNum(item.midRevenue)}</td>
+                    <td align="center" onclick="hrefAndSelect(this)" ondblclick="sures()">${my:formatNum(item.motivationMoney)}</td>
 				</tr>
 			</c:forEach>
 		</table>

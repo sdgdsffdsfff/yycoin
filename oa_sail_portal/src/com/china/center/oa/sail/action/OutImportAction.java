@@ -183,6 +183,7 @@ public class OutImportAction extends DispatchAction
             HttpServletRequest request, HttpServletResponse response)
 	throws ServletException
 	{
+        _logger.info("***********importOut now*************");
         User user = Helper.getUser(request);
     	
         RequestDataStream rds = new RequestDataStream(request);
@@ -192,6 +193,7 @@ public class OutImportAction extends DispatchAction
         List<OutImportBean> importItemList = new ArrayList<OutImportBean>(); 
         
         StringBuilder builder = new StringBuilder();
+        _logger.info("***********importOut step1*************");
         try
         {
             rds.parser();
@@ -211,8 +213,8 @@ public class OutImportAction extends DispatchAction
             return mapping.findForward("importOut");
         }
         
-        String itype = rds.getParameter("type"); 
-        
+        String itype = rds.getParameter("type");
+
         ReaderFile reader = ReadeFileFactory.getXLSReader();
          try
         {
@@ -297,7 +299,9 @@ public class OutImportAction extends DispatchAction
         }
         
         String batchId = "";
-        
+
+        _logger.info("before outImportManager.addBean***");
+
         try
         {
         	batchId = outImportManager.addBean(importItemList);
@@ -314,7 +318,8 @@ public class OutImportAction extends DispatchAction
         
         if (!ListTools.isEmptyOrNull(list))
         {
-        	outImportManager.processAsyn(list);
+            _logger.info("before outImportManager.processAsyn***");
+            outImportManager.processAsyn(list);
         }
         
         return mapping.findForward("queryOutImport");
@@ -1170,6 +1175,18 @@ public class OutImportAction extends DispatchAction
 				importError = true;
 			}
 		}
+
+        // 2015/05/04 中收金额
+        if ( !StringTools.isNullOrNone(obj[41]))
+        {
+            bean.setIbMoney(MathTools.parseDouble(obj[41].trim()));
+        }
+
+        // 激励金额
+        if ( !StringTools.isNullOrNone(obj[42]))
+        {
+            bean.setMotivationMoney(MathTools.parseDouble(obj[42].trim()));
+        }
 		
 		return importError;
 	}
@@ -2147,6 +2164,18 @@ public class OutImportAction extends DispatchAction
 				importError = true;
 			}
 		}
+
+        // 2015/05/04 中收金额
+        if ( !StringTools.isNullOrNone(obj[41]))
+        {
+            bean.setIbMoney(MathTools.parseDouble(obj[41].trim()));
+        }
+
+        // 激励金额
+        if ( !StringTools.isNullOrNone(obj[42]))
+        {
+            bean.setMotivationMoney(MathTools.parseDouble(obj[42].trim()));
+        }
 		
 		return importError;
 	}
@@ -3861,7 +3890,21 @@ public class OutImportAction extends DispatchAction
             		{
             			bean.setTransportFee(obj[15]);
             		}
-            		
+
+                    //2015/6/25 顺丰收货日期必填
+                    if ( !StringTools.isNullOrNone(obj[16]))
+                    {
+                        bean.setSfReceiveDate(obj[16]);
+                    }else
+                    {
+                        builder
+                                .append("第[" + currentNumber + "]错误:")
+                                .append("顺丰收货日期不能为空")
+                                .append("<br>");
+
+                        importError = true;
+                    }
+
                     importItemList.add(bean);
                     
                 }

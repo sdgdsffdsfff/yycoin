@@ -1901,7 +1901,7 @@ public class ExpenseAction extends DispatchAction
 
             write.openFile(out);
 
-            write.writeLine("日期,标识,关联申请,目的,申请人,系列,类型,状态,申请费用");
+            write.writeLine("日期,标识,关联申请,目的,申请人,系列,类型,状态,申请费用,申请事由");
 
             PageSeparate page = new PageSeparate();
 
@@ -1931,6 +1931,9 @@ public class ExpenseAction extends DispatchAction
                     line.writeColumn(ElTools.get("tcpStatus", vo.getStatus()));
 
                     line.writeColumn(changeString(vo.getShowTotal()));
+
+                    //2015/6/16 把中收、申请的查询导出结果中增加字段“申请事由"
+                    line.writeColumn(vo.getDescription());
 
                     line.writeLine();
                 }

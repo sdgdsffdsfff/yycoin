@@ -72,6 +72,12 @@
 
     <osgi:reference id="tcpShareDAO" interface="com.china.center.oa.tcp.dao.TcpShareDAO" />
 
+    <osgi:reference id="tcpIbDAO" interface="com.china.center.oa.tcp.dao.TcpIbDAO" />
+
+    <osgi:reference id="tcpIbReportDAO" interface="com.china.center.oa.tcp.dao.TcpIbReportDAO" />
+
+    <osgi:reference id="tcpIbReportItemDAO" interface="com.china.center.oa.tcp.dao.TcpIbReportItemDAO" />
+
     <osgi:reference id="travelApplyDAO" interface="com.china.center.oa.tcp.dao.TravelApplyDAO" />
 
     <osgi:reference id="travelApplyItemDAO" interface="com.china.center.oa.tcp.dao.TravelApplyItemDAO" />
@@ -113,7 +119,9 @@
 	
 	<osgi:reference id="baseDAO" interface="com.china.center.oa.sail.dao.BaseDAO" />
 
-	<osgi:reference id="outDAO" interface="com.china.center.oa.sail.dao.OutDAO" />  
+	<osgi:reference id="outDAO" interface="com.china.center.oa.sail.dao.OutDAO" />
+
+    <osgi:reference id="customerMainDAO" interface="com.china.center.oa.client.dao.CustomerMainDAO" />
 	
 	<osgi:reference id="backPrePayApplyDAO" interface="com.china.center.oa.finance.dao.BackPrePayApplyDAO" />
 	

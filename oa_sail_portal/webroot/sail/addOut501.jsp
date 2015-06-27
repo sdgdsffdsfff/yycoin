@@ -139,6 +139,8 @@ function blackForbid()
 <input type=hidden name="taxList" value="" />
 <input type=hidden name="taxrateList" value="" />
 <input type=hidden name="inputRateList" value="" />
+<input type=hidden name="ibMoneyList" value="" />
+<input type=hidden name="motivationMoneyList" value="" />
 
 <input type=hidden name="customercreditlevel" value="" />
 <input type=hidden name="id" value="" />
@@ -312,15 +314,17 @@ function blackForbid()
 				<table width="100%" border="0" cellspacing='1' id="tables">
 					<tr align="center" class="content0">
 						<td width="13%" align="center">仓库</td>
-						<td width="27%" align="center">品名</td>						
+						<td width="27%" align="center">品名</td>
 						<td width="5%" align="center">数量</td>
-						<td width="8%" align="center">单价</td>						
+						<td width="5%" align="center">单价</td>
 						<td width="8%" align="left">金额<span id="total"></span></td>
-						<td width="8%" align="center">成本</td>
+						<td width="5%" align="center">成本</td>
 						<td width="5%" align="center">税率</td>
 						<td width="5%" align="center">税额</td>
-						<td width="8%" align="center">毛利</td>
-						<td width="8%" align="center">毛利率</td>
+						<td width="5%" align="center">毛利</td>
+						<td width="5%" align="center">毛利率</td>
+                        <td width="5%" align="center">中收金额</td>
+                        <td width="5%" align="center">激励金额</td>
 						<td width="5%" align="center"><input type="button" accesskey="A"
 							value="增加" class="button_class" onclick="addTr()"></td>
 					</tr>
@@ -379,6 +383,14 @@ function blackForbid()
 							
 						<td align="center"><input type="text" readonly="readonly" value="0.00%"
 							style="width: 100%" name="profitRatio"></td>
+
+                        <td align="center">
+                            <input type="number"  value="0.00" style="width: 100%" name="ibMoney">
+                        </td>
+
+                        <td align="center">
+                            <input type="number" value="0.00" style="width: 100%" name="motivationMoney">
+                        </td>
 							
 						<td align="center"></td>
 					</tr>
@@ -434,6 +446,14 @@ function blackForbid()
 							
 						<td align="center"><input type="text" readonly="readonly" id="unProfitRatio" value="0.00%"
 							style="width: 100%" name="profitRatio"></td>
+
+                        <td align="center">
+                            <input type="number"  value="0.00" style="width: 100%" name="ibMoney">
+                        </td>
+
+                        <td align="center">
+                            <input type="number" value="0.00" style="width: 100%" name="motivationMoney">
+                        </td>
 							
 						<td><input type=button value="清空"  class="button_class" onclick="clears()"></td>
 					</tr>

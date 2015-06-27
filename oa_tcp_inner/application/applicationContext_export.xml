@@ -17,6 +17,12 @@
 
 	<osgi:service ref="tcpShareDAO" interface="com.china.center.oa.tcp.dao.TcpShareDAO" />
 
+    <osgi:service ref="tcpIbDAO" interface="com.china.center.oa.tcp.dao.TcpIbDAO" />
+
+    <osgi:service ref="tcpIbReportDAO" interface="com.china.center.oa.tcp.dao.TcpIbReportDAO" />
+
+    <osgi:service ref="tcpIbReportItemDAO" interface="com.china.center.oa.tcp.dao.TcpIbReportItemDAO" />
+
 	<osgi:service ref="travelApplyDAO" interface="com.china.center.oa.tcp.dao.TravelApplyDAO" />
 
 	<osgi:service ref="travelApplyItemDAO" interface="com.china.center.oa.tcp.dao.TravelApplyItemDAO" />

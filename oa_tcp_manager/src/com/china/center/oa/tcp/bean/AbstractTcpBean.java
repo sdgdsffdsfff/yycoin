@@ -119,6 +119,14 @@ public abstract class AbstractTcpBean implements Serializable
     @Ignore
     protected List<TcpShareBean> shareList = null;
 
+
+
+    /**
+     * 中收激励申请表
+     */
+    @Ignore
+    protected List<TcpIbBean> ibList = null;
+
     /**
      * 附件列表
      */
@@ -787,6 +795,14 @@ public abstract class AbstractTcpBean implements Serializable
 
     public void setCompliance(String compliance) {
         this.compliance = compliance;
+    }
+
+    public List<TcpIbBean> getIbList() {
+        return ibList;
+    }
+
+    public void setIbList(List<TcpIbBean> ibList) {
+        this.ibList = ibList;
     }
 
     /**

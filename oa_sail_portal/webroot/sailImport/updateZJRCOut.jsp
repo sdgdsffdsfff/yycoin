@@ -127,6 +127,7 @@ function changeArea(areaId)
 <input type=hidden name="priceList">
 <input type=hidden name="costpriceList">
 <input type=hidden name="midrevenueList">
+<input type=hidden name="motivationList">
 <input type=hidden name="saves" value="" /> 
 
 <p:navigation height="22">
@@ -185,7 +186,7 @@ function changeArea(areaId)
 					</tr>
 
 					<tr class="content2">
-						<td align="right"">收 货 人：</td>
+						<td align="right">收 货 人：</td>
 						<td colspan="3">
 						<input type="text" name="receiver" value="${bean.receiver}" oncheck="notNone;" size=20
 							maxlength="30"><font color="#FF0000">*</font>
@@ -269,7 +270,7 @@ function changeArea(areaId)
 					<tr class="content1" id="trCopy" style="display: none;">
 						<td><input type="text" name="productName"
 							onclick="opens(this)" productid="" costprice=""
-							midrevenue="" 
+							midrevenue="" motivationmoney=""
 							readonly="readonly" style="width: 100%; cursor: hand">
 						</td>
 					
@@ -289,7 +290,7 @@ function changeArea(areaId)
 					<tr class="content2">
 						<td><input type="text" name="productName" id="unProductName"
 							onclick="opens(this)" productid="${fristBase.zjrcProductId}" costprice="${fristBase.costPrice}" 
-								midrevenue="${fristBase.midRevenue}" 
+								midrevenue="${fristBase.midRevenue}" motivationMoney="${fristBase.motivationMoney}"
 							readonly="readonly" value="${fristBase.zjrcProductName}"
 							style="width: 100%; cursor: pointer"></td>
 
@@ -311,7 +312,7 @@ function changeArea(areaId)
 					<tr class="content2">
 						<td><input type="text" name="productName"
 							onclick="opens(this)" productid="${fristBase.zjrcProductId}" costprice="${fristBase.costPrice}" 
-							midrevenue="${fristBase.midRevenue}" 
+							midrevenue="${fristBase.midRevenue}" motivationmoney="${fristBase.motivationMoney}"
 							readonly="readonly" value="${fristBase.zjrcProductName}"
 							style="width: 100%; cursor: pointer"></td>
 

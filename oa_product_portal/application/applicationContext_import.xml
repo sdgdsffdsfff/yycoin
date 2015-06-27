@@ -126,4 +126,6 @@
 	<osgi:reference id="gsOutItemDAO" interface="com.china.center.oa.product.dao.GSOutItemDAO" />
 	
 	<osgi:reference id="citicVSOAProductDAO" interface="com.china.center.oa.product.dao.CiticVSOAProductDAO" />
+
+    <osgi:reference id="giftConfigManager" interface="com.china.center.oa.product.manager.GiftConfigManager" />
 </beans>

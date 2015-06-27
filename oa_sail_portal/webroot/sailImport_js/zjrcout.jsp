@@ -70,7 +70,7 @@ function check(isAdd)
     $O('nameList').value = '';
     $O('costpriceList').value = '';
     $O('midrevenueList').value = '';
-    
+
     if (trim($O('outTime').value) == '')
     {
         alert('请选择销售日期');
@@ -121,7 +121,7 @@ function check(isAdd)
         $O('nameList').value = $O('nameList').value +  proNames[i].value + '~';
         $O('costpriceList').value = $O('costpriceList').value +  proNames[i].costprice + '~';
         $O('midrevenueList').value = $O('midrevenueList').value +  proNames[i].midrevenue + '~';
-        
+
         var ikey = toUnqueStr2(proNames[i]);
         
         if (tmpMap[ikey])

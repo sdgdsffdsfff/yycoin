@@ -113,5 +113,7 @@
 	<bean id="gsOutDAO" class="com.china.center.oa.product.dao.impl.GSOutDAOImpl" />
 	
 	<bean id="gsOutItemDAO" class="com.china.center.oa.product.dao.impl.GSOutItemDAOImpl" />
+
+    <bean id="giftConfigManager" class="com.china.center.oa.product.manager.impl.GiftConfigManagerImpl" />
 	
 </beans>

@@ -1856,8 +1856,8 @@ public class OutAction extends ParentOutAction
                     _logger.info(fullId+"*****check if need to update zjout status****"+statuss+":"+out.getFlowId());
                     if (statuss == OutConstant.STATUS_PASS &&
                             "ZJRC".equals(out.getFlowId())){
-                        _logger.info("*****update zjout status****");
                         String description = out.getDescription();
+                        _logger.info("*****update zjout status****"+description);
 
                         if (!StringTools.isNullOrNone(description)){
                             String[] temp1 = description.split("\\.");
@@ -4250,7 +4250,6 @@ public class OutAction extends ParentOutAction
 	 * @param mapping
 	 * @param form
 	 * @param request
-	 * @param reponse
 	 * @return
 	 * @throws ServletException
 	 */
@@ -4280,7 +4279,6 @@ public class OutAction extends ParentOutAction
      * @param mapping
      * @param form
      * @param request
-     * @param reponse
      * @return
      * @throws ServletException
      */

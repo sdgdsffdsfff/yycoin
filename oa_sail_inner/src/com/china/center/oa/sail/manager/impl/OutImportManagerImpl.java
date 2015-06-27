@@ -1,5 +1,6 @@
 package com.china.center.oa.sail.manager.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -170,25 +171,30 @@ public class OutImportManagerImpl implements OutImportManager
         String id = commonDAO.getSquenceString20();
         
         int i = 0;
+        try{
         
-        for (OutImportBean each : list)
-        {
-        	//each.setItype(0);
-        	
-        	each.setBatchId(id);
-        	
-        	each.setId(++i);
-        	
-        	each.setStatus(OutImportConstant.STATUS_INIT);
-        	
-        	if (each.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
-        			&& each.getPrice() != 0)
-        	{
-        		throw new MYException("赠送类型订单单价须为0");
-        	}
+            for (OutImportBean each : list)
+            {
+                //each.setItype(0);
+
+                each.setBatchId(id);
+
+                each.setId(++i);
+
+                each.setStatus(OutImportConstant.STATUS_INIT);
+
+                if (each.getOutType() == OutConstant.OUTTYPE_OUT_PRESENT
+                        && each.getPrice() != 0)
+                {
+                    throw new MYException("赠送类型订单单价须为0");
+                }
+            }
+
+            outImportDAO.saveAllEntityBeans(list);
+        }catch(Exception e){
+            e.printStackTrace();
+            _logger.error("Fail to import out:",e);
         }
-        
-        outImportDAO.saveAllEntityBeans(list);
         
         // 清除 10天前的数据至备份表
         //delHisData();
@@ -689,6 +695,11 @@ public class OutImportManagerImpl implements OutImportManager
 			base.setOwner("0");
 			
 			base.setOwnerName("公共");
+
+            //2015/5/4 中收激励金额
+            //TODO
+            base.setIbMoney(each.getIbMoney());
+            base.setMotivationMoney(each.getMotivationMoney());
 			
 			// 业务员结算价，总部结算价
 			ProductBean product = productDAO.find(base.getProductId());
@@ -783,6 +794,8 @@ public class OutImportManagerImpl implements OutImportManager
 		outDAO.saveEntityBean(newOutBean);
     	
     	baseDAO.saveAllEntityBeans(baseList);
+
+        _logger.info("create newOutBean and base bean for:"+newOutBean.getFullId());
     	
     	newOutBean.setBaseList(baseList);
     	
@@ -1107,110 +1120,164 @@ public class OutImportManagerImpl implements OutImportManager
     // 创建赠品订单
     private void createGiftOut(OutBean out)
     {
+        _logger.info("create gift out for out:"+out);
     	// 判断产品是否有对应赠品关系 - 中信订单一个订单一个产品
     	BaseBean base = out.getBaseList().get(0);
     	
     	String productId = base.getProductId();
     	
     	List<ProductVSGiftVO> giftList = productVSGiftDAO.queryEntityVOsByFK(productId);
+
+        List<ProductVSGiftVO> qualifiedGiftList = new ArrayList<ProductVSGiftVO>();
     	
     	if (ListTools.isEmptyOrNull(giftList))
     		return;
-    	
-    	OutBean newOutBean = new OutBean();
+        else {
+            _logger.info("giftList size:"+giftList.size());
+            //2015/5/2 必须在有效期内才生成赠品订单
+            for (ProductVSGiftVO gift: giftList){
+                _logger.info("gift configuration:"+gift);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                try{
+                    Date end = sdf.parse(gift.getEndDate());
+                    Date begin = sdf.parse(gift.getBeginDate());
 
-    	BeanUtil.copyProperties(newOutBean, out);
-    	
-    	String id = getAll(commonDAO.getSquence());
+                    //2015/6/14 compare with PODATE
+                    if (StringTools.isNullOrNone(out.getPodate())){
+                        Date now = new Date();
+                        if (end.before(now) || now.before(begin)){
+                            _logger.warn(gift+" gift is out of date:"+now);
+                            continue;
+                        }
+                    } else{
+                        Date poDate = sdf.parse(out.getPodate());
+                        if (poDate.before(begin) || poDate.after(end)){
+                            _logger.warn(gift+" gift is out of date:"+poDate);
+                            continue;
+                        }
+                    }
 
-        String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+                }catch(Exception e){
+                    _logger.error(productId+" Exception when create gift out:",e);
+                    continue ;
+                }
 
-        String flag = OutHelper.getSailHead(OutConstant.OUT_TYPE_OUTBILL, OutConstant.OUTTYPE_OUT_PRESENT);
-        
-        String newOutId = flag + time + id;
+                //2015/6/14 银行指 客户名中包括“适用银行”字段值
+                if (out.getCustomerName().contains(gift.getBank())){
+                     _logger.info(out.getCustomerName()+" bank is suitable:"+gift.getBank());
+                } else{
+                    _logger.warn(out.getCustomerName()+" bank is not suitable:"+gift.getBank());
+                    continue;
+                }
 
-        newOutBean.setId(getOutId(id));
-    	
-    	newOutBean.setFullId(newOutId);
-    	
-    	newOutBean.setTotal(0);
-    	
-    	newOutBean.setOutType(OutConstant.OUTTYPE_OUT_PRESENT);
-    	
-    	newOutBean.setDescription("自动生成赠品订单，关联销售单：" + out.getFullId());
-    	
-    	outDAO.saveEntityBean(newOutBean);
-    	
-    	for (ProductVSGiftVO each : giftList)
-    	{
-    		BaseBean newBaseBean = new BaseBean();
-    		
-    		BeanUtil.copyProperties(newBaseBean, base);
-    		
-    		newBaseBean.setId(commonDAO.getSquenceString());
-    		newBaseBean.setAmount(base.getAmount() * each.getAmount());
-    		newBaseBean.setProductId(each.getGiftProductId());
-    		newBaseBean.setProductName(each.getGiftProductName());
-    		newBaseBean.setPrice(0);
-    		newBaseBean.setValue(0);
-    		newBaseBean.setProfit(0);
-    		newBaseBean.setProfitRatio(0);
-    		newBaseBean.setOutId(newOutId);
-    		
-    		baseDAO.saveEntityBean(newBaseBean);
-    	}
-    	
-    	// 配送
-    	List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(out.getFullId());
-    	
-    	for(DistributionBean each : distList)
-    	{
-    		String distId = each.getId();
-    		
-    		DistributionBean newDist = new DistributionBean();
-    		
-    		String newDistId = commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX);
-    		
-    		BeanUtil.copyProperties(newDist, each);
-    		
-    		newDist.setId(newDistId);
-    		newDist.setOutId(newOutId);
-    		
-    		distributionDAO.saveEntityBean(newDist);
-    		
-    		// 发货
+                qualifiedGiftList.add(gift);
+            }
+        }
+
+        if (ListTools.isEmptyOrNull(qualifiedGiftList)){
+            _logger.warn("qualifiedGiftList size is zero, so will not create gift out bean!");
+        } else{
+            OutBean newOutBean = new OutBean();
+
+            BeanUtil.copyProperties(newOutBean, out);
+
+            String id = getAll(commonDAO.getSquence());
+
+            String time = TimeTools.getStringByFormat(new Date(), "yyMMddHHmm");
+
+            String flag = OutHelper.getSailHead(OutConstant.OUT_TYPE_OUTBILL, OutConstant.OUTTYPE_OUT_PRESENT);
+
+            String newOutId = flag + time + id;
+
+            newOutBean.setId(getOutId(id));
+
+            newOutBean.setFullId(newOutId);
+
+            newOutBean.setTotal(0);
+
+            newOutBean.setOutType(OutConstant.OUTTYPE_OUT_PRESENT);
+
+            newOutBean.setDescription("自动生成赠品订单，关联销售单：" + out.getFullId());
+
+            outDAO.saveEntityBean(newOutBean);
+
+            for (ProductVSGiftVO each : qualifiedGiftList)
+            {
+                BaseBean newBaseBean = new BaseBean();
+
+                BeanUtil.copyProperties(newBaseBean, base);
+
+                newBaseBean.setId(commonDAO.getSquenceString());
+
+                //2015/6/14 检查销售数量与赠品数量
+                double giftPercentage = ((double)each.getAmount())/each.getSailAmount();
+                newBaseBean.setAmount((int)(giftPercentage*base.getAmount()));
+
+                newBaseBean.setProductId(each.getGiftProductId());
+                newBaseBean.setProductName(each.getGiftProductName());
+                newBaseBean.setPrice(0);
+                newBaseBean.setValue(0);
+                newBaseBean.setProfit(0);
+                newBaseBean.setProfitRatio(0);
+                newBaseBean.setOutId(newOutId);
+
+                baseDAO.saveEntityBean(newBaseBean);
+            }
+
+            // 配送
+            List<DistributionBean> distList = distributionDAO.queryEntityBeansByFK(out.getFullId());
+
+            for(DistributionBean each : distList)
+            {
+                String distId = each.getId();
+
+                DistributionBean newDist = new DistributionBean();
+
+                String newDistId = commonDAO.getSquenceString20(IDPrefixConstant.ID_DISTRIBUTION_PRIFIX);
+
+                BeanUtil.copyProperties(newDist, each);
+
+                newDist.setId(newDistId);
+                newDist.setOutId(newOutId);
+
+                distributionDAO.saveEntityBean(newDist);
+
+                // 发货
 /*        	List<ConsignBean> consignList = consignDAO.queryConsignByDistId(distId);
-        	
+
         	for(ConsignBean consign : consignList)
         	{
         		ConsignBean newConsign = new ConsignBean();
-        		
+
         		BeanUtil.copyProperties(newConsign, consign);
-        		
+
         		newConsign.setFullId(newOutId);
         		newConsign.setDistId(newDistId);
-        		
+
         		newConsign.setGid(commonDAO.getSquenceString20());
-        		
+
         		consignDAO.addConsign(newConsign);
         	}*/
-    	}
+            }
+
+            // 记录退货审批日志 操作人系统，自动审批
+            FlowLogBean log = new FlowLogBean();
+
+            log.setActor("系统");
+
+            log.setDescription("银行数据导入系统[赠品]自动审批");
+            log.setFullId(newOutBean.getFullId());
+            log.setOprMode(PublicConstant.OPRMODE_PASS);
+            log.setLogTime(TimeTools.now());
+
+            log.setPreStatus(OutConstant.STATUS_SAVE);
+
+            log.setAfterStatus(newOutBean.getStatus());
+
+            flowLogDAO.saveEntityBean(log);
+        }
     	
-    	// 记录退货审批日志 操作人系统，自动审批 
-    	FlowLogBean log = new FlowLogBean();
 
-        log.setActor("系统");
-
-        log.setDescription("银行数据导入系统[赠品]自动审批");
-        log.setFullId(newOutBean.getFullId());
-        log.setOprMode(PublicConstant.OPRMODE_PASS);
-        log.setLogTime(TimeTools.now());
-
-        log.setPreStatus(OutConstant.STATUS_SAVE);
-
-        log.setAfterStatus(newOutBean.getStatus());
-
-        flowLogDAO.saveEntityBean(log);
     }
     
 	/**
@@ -1775,7 +1842,7 @@ public class OutImportManagerImpl implements OutImportManager
 	/**
 	 * CORE
 	 * @param user
-	 * @param bean
+	 * @param bList
 	 * @throws MYException
 	 */
 	private void processBatchSwatch(final User user, List<BatchSwatchBean> bList, final String batchId) throws MYException
@@ -2162,6 +2229,7 @@ public class OutImportManagerImpl implements OutImportManager
 					oldBean.setTransportFee(each.getTransportFee());
 					oldBean.setReveiver(each.getReveiver());
 					oldBean.setApplys(each.getApplys());
+                    oldBean.setSfReceiveDate(each.getSfReceiveDate());
 					
 					consignDAO.updateConsign(oldBean);
 				} else {
@@ -2191,6 +2259,7 @@ public class OutImportManagerImpl implements OutImportManager
 						oldBean.setTransportFee(each.getTransportFee());
 						oldBean.setReveiver(each.getReveiver());
 						oldBean.setApplys(each.getApplys());
+                        oldBean.setSfReceiveDate(each.getSfReceiveDate());
 						
 			            consignDAO.addConsign(oldBean);
 					}
